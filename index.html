@@ -53,31 +53,32 @@ body {
 
 /* ===== CENTRO ===== */
 #center {
-  padding-top: 12px; /* più vicino al bordo alto */
+  padding-top: 12px;
   text-align: center;
 }
 
-/* ===== AREA MISSIONE (MODIFICATA) ===== */
+/* ===== AREA MISSIONE ===== */
 #mission {
   max-width: 620px;
-  min-height: 45vh;          /* più alta del 45% */
-  margin: 0 auto 14px;       /* poco distanziata dall’alto */
+  min-height: 45vh;
+  margin: 0 auto 14px;
   padding: 10px 18px;
 
-  background: transparent;  /* FONDAMENTALE */
-  color: #eee;
+  background: transparent;
+  color: #4a2f1a; /* MARRONE SCURO */
 }
 
 #mission h1 {
   margin-top: 0;
   margin-bottom: 14px;
-  font-size: 28px;           /* +2pt */
+  font-size: 28px;
   font-weight: normal;
+  color: #3b2414; /* marrone più scuro per il titolo */
 }
 
 #mission p {
   margin: 0;
-  font-size: 17px;           /* +2pt */
+  font-size: 17px;
   line-height: 1.55;
 }
 
@@ -236,20 +237,3 @@ function rollDice() {
   dice.style.transform = "rotate(" + (Math.random() * 360) + "deg)";
 
   const result = Math.floor(Math.random() * 6) + 1;
-  const faces = {
-    1: ["mm"],
-    2: ["tl","br"],
-    3: ["tl","mm","br"],
-    4: ["tl","tr","bl","br"],
-    5: ["tl","tr","mm","bl","br"],
-    6: ["tl","ml","bl","tr","mr","br"]
-  };
-
-  faces[result].forEach(cls => {
-    dice.querySelector("." + cls).style.display = "block";
-  });
-}
-</script>
-
-</body>
-</html>
