@@ -5,56 +5,93 @@
 <title>Survival Game</title>
 
 <style>
-/* ===== RESET BASE ===== */
+/* ===== BASE ===== */
 html, body {
   margin: 0;
   padding: 0;
   height: 100%;
 }
 
-/* ===== SFONDO (WEB-SAFE) ===== */
 body {
   font-family: Arial, sans-serif;
   color: #eee;
-  background:
-    linear-gradient(
-      rgba(0,0,0,0.45),
-      rgba(0,0,0,0.65)
-    ),
-    url("./ui-background.jpeg") center center / cover no-repeat;
+  background: url("./ui-background.jpeg") center center / cover no-repeat;
 }
 
 /* ===== LAYOUT ===== */
 #game {
   display: grid;
-  grid-template-columns: 200px 1fr 240px;
-  min-height: 100vh;
+  grid-template-columns: 260px 1fr 300px;
+  grid-template-rows: auto 1fr auto;
+  height: 100vh;
 }
 
-/* ===== PANNELLI ===== */
+/* ===== PANNELLI OPACHI ===== */
 .panel {
-  background: rgba(20,20,20,0.6);
-  padding: 16px;
+  background: #1a1a1a; /* OPACO */
+  padding: 18px;
   box-sizing: border-box;
 }
 
-h1, h3 {
-  margin-top: 0;
+/* ===== SINISTRA ===== */
+#stats {
+  grid-row: 1 / span 3;
 }
 
-/* ===== BOTTONE ===== */
+/* ===== DESTRA ===== */
+#inventory {
+  grid-row: 1 / span 3;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 80px;
+  gap: 10px;
+}
+
+/* ===== CENTRO ===== */
+#mission {
+  background: #222;
+  padding: 24px;
+}
+
+#mission h1 {
+  margin-top: 0;
+  text-align: center;
+}
+
+#scene {
+  margin-top: 20px;
+  line-height: 1.6;
+}
+
+/* ===== AZIONI ===== */
+#actions {
+  background: #111;
+  padding: 16px;
+}
+
 button {
-  padding: 14px;
   width: 100%;
+  padding: 14px;
   font-size: 16px;
-  cursor: pointer;
   background: #333;
   color: #eee;
   border: none;
+  cursor: pointer;
 }
 
 button:hover {
   background: #555;
+}
+
+/* ===== INVENTARIO SLOT ===== */
+.slot {
+  background: #2a2a2a;
+  border: 2px solid #444;
+}
+
+/* ===== TITOLI ===== */
+h2 {
+  margin-top: 0;
 }
 </style>
 </head>
@@ -63,48 +100,39 @@ button:hover {
 
 <div id="game">
 
-  <!-- SINISTRA -->
-  <div class="panel">
-    <h3>Statistiche</h3>
-    <p>❤️ Salute: <span id="hp">4</span></p>
-    <p>🧠 Stress: <span id="stress">2</span></p>
-    <p>🎒 Risorse: <span id="res">3</span></p>
+  <!-- STATISTICHE -->
+  <div id="stats" class="panel">
+    <h2>Statistiche</h2>
+    <p>❤️ Salute: <strong>4</strong></p>
+    <p>🧠 Stress: <strong>2</strong></p>
+    <p>🎒 Risorse: <strong>3</strong></p>
   </div>
 
-  <!-- CENTRO -->
-  <div class="panel">
+  <!-- AREA MISSIONE -->
+  <div id="mission" class="panel">
     <h1>Area Missione</h1>
-    <p id="scene">
-      Ti trovi tra le rovine di una città devastata. Il vento muove la polvere tra i palazzi crollati.
-    </p>
-
-    <button onclick="explore()">Esplora l’area</button>
+    <div id="scene">
+      Ti trovi tra le rovine di una città devastata.  
+      Il vento muove la polvere tra i palazzi crollati.
+    </div>
   </div>
 
-  <!-- DESTRA -->
+  <!-- INVENTARIO -->
   <div class="panel">
-    <h3>Inventario</h3>
-    <p>(vuoto)</p>
+    <h2>Inventario</h2>
+    <div id="inventory">
+      <div class="slot"></div><div class="slot"></div><div class="slot"></div>
+      <div class="slot"></div><div class="slot"></div><div class="slot"></div>
+      <div class="slot"></div><div class="slot"></div><div class="slot"></div>
+    </div>
+  </div>
+
+  <!-- AZIONI -->
+  <div id="actions" class="panel">
+    <button>Esplora l’area</button>
   </div>
 
 </div>
-
-<script>
-let hp = 4;
-let stress = 2;
-let res = 3;
-
-function explore() {
-  res--;
-  stress++;
-
-  document.getElementById("scene").innerText =
-    "Ti muovi tra le macerie. Ogni passo aumenta la tensione.";
-
-  document.getElementById("res").innerText = res;
-  document.getElementById("stress").innerText = stress;
-}
-</script>
 
 </body>
 </html>
