@@ -14,7 +14,6 @@ html, body {
 body {
   background: url("./ui-background.jpeg") center / cover no-repeat;
   font-family: Arial, sans-serif;
-  color: #eee;
 }
 
 /* ===== STRUTTURA ===== */
@@ -25,105 +24,14 @@ body {
   height: 100vh;
 }
 
-/* ===== STATISTICHE ===== */
-#stats { position: relative; }
-
-.stat-bar {
-  position: absolute;
-  left: 24px;
-  display: flex;
-  gap: 6px;
-}
-
-#hp { top: 54px; }
-#stress { top: 128px; }
-#res { top: 202px; }
-
-.segment {
-  width: 22px;
-  height: 14px;
-  background: rgba(255,255,255,0.15);
-}
-
-.hp-on { background: #8e2b2b; }
-.stress-on { background: #c9a227; }
-.res-on { background: #6a8f3a; }
-
-/* ===== CENTRO ===== */
-#center {
-  padding-top: 12px;
-  text-align: center;
-}
-
-/* ===== AREA MISSIONE (FONT AUMENTATO) ===== */
-#mission {
-  max-width: 620px;
-  min-height: 45vh;
-  margin: 0 auto 14px;
-  padding: 10px 18px;
-
-  background: transparent;
-  color: #4a2f1a;
-}
-
-#mission h1 {
-  margin-top: 0;
-  margin-bottom: 16px;
-  font-size: 36px;          /* +30% */
-  font-weight: normal;
-  color: #3b2414;
-}
-
-#mission p {
-  margin: 0;
-  font-size: 22px;          /* +30% */
-  line-height: 1.65;        /* più respiro */
-}
-
-/* ===== AZIONI ===== */
-#actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-width: 360px;
-  margin: 0 auto 22px;
-}
-
-.action-btn {
-  padding: 12px;
-  font-size: 15px;
-  background: linear-gradient(#4a4a4a, #1e1e1e);
-  border: 2px solid #777;
-  color: #eee;
-  cursor: pointer;
-}
-
-/* ===== INVENTARIO ===== */
-#inventory-panel { position: relative; }
-
-#inventory {
-  position: absolute;
-  top: 60px;
-  left: 20px;
-  display: grid;
-  grid-template-columns: repeat(3, 72px);
-  gap: 12px;
-}
-
-.slot {
-  width: 72px;
-  height: 72px;
-  border: 2px solid rgba(255,255,255,0.15);
-  background: transparent;
-}
-
 /* ===== DADO ===== */
 #dice-area {
   grid-column: 2;
   text-align: center;
-  padding-bottom: 24px;
+  padding-bottom: 28px;
 }
 
+/* DADO CONSUMATO */
 #dice {
   width: 120px;
   height: 120px;
@@ -131,37 +39,42 @@ body {
   position: relative;
   border-radius: 18px;
 
+  /* STRATIFICAZIONE SPORCO */
   background:
-    radial-gradient(circle at 20% 20%, #d6cfbf, #9f957f),
-    repeating-linear-gradient(
-      45deg,
-      rgba(0,0,0,0.04),
-      rgba(0,0,0,0.04) 2px,
-      transparent 2px,
-      transparent 4px
-    );
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.35), rgba(0,0,0,0.4)),
+    radial-gradient(circle at 70% 80%, rgba(0,0,0,0.35), transparent 60%),
+    radial-gradient(circle at 10% 90%, rgba(0,0,0,0.25), transparent 55%),
+    linear-gradient(145deg, #cfc6b1, #8f856f);
 
+  /* BORDI CONSUMATI */
   box-shadow:
-    inset -8px -8px 16px rgba(0,0,0,0.4),
-    inset 6px 6px 12px rgba(255,255,255,0.2),
-    0 14px 28px rgba(0,0,0,0.8);
+    inset -10px -10px 18px rgba(0,0,0,0.55),
+    inset 6px 6px 12px rgba(255,255,255,0.18),
+    inset 0 0 0 3px rgba(0,0,0,0.2),
+    0 16px 30px rgba(0,0,0,0.85);
 
-  transition: transform 0.6s cubic-bezier(.2,.8,.2,1);
+  transition: transform 0.8s cubic-bezier(.2,.8,.2,1);
 }
 
 /* ===== PUNTINI ===== */
 .dot {
   width: 16px;
   height: 16px;
-  background: #3b3b3b;
-  border-radius: 45%;
   position: absolute;
   display: none;
+
+  /* NON PERFETTI */
+  border-radius: 40% 55% 45% 50%;
+
+  background: #4a4a4a;
+
+  /* INCASSO REALE */
   box-shadow:
-    inset 2px 2px 4px rgba(0,0,0,0.8),
+    inset 3px 3px 6px rgba(0,0,0,0.9),
     inset -1px -1px 2px rgba(255,255,255,0.1);
 }
 
+/* POSIZIONI */
 .tl { top: 22px; left: 22px; }
 .tr { top: 22px; right: 22px; }
 .ml { top: 52px; left: 22px; }
@@ -175,53 +88,7 @@ body {
 <body>
 
 <div id="game">
-
-  <!-- STATISTICHE -->
-  <div id="stats">
-    <div id="hp" class="stat-bar">
-      <div class="segment hp-on"></div><div class="segment hp-on"></div>
-      <div class="segment hp-on"></div><div class="segment hp-on"></div>
-      <div class="segment"></div><div class="segment"></div>
-    </div>
-
-    <div id="stress" class="stat-bar">
-      <div class="segment stress-on"></div><div class="segment stress-on"></div>
-      <div class="segment"></div><div class="segment"></div>
-      <div class="segment"></div><div class="segment"></div>
-    </div>
-
-    <div id="res" class="stat-bar">
-      <div class="segment res-on"></div><div class="segment res-on"></div>
-      <div class="segment res-on"></div>
-      <div class="segment"></div><div class="segment"></div><div class="segment"></div>
-    </div>
-  </div>
-
-  <!-- CENTRO -->
-  <div id="center">
-    <div id="mission">
-      <h1>Area Missione</h1>
-      <p>
-        Ti trovi tra le rovine di una città devastata.  
-        Il vento muove la polvere tra i palazzi crollati.
-      </p>
-    </div>
-
-    <div id="actions">
-      <button class="action-btn" onclick="rollDice()">Esplora con cautela</button>
-      <button class="action-btn" onclick="rollDice()">Forza il passaggio</button>
-      <button class="action-btn" onclick="rollDice()">Osserva l’area</button>
-    </div>
-  </div>
-
-  <!-- INVENTARIO -->
-  <div id="inventory-panel">
-    <div id="inventory">
-      <div class="slot"></div><div class="slot"></div><div class="slot"></div>
-      <div class="slot"></div><div class="slot"></div><div class="slot"></div>
-      <div class="slot"></div><div class="slot"></div><div class="slot"></div>
-    </div>
-  </div>
+  <div></div>
 
   <!-- DADO -->
   <div id="dice-area">
@@ -232,6 +99,7 @@ body {
     </div>
   </div>
 
+  <div></div>
 </div>
 
 <script>
@@ -241,12 +109,13 @@ function rollDice() {
 
   dots.forEach(d => d.style.display = "none");
 
+  /* SHAKE + INERZIA */
   dice.style.transform =
-    "rotate(" + (Math.random() * 360) + "deg) scale(1.12)";
+    "rotate(" + (Math.random() * 720 - 360) + "deg) scale(1.15)";
 
   setTimeout(() => {
     dice.style.transform = "rotate(0deg) scale(1)";
-  }, 450);
+  }, 650);
 
   const result = Math.floor(Math.random() * 6) + 1;
 
