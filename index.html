@@ -13,9 +13,11 @@ html, body {
 
 body {
   background: url("./ui-background.jpeg") center / cover no-repeat;
+  color: #eee;
+  font-family: Arial, sans-serif;
 }
 
-/* ===== STRUTTURA BASE ===== */
+/* ===== STRUTTURA ===== */
 #game {
   display: grid;
   grid-template-columns: 220px 1fr 260px;
@@ -23,58 +25,49 @@ body {
   height: 100vh;
 }
 
-/* =========================
-   STATISTICHE (TRASPARENTI)
-   ========================= */
+/* ===== STATISTICHE (INVARIATE) ===== */
 #stats {
   position: relative;
 }
 
-/* BLOCCO BARRA (salute / stress / risorse) */
 .stat-bar {
   position: absolute;
-  left: 24px; /* REGOLA SE SERVE */
+  left: 24px;
   display: flex;
   gap: 6px;
 }
 
-/* POSIZIONI VERTICALI (pixel-perfect) */
-#hp {
-  top: 54px; /* SALUTE */
-}
+#hp { top: 54px; }
+#stress { top: 128px; }
+#res { top: 202px; }
 
-#stress {
-  top: 128px; /* STRESS */
-}
-
-#res {
-  top: 202px; /* RISORSE */
-}
-
-/* RETTANGOLI */
 .segment {
   width: 22px;
   height: 14px;
   background: rgba(255,255,255,0.15);
 }
 
-/* COLORI ATTIVI */
-.hp-on {
-  background: #c0392b;
+.hp-on { background: #c0392b; }
+.stress-on { background: #f1c40f; }
+.res-on { background: #7cb342; }
+
+/* ===== CENTRO ===== */
+#center {
+  padding-top: 36px;
+  text-align: center;
 }
 
-.stress-on {
-  background: #f1c40f;
-}
-
-.res-on {
-  background: #7cb342;
+#mission {
+  max-width: 580px;
+  margin: 0 auto;
+  padding: 18px 22px;
+  background: rgba(225,205,165,0.92);
+  color: #222;
 }
 
 /* ===== INVENTARIO (INVARIATO) ===== */
 #inventory-panel {
   position: relative;
-  background: none;
 }
 
 #inventory {
@@ -94,31 +87,60 @@ body {
   background: transparent;
 }
 
-/* ===== CENTRO (INVARIATO) ===== */
-#center {
-  padding-top: 36px;
-  text-align: center;
-}
-
-#mission {
-  max-width: 580px;
-  margin: 0 auto;
-  padding: 18px 22px;
-  background: rgba(225,205,165,0.92);
-  color: #222;
-}
-
 /* ===== TIRO DADO ===== */
-#dice {
+#dice-area {
   grid-column: 2;
-  padding: 16px;
+  padding: 18px;
   text-align: center;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0.85);
 }
 
+/* DADO */
+#dice {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 12px;
+  background: #e6e1d6;
+  border-radius: 10px;
+  position: relative;
+  box-shadow:
+    inset -4px -4px 8px rgba(0,0,0,0.25),
+    inset 4px 4px 8px rgba(255,255,255,0.4),
+    0 4px 10px rgba(0,0,0,0.6);
+  transition: transform 0.2s;
+}
+
+/* FACCINE */
+.dot {
+  width: 10px;
+  height: 10px;
+  background: #222;
+  border-radius: 50%;
+  position: absolute;
+  display: none;
+}
+
+/* POSIZIONI DOT */
+.tl { top: 12px; left: 12px; }
+.tr { top: 12px; right: 12px; }
+.ml { top: 27px; left: 12px; }
+.mm { top: 27px; left: 27px; }
+.mr { top: 27px; right: 12px; }
+.bl { bottom: 12px; left: 12px; }
+.br { bottom: 12px; right: 12px; }
+
+/* ===== BOTTONE ===== */
 button {
-  padding: 12px 26px;
+  padding: 12px 28px;
   font-size: 15px;
+  background: linear-gradient(#5a5a5a, #2a2a2a);
+  color: #eee;
+  border: 2px solid #777;
+  cursor: pointer;
+}
+
+button:hover {
+  background: linear-gradient(#707070, #3a3a3a);
 }
 </style>
 </head>
@@ -129,47 +151,30 @@ button {
 
   <!-- STATISTICHE -->
   <div id="stats">
-
-    <!-- SALUTE (4/6) -->
     <div id="hp" class="stat-bar">
-      <div class="segment hp-on"></div>
-      <div class="segment hp-on"></div>
-      <div class="segment hp-on"></div>
-      <div class="segment hp-on"></div>
-      <div class="segment"></div>
-      <div class="segment"></div>
+      <div class="segment hp-on"></div><div class="segment hp-on"></div>
+      <div class="segment hp-on"></div><div class="segment hp-on"></div>
+      <div class="segment"></div><div class="segment"></div>
     </div>
 
-    <!-- STRESS (2/6) -->
     <div id="stress" class="stat-bar">
-      <div class="segment stress-on"></div>
-      <div class="segment stress-on"></div>
-      <div class="segment"></div>
-      <div class="segment"></div>
-      <div class="segment"></div>
-      <div class="segment"></div>
+      <div class="segment stress-on"></div><div class="segment stress-on"></div>
+      <div class="segment"></div><div class="segment"></div>
+      <div class="segment"></div><div class="segment"></div>
     </div>
 
-    <!-- RISORSE (3/6) -->
     <div id="res" class="stat-bar">
+      <div class="segment res-on"></div><div class="segment res-on"></div>
       <div class="segment res-on"></div>
-      <div class="segment res-on"></div>
-      <div class="segment res-on"></div>
-      <div class="segment"></div>
-      <div class="segment"></div>
-      <div class="segment"></div>
+      <div class="segment"></div><div class="segment"></div><div class="segment"></div>
     </div>
-
   </div>
 
   <!-- CENTRO -->
   <div id="center">
     <div id="mission">
       <h1>Area Missione</h1>
-      <p>
-        Ti trovi tra le rovine di una città devastata.  
-        Il vento muove la polvere tra i palazzi crollati.
-      </p>
+      <p>Ti trovi tra le rovine di una città devastata. Il vento muove la polvere tra i palazzi crollati.</p>
     </div>
   </div>
 
@@ -183,11 +188,44 @@ button {
   </div>
 
   <!-- TIRO DADO -->
-  <div id="dice">
-    <button>Esplora l’area</button>
+  <div id="dice-area">
+    <div id="dice">
+      <div class="dot tl"></div><div class="dot tr"></div>
+      <div class="dot ml"></div><div class="dot mm"></div><div class="dot mr"></div>
+      <div class="dot bl"></div><div class="dot br"></div>
+    </div>
+    <button onclick="rollDice()">Esplora l’area</button>
   </div>
 
 </div>
+
+<script>
+function rollDice() {
+  const dice = document.getElementById("dice");
+  const dots = dice.querySelectorAll(".dot");
+
+  // reset
+  dots.forEach(d => d.style.display = "none");
+
+  // animazione
+  dice.style.transform = "rotate(" + (Math.random() * 360) + "deg)";
+
+  const result = Math.floor(Math.random() * 6) + 1;
+
+  const faces = {
+    1: ["mm"],
+    2: ["tl","br"],
+    3: ["tl","mm","br"],
+    4: ["tl","tr","bl","br"],
+    5: ["tl","tr","mm","bl","br"],
+    6: ["tl","ml","bl","tr","mr","br"]
+  };
+
+  faces[result].forEach(cls => {
+    dice.querySelector("." + cls).style.display = "block";
+  });
+}
+</script>
 
 </body>
 </html>
