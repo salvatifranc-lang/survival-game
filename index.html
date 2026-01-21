@@ -1,253 +1,346 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>Survival Game</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #eee;
-      padding: 20px;
-    }
+<meta charset="UTF-8">
+<title>Survival Game</title>
 
-    h1, h2 {
-      margin-top: 0;
-    }
+<style>
+/* === BASE === */
+body {
+  margin: 0;
+  padding: 0;
+  background: #0e0e0e;
+  color: #e6e6e6;
+  font-family: Arial, sans-serif;
+}
 
-    .stats, .roll-box {
-      margin-bottom: 20px;
-      padding: 10px;
-      background: #1b1b1b;
-      border-left: 4px solid #444;
-    }
+#game {
+  display: grid;
+  grid-template-columns: 220px 1fr 260px;
+  height: 100vh;
+}
 
-    .roll-box {
-      font-size: 14px;
-      opacity: 0.95;
-    }
+/* === PANNELLI === */
+.panel {
+  background: #1b1b1b;
+  border-right: 2px solid #2a2a2a;
+  padding: 14px;
+  box-sizing: border-box;
+}
 
-    .difficulty {
-      font-style: italic;
-      opacity: 0.8;
-      margin-bottom: 10px;
-    }
+.panel-title {
+  text-transform: uppercase;
+  font-size: 13px;
+  opacity: 0.7;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
 
-    button {
-      display: block;
-      margin: 8px 0;
-      padding: 10px;
-      background: #333;
-      color: #eee;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-    }
+/* === STATISTICHE === */
+.stat {
+  margin-bottom: 14px;
+}
 
-    button:hover {
-      background: #555;
-    }
-  </style>
+.stat-label {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.bar {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 3px;
+}
+
+.segment {
+  height: 12px;
+  background: #333;
+}
+
+.segment.active {
+  background: #66ff99;
+}
+
+.segment.stress {
+  background: #ffd966;
+}
+
+.segment.hp {
+  background: #ff6666;
+}
+
+/* === CENTRO === */
+#center {
+  display: flex;
+  flex-direction: column;
+}
+
+/* AREA MISSIONE */
+#mission {
+  flex: 1;
+  padding: 20px;
+  background: #181818;
+  border-bottom: 2px solid #2a2a2a;
+}
+
+#mission h1 {
+  margin-top: 0;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+#scene {
+  margin-top: 20px;
+  line-height: 1.5;
+}
+
+.difficulty {
+  margin-top: 10px;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* === TIRO DADO === */
+#dice-area {
+  padding: 14px;
+  background: #141414;
+  border-top: 2px solid #2a2a2a;
+}
+
+.die {
+  display: inline-block;
+  padding: 10px 16px;
+  font-size: 26px;
+  font-weight: bold;
+  background: #222;
+  border-radius: 6px;
+  margin: 6px 0;
+  animation: rollFlash 0.35s ease;
+}
+
+.low { color: #ff6666; }
+.mid { color: #ffd966; }
+.high { color: #66ff99; }
+
+@keyframes rollFlash {
+  0% { transform: scale(1.4); }
+  50% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+/* === ESITO === */
+.outcome {
+  margin-top: 10px;
+  padding: 10px;
+  border-left: 6px solid #666;
+  background: #1e1e1e;
+}
+
+.crit-fail {
+  border-color: #b30000;
+  background: #2a0000;
+  color: #ffb3b3;
+}
+
+.bonus {
+  border-color: #2ecc71;
+  background: #002a15;
+  color: #b9ffd9;
+}
+
+/* === AZIONI === */
+#actions {
+  margin-top: 14px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+  background: #2a2a2a;
+  color: #eee;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+button:hover {
+  background: #3a3a3a;
+}
+
+/* === INVENTARIO === */
+#inventory {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.slot {
+  height: 60px;
+  background: #222;
+  border: 2px solid #333;
+}
+</style>
 </head>
+
 <body>
 
-<h1>Sopravvivenza</h1>
+<div id="game">
 
-<div class="stats">
-  <p>❤️ Salute: <span id="hp"></span>/6</p>
-  <p>🧠 Stress: <span id="stress"></span>/6</p>
-  <p>🎒 Risorse: <span id="resources"></span>/6</p>
+<!-- SINISTRA: STAT -->
+<div class="panel">
+  <div class="panel-title">Statistiche</div>
+
+  <div class="stat">
+    <div class="stat-label">❤️ Salute</div>
+    <div class="bar" id="hpBar"></div>
+  </div>
+
+  <div class="stat">
+    <div class="stat-label">🧠 Stress</div>
+    <div class="bar" id="stressBar"></div>
+  </div>
+
+  <div class="stat">
+    <div class="stat-label">🎒 Risorse</div>
+    <div class="bar" id="resBar"></div>
+  </div>
 </div>
 
-<div class="roll-box" id="rollBox">
-  <strong>Ultimo test:</strong>
-  <p>Nessuna azione ancora eseguita.</p>
+<!-- CENTRO -->
+<div id="center">
+
+  <div id="mission">
+    <h1>Area Missione</h1>
+    <div id="scene"></div>
+    <div class="difficulty" id="difficulty"></div>
+  </div>
+
+  <div id="dice-area">
+    <div class="panel-title">Tiro Dado</div>
+    <div id="rollInfo"></div>
+    <div id="actions"></div>
+  </div>
+
 </div>
 
-<div id="scene"></div>
-<div class="difficulty" id="difficulty"></div>
-<div id="actions"></div>
+<!-- DESTRA: INVENTARIO -->
+<div class="panel">
+  <div class="panel-title">Inventario</div>
+  <div id="inventory">
+    <div class="slot"></div><div class="slot"></div><div class="slot"></div>
+    <div class="slot"></div><div class="slot"></div><div class="slot"></div>
+    <div class="slot"></div><div class="slot"></div><div class="slot"></div>
+  </div>
+</div>
+
+</div>
 
 <script>
-  const MAX = 6;
+const MAX = 6;
+let hp, stress, res;
 
-  let hp, stress, resources;
+const table = {
+  "Estremo": ["CRIT_FAIL","CRIT_FAIL","FAIL","FAIL","PARTIAL","BONUS"],
+  "Molto Rischioso": ["CRIT_FAIL","FAIL","FAIL","PARTIAL","SUCCESS","BONUS"],
+  "Rischioso": ["CRIT_FAIL","FAIL","PARTIAL","PARTIAL","SUCCESS","BONUS"],
+  "Standard": ["CRIT_FAIL","FAIL","PARTIAL","PARTIAL","SUCCESS","BONUS"],
+  "Facile": ["FAIL","PARTIAL","SUCCESS","SUCCESS","BONUS","BONUS"],
+  "Molto Facile": ["PARTIAL","PARTIAL","SUCCESS","SUCCESS","BONUS","BONUS"]
+};
 
-  const difficulties = [
-    "Estremo",
-    "Molto Rischioso",
-    "Rischioso",
-    "Standard",
-    "Facile",
-    "Molto Facile"
-  ];
+function rollD6() {
+  return Math.floor(Math.random() * 6) + 1;
+}
 
-  const outcomeTable = {
-    "Estremo":        ["CRIT_FAIL","CRIT_FAIL","FAIL","FAIL","PARTIAL","BONUS"],
-    "Molto Rischioso":["CRIT_FAIL","FAIL","FAIL","PARTIAL","SUCCESS","BONUS"],
-    "Rischioso":      ["CRIT_FAIL","FAIL","PARTIAL","PARTIAL","SUCCESS","BONUS"],
-    "Standard":       ["CRIT_FAIL","FAIL","PARTIAL","PARTIAL","SUCCESS","BONUS"],
-    "Facile":         ["FAIL","PARTIAL","SUCCESS","SUCCESS","BONUS","BONUS"],
-    "Molto Facile":   ["PARTIAL","PARTIAL","SUCCESS","SUCCESS","BONUS","BONUS"]
-  };
+function renderBar(id, value, cls) {
+  const bar = document.getElementById(id);
+  bar.innerHTML = "";
+  for (let i = 1; i <= MAX; i++) {
+    const seg = document.createElement("div");
+    seg.className = "segment " + (i <= value ? "active " + cls : "");
+    bar.appendChild(seg);
+  }
+}
 
-  function clamp(v) {
-    return Math.max(0, Math.min(MAX, v));
+function updateStats() {
+  hp = Math.max(0, Math.min(MAX, hp));
+  stress = Math.max(0, Math.min(MAX, stress));
+  res = Math.max(0, Math.min(MAX, res));
+
+  renderBar("hpBar", hp, "hp");
+  renderBar("stressBar", stress, "stress");
+  renderBar("resBar", res, "");
+}
+
+function resolve(difficulty) {
+  const roll = rollD6();
+  const outcome = table[difficulty][roll - 1];
+  return { roll, difficulty, outcome };
+}
+
+function showRoll({roll, difficulty, outcome}) {
+  let cls = roll <= 2 ? "low" : roll >= 5 ? "high" : "mid";
+  document.getElementById("rollInfo").innerHTML = `
+    <div>Dado: <span class="die ${cls}">${roll}</span></div>
+    <div>Difficoltà: <strong>${difficulty}</strong></div>
+    <div>Esito: <strong>${outcome}</strong></div>
+  `;
+}
+
+function applyOutcome(outcome) {
+  let text = "";
+  let css = "outcome";
+
+  if (outcome === "CRIT_FAIL") {
+    text = "❌ Fallimento critico.";
+    hp--; stress += 2;
+    css += " crit-fail";
+  } else if (outcome === "FAIL") {
+    text = "Fallisci.";
+    stress++;
+  } else if (outcome === "PARTIAL") {
+    text = "Successo parziale.";
+    stress++;
+  } else if (outcome === "SUCCESS") {
+    text = "Successo.";
+  } else if (outcome === "BONUS") {
+    text = "⭐ Successo con bonus.";
+    res++; stress--;
+    css += " bonus";
   }
 
-  function rollD6() {
-    return Math.floor(Math.random() * 6) + 1;
-  }
+  document.getElementById("scene").innerHTML =
+    `<div class="${css}"><p>${text}</p></div>`;
 
-  function resolveAction(difficulty) {
-    const roll = rollD6();
-    const outcome = outcomeTable[difficulty][roll - 1];
-    return { roll, outcome, difficulty };
-  }
+  updateStats();
+}
 
-  function updateStats() {
-    hp = clamp(hp);
-    stress = clamp(stress);
-    resources = clamp(resources);
+function explore() {
+  let diff = "Rischioso";
+  if (res >= 4) diff = "Standard";
+  if (res <= 1) diff = "Molto Rischioso";
 
-    document.getElementById("hp").textContent = hp;
-    document.getElementById("stress").textContent = stress;
-    document.getElementById("resources").textContent = resources;
+  document.getElementById("difficulty").textContent =
+    "Rischio percepito: " + diff;
 
-    if (hp === 0) {
-      showDeath();
-    }
-  }
+  res--;
+  const r = resolve(diff);
+  showRoll(r);
+  applyOutcome(r.outcome);
+}
 
-  function updateRollBox(roll, difficulty, outcome) {
-    document.getElementById("rollBox").innerHTML = `
-      <strong>Ultimo test:</strong>
-      <p>Dado: <strong>${roll}</strong></p>
-      <p>Difficoltà: <strong>${difficulty}</strong></p>
-      <p>Esito: <strong>${outcome}</strong></p>
-    `;
-  }
+function start() {
+  hp = 4; stress = 2; res = 3;
+  document.getElementById("scene").innerHTML =
+    "<p>Ti trovi tra le rovine di una città devastata.</p>";
+  document.getElementById("actions").innerHTML =
+    `<button onclick="explore()">Esplora l'area</button>`;
+  updateStats();
+}
 
-  function startGame() {
-    hp = 4;
-    stress = 2;
-    resources = 3;
-
-    document.getElementById("scene").innerHTML =
-      "<p>Ti trovi tra le rovine di una città devastata. Il silenzio è innaturale.</p>";
-
-    document.getElementById("difficulty").textContent = "";
-
-    document.getElementById("rollBox").innerHTML =
-      "<strong>Ultimo test:</strong><p>Nessuna azione ancora eseguita.</p>";
-
-    document.getElementById("actions").innerHTML = `
-      <button onclick="explore()">Esplora l'area</button>
-      <button onclick="forceDoor()">Forza una porta</button>
-      <button onclick="rest()">Riposa</button>
-    `;
-
-    updateStats();
-  }
-
-  function showDeath() {
-    document.getElementById("scene").innerHTML =
-      "<h2>Sei morto.</h2><p>La città non fa prigionieri.</p>";
-
-    document.getElementById("difficulty").textContent = "";
-
-    document.getElementById("actions").innerHTML =
-      "<button onclick='startGame()'>Nuova run</button>";
-  }
-
-  /* === AZIONI === */
-
-  function explore() {
-    let difficulty = "Rischioso";
-
-    if (resources >= 4) difficulty = "Standard";
-    if (resources <= 1) difficulty = "Molto Rischioso";
-
-    document.getElementById("difficulty").textContent =
-      "Rischio percepito: " + difficulty;
-
-    resources -= 1;
-
-    const result = resolveAction(difficulty);
-    updateRollBox(result.roll, result.difficulty, result.outcome);
-
-    applyOutcome(result.outcome);
-  }
-
-  function forceDoor() {
-    let difficulty = "Molto Rischioso";
-
-    document.getElementById("difficulty").textContent =
-      "Rischio percepito: " + difficulty;
-
-    resources -= 1;
-
-    const result = resolveAction(difficulty);
-    updateRollBox(result.roll, result.difficulty, result.outcome);
-
-    applyOutcome(result.outcome);
-  }
-
-  function rest() {
-    let difficulty = "Facile";
-
-    document.getElementById("difficulty").textContent =
-      "Rischio percepito: " + difficulty;
-
-    const result = resolveAction(difficulty);
-    updateRollBox(result.roll, result.difficulty, result.outcome);
-
-    applyOutcome(result.outcome);
-  }
-
-  /* === CONSEGUENZE === */
-
-  function applyOutcome(outcome) {
-    let text = "";
-
-    switch (outcome) {
-
-      case "CRIT_FAIL":
-        text = "Un errore grave. La situazione peggiora drasticamente.";
-        hp -= 1;
-        stress += 2;
-        break;
-
-      case "FAIL":
-        text = "Fallisci. Nulla va come speravi.";
-        stress += 1;
-        break;
-
-      case "PARTIAL":
-        text = "Riesci, ma a un prezzo.";
-        stress += 1;
-        break;
-
-      case "SUCCESS":
-        text = "Riesci senza conseguenze.";
-        break;
-
-      case "BONUS":
-        text = "Un successo oltre le aspettative.";
-        resources += 1;
-        stress -= 1;
-        break;
-    }
-
-    document.getElementById("scene").innerHTML =
-      "<p>" + text + "</p>";
-
-    updateStats();
-  }
-
-  startGame();
+start();
 </script>
 
 </body>
 </html>
-
