@@ -5,228 +5,42 @@
 <title>Survival Game</title>
 
 <style>
-/* ===== BASE ===== */
 body {
   margin: 0;
-  padding: 0;
   font-family: Arial, sans-serif;
-  background: #000;
-  overflow: hidden;
+  background: black;
+  color: #eee;
 }
 
-/* ===== SFONDO (PATH CORRETTO) ===== */
+/* SFONDO */
 #background {
   position: fixed;
   inset: 0;
   background:
-    linear-gradient(
-      rgba(0,0,0,0.35),
-      rgba(0,0,0,0.55)
-    ),
-    url("./ui-background.png?v=4") center center / cover no-repeat;
-  z-index: -2;
-}
-
-/* vignettatura */
-#vignette {
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(0,0,0,0) 40%,
-    rgba(0,0,0,0.6) 100%
-  );
+    linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)),
+    url("./ui-background.png") center / cover no-repeat;
   z-index: -1;
 }
 
-/* ===== LAYOUT ===== */
+/* LAYOUT */
 #game {
   display: grid;
-  grid-template-columns: 220px 1fr 260px;
+  grid-template-columns: 200px 1fr 240px;
   height: 100vh;
-  color: #e6e6e6;
 }
 
-/* ===== PANNELLI ===== */
+/* PANNELLI */
 .panel {
-  background: rgba(15, 15, 15, 0.55);
-  backdrop-filter: blur(4px);
+  background: rgba(20,20,20,0.6);
   padding: 14px;
-  box-sizing: border-box;
 }
 
-.panel-title {
-  text-transform: uppercase;
-  font-size: 13px;
-  opacity: 0.85;
-  margin-bottom: 12px;
-  letter-spacing: 1px;
-}
-
-/* ===== STATISTICHE ===== */
-.stat {
-  margin-bottom: 16px;
-}
-
-.stat-label {
-  font-size: 13px;
-  margin-bottom: 4px;
-}
-
-.bar {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 3px;
-}
-
-.segment {
-  height: 12px;
-  background: rgba(255,255,255,0.15);
-}
-
-.segment.active.hp { background: #ff6666; }
-.segment.active.stress { background: #ffd966; }
-.segment.active.res { background: #66ff99; }
-
-/* ===== CENTRO ===== */
-#center {
-  display: flex;
-  flex-direction: column;
-}
-
-/* AREA MISSIONE */
-#mission {
-  flex: 1;
-  padding: 26px;
-  background: rgba(10, 10, 10, 0.35);
-  backdrop-filter: blur(3px);
-}
-
-#mission h1 {
-  margin-top: 0;
+h1 {
   text-align: center;
-  letter-spacing: 2px;
-  font-weight: normal;
+  margin-top: 0;
 }
 
-#scene {
-  margin-top: 24px;
-  line-height: 1.6;
-  font-size: 15px;
-}
-
-/* ===== TIRO DADO ===== */
-#dice-area {
-  padding: 16px;
-  background: rgba(10, 10, 10, 0.45);
-  backdrop-filter: blur(3px);
-  border-top: 1px solid rgba(255,255,255,0.1);
-}
-
-.die {
-  display: inline-block;
-  padding: 10px 16px;
-  font-size: 26px;
-  font-weight: bold;
-  background: rgba(0,0,0,0.6);
-  border-radius: 6px;
-  margin: 6px 0;
-}
-
-.low { color: #ff6666; }
-.mid { color: #ffd966; }
-.high { color: #66ff99; }
-
-/* ===== INVENTARIO ===== */
-#inventory {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.slot {
-  height: 60px;
-  background: rgba(0,0,0,0.4);
-  border: 2px solid rgba(255,255,255,0.2);
-}
-</style>
-</head>
-
-<body>
-
-<!-- SFONDO -->
-<div id="background"></div>
-<div id="vignette"></div>
-
-<!-- GIOCO -->
-<div id="game">
-
-  <!-- SINISTRA -->
-  <div class="panel">
-    <div class="panel-title">Statistiche</div>
-
-    <div class="stat">
-      <div class="stat-label">❤️ Salute</div>
-      <div class="bar" id="hpBar"></div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-label">🧠 Stress</div>
-      <div class="bar" id="stressBar"></div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-label">🎒 Risorse</div>
-      <div class="bar" id="resBar"></div>
-    </div>
-  </div>
-
-  <!-- CENTRO -->
-  <div id="center">
-    <div id="mission">
-      <h1>Area Missione</h1>
-      <div id="scene"></div>
-    </div>
-
-    <div id="dice-area">
-      <div class="panel-title">Tiro Dado</div>
-      <div>Dado: <span class="die mid">4</span></div>
-    </div>
-  </div>
-
-  <!-- DESTRA -->
-  <div class="panel">
-    <div class="panel-title">Inventario</div>
-    <div id="inventory">
-      <div class="slot"></div><div class="slot"></div><div class="slot"></div>
-      <div class="slot"></div><div class="slot"></div><div class="slot"></div>
-      <div class="slot"></div><div class="slot"></div><div class="slot"></div>
-    </div>
-  </div>
-
-</div>
-
-<script>
-/* ===== DEMO STATS ===== */
-const MAX = 6;
-
-function renderBar(id, value, cls) {
-  const bar = document.getElementById(id);
-  bar.innerHTML = "";
-  for (let i = 1; i <= MAX; i++) {
-    const seg = document.createElement("div");
-    seg.className = "segment" + (i <= value ? " active " + cls : "");
-    bar.appendChild(seg);
-  }
-}
-
-renderBar("hpBar", 4, "hp");
-renderBar("stressBar", 2, "stress");
-renderBar("resBar", 3, "res");
-
-document.getElementById("scene").innerHTML =
-  "<p>Ti trovi tra le rovine di una città devastata. Il vento muove la polvere tra i palazzi crollati.</p>";
-</script>
-
-</body>
-</html>
+/* BOTTONE */
+button {
+  width: 100%;
+  pad
