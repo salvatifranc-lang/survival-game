@@ -12,8 +12,6 @@ html, body {
 }
 
 body {
-  font-family: Arial, sans-serif;
-  color: #eee;
   background: url("./ui-background.jpeg") center / cover no-repeat;
 }
 
@@ -25,12 +23,78 @@ body {
   height: 100vh;
 }
 
-/* ===== SINISTRA E CENTRO (INVARIATI) ===== */
+/* =========================
+   STATISTICHE (TRASPARENTI)
+   ========================= */
 #stats {
-  padding: 20px;
-  background: rgba(0,0,0,0.6);
+  position: relative;
 }
 
+/* BLOCCO BARRA (salute / stress / risorse) */
+.stat-bar {
+  position: absolute;
+  left: 24px; /* REGOLA SE SERVE */
+  display: flex;
+  gap: 6px;
+}
+
+/* POSIZIONI VERTICALI (pixel-perfect) */
+#hp {
+  top: 54px; /* SALUTE */
+}
+
+#stress {
+  top: 128px; /* STRESS */
+}
+
+#res {
+  top: 202px; /* RISORSE */
+}
+
+/* RETTANGOLI */
+.segment {
+  width: 22px;
+  height: 14px;
+  background: rgba(255,255,255,0.15);
+}
+
+/* COLORI ATTIVI */
+.hp-on {
+  background: #c0392b;
+}
+
+.stress-on {
+  background: #f1c40f;
+}
+
+.res-on {
+  background: #7cb342;
+}
+
+/* ===== INVENTARIO (INVARIATO) ===== */
+#inventory-panel {
+  position: relative;
+  background: none;
+}
+
+#inventory {
+  position: absolute;
+  top: 60px;
+  left: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 72px);
+  grid-template-rows: repeat(3, 72px);
+  gap: 12px;
+}
+
+.slot {
+  width: 72px;
+  height: 72px;
+  border: 2px solid rgba(255,255,255,0.15);
+  background: transparent;
+}
+
+/* ===== CENTRO (INVARIATO) ===== */
 #center {
   padding-top: 36px;
   text-align: center;
@@ -44,45 +108,6 @@ body {
   color: #222;
 }
 
-/* ===== INVENTARIO: TRASPARENTE ===== */
-#inventory-panel {
-  position: relative;
-  padding: 0;
-  background: none; /* TRASPARENTE */
-}
-
-/* TITOLO */
-#inventory-title {
-  position: absolute;
-  top: 18px;
-  left: 20px;
-  font-size: 20px;
-}
-
-/* ===== GRIGLIA INVENTARIO (PIXEL PERFECT) ===== */
-#inventory {
-  position: absolute;
-  top: 60px;     /* REGOLA QUI SE SERVE */
-  left: 20px;    /* REGOLA QUI SE SERVE */
-
-  display: grid;
-  grid-template-columns: repeat(3, 72px);
-  grid-template-rows: repeat(3, 72px);
-  column-gap: 12px;
-  row-gap: 12px;
-}
-
-/* ===== SLOT ===== */
-.slot {
-  width: 72px;
-  height: 72px;
-
-  background: transparent; /* FONDAMENTALE */
-  border: 2px solid rgba(255,255,255,0.15);
-
-  box-sizing: border-box;
-}
-
 /* ===== TIRO DADO ===== */
 #dice {
   grid-column: 2;
@@ -94,10 +119,6 @@ body {
 button {
   padding: 12px 26px;
   font-size: 15px;
-  background: linear-gradient(#5a5a5a, #2a2a2a);
-  color: #eee;
-  border: 2px solid #777;
-  cursor: pointer;
 }
 </style>
 </head>
@@ -108,10 +129,37 @@ button {
 
   <!-- STATISTICHE -->
   <div id="stats">
-    <h2>Statistiche</h2>
-    <div>❤️ Salute: 4</div>
-    <div>🧠 Stress: 2</div>
-    <div>🎒 Risorse: 3</div>
+
+    <!-- SALUTE (4/6) -->
+    <div id="hp" class="stat-bar">
+      <div class="segment hp-on"></div>
+      <div class="segment hp-on"></div>
+      <div class="segment hp-on"></div>
+      <div class="segment hp-on"></div>
+      <div class="segment"></div>
+      <div class="segment"></div>
+    </div>
+
+    <!-- STRESS (2/6) -->
+    <div id="stress" class="stat-bar">
+      <div class="segment stress-on"></div>
+      <div class="segment stress-on"></div>
+      <div class="segment"></div>
+      <div class="segment"></div>
+      <div class="segment"></div>
+      <div class="segment"></div>
+    </div>
+
+    <!-- RISORSE (3/6) -->
+    <div id="res" class="stat-bar">
+      <div class="segment res-on"></div>
+      <div class="segment res-on"></div>
+      <div class="segment res-on"></div>
+      <div class="segment"></div>
+      <div class="segment"></div>
+      <div class="segment"></div>
+    </div>
+
   </div>
 
   <!-- CENTRO -->
@@ -127,7 +175,6 @@ button {
 
   <!-- INVENTARIO -->
   <div id="inventory-panel">
-    <div id="inventory-title">Inventario</div>
     <div id="inventory">
       <div class="slot"></div><div class="slot"></div><div class="slot"></div>
       <div class="slot"></div><div class="slot"></div><div class="slot"></div>
