@@ -108,6 +108,22 @@
 
   updateStats();
 </script>
+function restart() {
+  hp = 4;
+  stress = 2;
+  resources = 3;
+
+  document.getElementById("scene").innerHTML =
+    "<p>Ti trovi tra le rovine di una città devastata. Il vento solleva polvere e lamiere.</p>";
+
+  document.getElementById("actions").innerHTML = `
+    <button onclick="explore()">Esplora l'area</button>
+    <button onclick="forceDoor()">Forza una porta</button>
+    <button onclick="rest()">Riposa qualche minuto</button>
+  `;
+
+  updateStats();
+}
 
   </script>
 
