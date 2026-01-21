@@ -11,14 +11,31 @@ body {
   padding: 0;
   font-family: Arial, sans-serif;
   background: #000;
+  overflow: hidden;
 }
 
-/* === SFONDO UI === */
+/* === SFONDO === */
 #background {
   position: fixed;
   inset: 0;
-  background: url("ui-background.png") center center / cover no-repeat;
-  filter: brightness(0.75);
+  background: 
+    linear-gradient(
+      rgba(0,0,0,0.35),
+      rgba(0,0,0,0.55)
+    ),
+    url("ui-background.png") center center / cover no-repeat;
+  z-index: -2;
+}
+
+/* vignettatura */
+#vignette {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0,0,0,0) 40%,
+    rgba(0,0,0,0.6) 100%
+  );
   z-index: -1;
 }
 
@@ -32,20 +49,22 @@ body {
 
 /* === PANNELLI === */
 .panel {
-  background: rgba(20, 20, 20, 0.85);
+  background: rgba(15, 15, 15, 0.55);
+  backdrop-filter: blur(4px);
   padding: 14px;
   box-sizing: border-box;
 }
 
+/* titoli */
 .panel-title {
   text-transform: uppercase;
   font-size: 13px;
-  opacity: 0.8;
+  opacity: 0.85;
   margin-bottom: 12px;
   letter-spacing: 1px;
 }
 
-/* === STATISTICHE === */
+/* === STAT === */
 .stat {
   margin-bottom: 16px;
 }
@@ -63,7 +82,7 @@ body {
 
 .segment {
   height: 12px;
-  background: #333;
+  background: rgba(255,255,255,0.15);
 }
 
 .segment.active.hp { background: #ff6666; }
@@ -79,32 +98,36 @@ body {
 /* AREA MISSIONE */
 #mission {
   flex: 1;
-  padding: 22px;
-  background: rgba(15, 15, 15, 0.75);
+  padding: 26px;
+  background: rgba(10, 10, 10, 0.35);
+  backdrop-filter: blur(3px);
 }
 
 #mission h1 {
   margin-top: 0;
   text-align: center;
   letter-spacing: 2px;
+  font-weight: normal;
 }
 
 #scene {
-  margin-top: 20px;
-  line-height: 1.5;
+  margin-top: 24px;
+  line-height: 1.6;
+  font-size: 15px;
 }
 
 .difficulty {
-  margin-top: 10px;
+  margin-top: 12px;
   font-style: italic;
-  opacity: 0.75;
+  opacity: 0.8;
 }
 
 /* === TIRO DADO === */
 #dice-area {
   padding: 16px;
-  background: rgba(10, 10, 10, 0.85);
-  border-top: 2px solid rgba(255,255,255,0.1);
+  background: rgba(10, 10, 10, 0.45);
+  backdrop-filter: blur(3px);
+  border-top: 1px solid rgba(255,255,255,0.1);
 }
 
 .die {
@@ -112,7 +135,7 @@ body {
   padding: 10px 16px;
   font-size: 26px;
   font-weight: bold;
-  background: #222;
+  background: rgba(0,0,0,0.6);
   border-radius: 6px;
   margin: 6px 0;
   animation: rollFlash 0.35s ease;
@@ -130,28 +153,28 @@ body {
 
 /* === ESITO === */
 .outcome {
-  margin-top: 10px;
-  padding: 10px;
+  margin-top: 14px;
+  padding: 12px;
   border-left: 6px solid #666;
-  background: rgba(30,30,30,0.9);
+  background: rgba(0,0,0,0.45);
 }
 
 .crit-fail {
   border-color: #b30000;
-  background: rgba(40,0,0,0.9);
+  background: rgba(80,0,0,0.55);
 }
 
 .bonus {
   border-color: #2ecc71;
-  background: rgba(0,40,20,0.9);
+  background: rgba(0,80,40,0.55);
 }
 
 /* === AZIONI === */
 button {
   width: 100%;
   padding: 12px;
-  margin-top: 10px;
-  background: #2a2a2a;
+  margin-top: 12px;
+  background: rgba(40,40,40,0.8);
   color: #eee;
   border: none;
   cursor: pointer;
@@ -159,7 +182,7 @@ button {
 }
 
 button:hover {
-  background: #3a3a3a;
+  background: rgba(60,60,60,0.9);
 }
 
 /* === INVENTARIO === */
@@ -171,8 +194,8 @@ button:hover {
 
 .slot {
   height: 60px;
-  background: rgba(30,30,30,0.8);
-  border: 2px solid rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.4);
+  border: 2px solid rgba(255,255,255,0.2);
 }
 </style>
 </head>
@@ -180,6 +203,7 @@ button:hover {
 <body>
 
 <div id="background"></div>
+<div id="vignette"></div>
 
 <div id="game">
 
