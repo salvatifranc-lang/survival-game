@@ -15,8 +15,22 @@
       margin-top: 0;
     }
 
-    .stats {
+    .stats, .roll-box {
       margin-bottom: 20px;
+      padding: 10px;
+      background: #1b1b1b;
+      border-left: 4px solid #444;
+    }
+
+    .roll-box {
+      font-size: 14px;
+      opacity: 0.95;
+    }
+
+    .difficulty {
+      font-style: italic;
+      opacity: 0.8;
+      margin-bottom: 10px;
     }
 
     button {
@@ -37,101 +51,203 @@
 </head>
 <body>
 
-  <h1>Sopravvivenza</h1>
+<h1>Sopravvivenza</h1>
 
-  <div class="stats">
-    <p>❤️ Salute: <span id="hp"></span>/6</p>
-    <p>🧠 Stress: <span id="stress"></span>/6</p>
-    <p>🎒 Risorse: <span id="resources"></span>/6</p>
-  </div>
+<div class="stats">
+  <p>❤️ Salute: <span id="hp"></span>/6</p>
+  <p>🧠 Stress: <span id="stress"></span>/6</p>
+  <p>🎒 Risorse: <span id="resources"></span>/6</p>
+</div>
 
-  <div id="scene"></div>
+<div class="roll-box" id="rollBox">
+  <strong>Ultimo test:</strong>
+  <p>Nessuna azione ancora eseguita.</p>
+</div>
 
-  <div id="actions"></div>
+<div id="scene"></div>
+<div class="difficulty" id="difficulty"></div>
+<div id="actions"></div>
 
-  <script>
-    const MAX = 6;
+<script>
+  const MAX = 6;
 
-    let hp;
-    let stress;
-    let resources;
+  let hp, stress, resources;
 
-    function clamp(value) {
-      return Math.max(0, Math.min(MAX, value));
+  const difficulties = [
+    "Estremo",
+    "Molto Rischioso",
+    "Rischioso",
+    "Standard",
+    "Facile",
+    "Molto Facile"
+  ];
+
+  const outcomeTable = {
+    "Estremo":        ["CRIT_FAIL","CRIT_FAIL","FAIL","FAIL","PARTIAL","BONUS"],
+    "Molto Rischioso":["CRIT_FAIL","FAIL","FAIL","PARTIAL","SUCCESS","BONUS"],
+    "Rischioso":      ["CRIT_FAIL","FAIL","PARTIAL","PARTIAL","SUCCESS","BONUS"],
+    "Standard":       ["CRIT_FAIL","FAIL","PARTIAL","PARTIAL","SUCCESS","BONUS"],
+    "Facile":         ["FAIL","PARTIAL","SUCCESS","SUCCESS","BONUS","BONUS"],
+    "Molto Facile":   ["PARTIAL","PARTIAL","SUCCESS","SUCCESS","BONUS","BONUS"]
+  };
+
+  function clamp(v) {
+    return Math.max(0, Math.min(MAX, v));
+  }
+
+  function rollD6() {
+    return Math.floor(Math.random() * 6) + 1;
+  }
+
+  function resolveAction(difficulty) {
+    const roll = rollD6();
+    const outcome = outcomeTable[difficulty][roll - 1];
+    return { roll, outcome, difficulty };
+  }
+
+  function updateStats() {
+    hp = clamp(hp);
+    stress = clamp(stress);
+    resources = clamp(resources);
+
+    document.getElementById("hp").textContent = hp;
+    document.getElementById("stress").textContent = stress;
+    document.getElementById("resources").textContent = resources;
+
+    if (hp === 0) {
+      showDeath();
+    }
+  }
+
+  function updateRollBox(roll, difficulty, outcome) {
+    document.getElementById("rollBox").innerHTML = `
+      <strong>Ultimo test:</strong>
+      <p>Dado: <strong>${roll}</strong></p>
+      <p>Difficoltà: <strong>${difficulty}</strong></p>
+      <p>Esito: <strong>${outcome}</strong></p>
+    `;
+  }
+
+  function startGame() {
+    hp = 4;
+    stress = 2;
+    resources = 3;
+
+    document.getElementById("scene").innerHTML =
+      "<p>Ti trovi tra le rovine di una città devastata. Il silenzio è innaturale.</p>";
+
+    document.getElementById("difficulty").textContent = "";
+
+    document.getElementById("rollBox").innerHTML =
+      "<strong>Ultimo test:</strong><p>Nessuna azione ancora eseguita.</p>";
+
+    document.getElementById("actions").innerHTML = `
+      <button onclick="explore()">Esplora l'area</button>
+      <button onclick="forceDoor()">Forza una porta</button>
+      <button onclick="rest()">Riposa</button>
+    `;
+
+    updateStats();
+  }
+
+  function showDeath() {
+    document.getElementById("scene").innerHTML =
+      "<h2>Sei morto.</h2><p>La città non fa prigionieri.</p>";
+
+    document.getElementById("difficulty").textContent = "";
+
+    document.getElementById("actions").innerHTML =
+      "<button onclick='startGame()'>Nuova run</button>";
+  }
+
+  /* === AZIONI === */
+
+  function explore() {
+    let difficulty = "Rischioso";
+
+    if (resources >= 4) difficulty = "Standard";
+    if (resources <= 1) difficulty = "Molto Rischioso";
+
+    document.getElementById("difficulty").textContent =
+      "Rischio percepito: " + difficulty;
+
+    resources -= 1;
+
+    const result = resolveAction(difficulty);
+    updateRollBox(result.roll, result.difficulty, result.outcome);
+
+    applyOutcome(result.outcome);
+  }
+
+  function forceDoor() {
+    let difficulty = "Molto Rischioso";
+
+    document.getElementById("difficulty").textContent =
+      "Rischio percepito: " + difficulty;
+
+    resources -= 1;
+
+    const result = resolveAction(difficulty);
+    updateRollBox(result.roll, result.difficulty, result.outcome);
+
+    applyOutcome(result.outcome);
+  }
+
+  function rest() {
+    let difficulty = "Facile";
+
+    document.getElementById("difficulty").textContent =
+      "Rischio percepito: " + difficulty;
+
+    const result = resolveAction(difficulty);
+    updateRollBox(result.roll, result.difficulty, result.outcome);
+
+    applyOutcome(result.outcome);
+  }
+
+  /* === CONSEGUENZE === */
+
+  function applyOutcome(outcome) {
+    let text = "";
+
+    switch (outcome) {
+
+      case "CRIT_FAIL":
+        text = "Un errore grave. La situazione peggiora drasticamente.";
+        hp -= 1;
+        stress += 2;
+        break;
+
+      case "FAIL":
+        text = "Fallisci. Nulla va come speravi.";
+        stress += 1;
+        break;
+
+      case "PARTIAL":
+        text = "Riesci, ma a un prezzo.";
+        stress += 1;
+        break;
+
+      case "SUCCESS":
+        text = "Riesci senza conseguenze.";
+        break;
+
+      case "BONUS":
+        text = "Un successo oltre le aspettative.";
+        resources += 1;
+        stress -= 1;
+        break;
     }
 
-    function updateStats() {
-      hp = clamp(hp);
-      stress = clamp(stress);
-      resources = clamp(resources);
+    document.getElementById("scene").innerHTML =
+      "<p>" + text + "</p>";
 
-      document.getElementById("hp").textContent = hp;
-      document.getElementById("stress").textContent = stress;
-      document.getElementById("resources").textContent = resources;
+    updateStats();
+  }
 
-      if (hp === 0) {
-        showDeath();
-      }
-    }
-
-    function startGame() {
-      hp = 4;
-      stress = 2;
-      resources = 3;
-
-      document.getElementById("scene").innerHTML =
-        "<p>Ti trovi tra le rovine di una città devastata. Il vento solleva polvere e lamiere.</p>";
-
-      document.getElementById("actions").innerHTML = `
-        <button onclick="explore()">Esplora l'area</button>
-        <button onclick="forceDoor()">Forza una porta</button>
-        <button onclick="rest()">Riposa qualche minuto</button>
-      `;
-
-      updateStats();
-    }
-
-    function showDeath() {
-      document.getElementById("scene").innerHTML =
-        "<h2>Sei morto.</h2><p>La città ti ha consumato.</p>";
-
-      document.getElementById("actions").innerHTML =
-        "<button onclick='startGame()'>Nuova run</button>";
-    }
-
-    function explore() {
-      resources -= 1;
-      stress += 1;
-
-      document.getElementById("scene").innerHTML =
-        "<p>Ti muovi tra i detriti. Ogni passo potrebbe attirare attenzioni indesiderate.</p>";
-
-      updateStats();
-    }
-
-    function forceDoor() {
-      resources -= 1;
-      hp -= 1;
-      stress += 1;
-
-      document.getElementById("scene").innerHTML =
-        "<p>La porta cede con un rumore secco. Dentro trovi poco, ma ti sei ferito.</p>";
-
-      updateStats();
-    }
-
-    function rest() {
-      stress -= 1;
-
-      document.getElementById("scene").innerHTML =
-        "<p>Ti fermi a riprendere fiato. Non sei al sicuro, ma ne avevi bisogno.</p>";
-
-      updateStats();
-    }
-
-    // AVVIO AUTOMATICO
-    startGame();
-  </script>
+  startGame();
+</script>
 
 </body>
 </html>
+
