@@ -67,10 +67,13 @@
     document.getElementById("stress").textContent = stress;
     document.getElementById("resources").textContent = resources;
 
-    if (hp === 0) {
-      document.body.innerHTML =
-        "<h1>Sei morto.</h1><p>La città ti ha consumato.</p>";
-    }
+   if (hp === 0) {
+  document.getElementById("scene").innerHTML =
+    "<h2>Sei morto.</h2><p>La città ti ha consumato.</p>";
+  document.getElementById("actions").innerHTML =
+    "<button onclick='restart()'>Nuova run</button>";
+}
+
   }
 
   function explore() {
