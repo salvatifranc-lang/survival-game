@@ -48,49 +48,64 @@
   </div>
 
   <script>
-    let hp = 4;
-    let stress = 2;
-    let resources = 3;
+<script>
+  let hp = 4;
+  let stress = 2;
+  let resources = 3;
+  const MAX = 6;
+
+  function clamp(value) {
+    return Math.max(0, Math.min(MAX, value));
+  }
 
   function updateStats() {
-  // limiti minimi e massimi
-  hp = Math.max(0, Math.min(6, hp));
-  stress = Math.max(0, Math.min(6, stress));
-  resources = Math.max(0, Math.min(6, resources));
+    hp = clamp(hp);
+    stress = clamp(stress);
+    resources = clamp(resources);
 
-  document.getElementById("hp").textContent = hp;
-  document.getElementById("stress").textContent = stress;
-  document.getElementById("resources").textContent = resources;
+    document.getElementById("hp").textContent = hp;
+    document.getElementById("stress").textContent = stress;
+    document.getElementById("resources").textContent = resources;
 
-  if (hp === 0) {
-    document.body.innerHTML = "<h1>Sei morto.</h1><p>La città ti ha consumato.</p>";
+    if (hp === 0) {
+      document.body.innerHTML =
+        "<h1>Sei morto.</h1><p>La città ti ha consumato.</p>";
+    }
   }
-}
 
+  function explore() {
+    resources -= 1;
+    stress += 1;
 
-    function explore() {
-      resources -= 1;
-      stress += 1;
-      document.getElementById("scene").innerHTML =
-        "<p>Ti muovi tra i detriti. Ogni passo potrebbe attirare attenzioni indesiderate.</p>";
-      updateStats();
-    }
+    document.getElementById("scene").innerHTML =
+      "<p>Ti muovi tra i detriti. Ogni passo potrebbe attirare attenzioni indesiderate.</p>";
 
-    function forceDoor() {
-      resources -= 1;
-      hp -= 1;
-      stress += 1;
-      document.getElementById("scene").innerHTML =
-        "<p>La porta cede con un rumore secco. Dentro trovi poco, ma ti sei ferito.</p>";
-      updateStats();
-    }
+    updateStats();
+  }
 
-    function rest() {
-      stress -= 1;
-      document.getElementById("scene").innerHTML =
-        "<p>Ti fermi a riprendere fiato. Non sei al sicuro, ma ne avevi bisogno.</p>";
-      updateStats();
-    }
+  function forceDoor() {
+    resources -= 1;
+    hp -= 1;
+    stress += 1;
+
+    document.getElementById("scene").innerHTML =
+      "<p>La porta cede con un rumore secco. Dentro trovi poco, ma ti sei ferito.</p>";
+
+    updateStats();
+  }
+
+  function rest() {
+    stress -= 1;
+
+    document.getElementById("scene").innerHTML =
+      "<p>Ti fermi a riprendere fiato. Non sei al sicuro, ma ne avevi bisogno.</p>";
+
+    updateStats();
+  }
+
+  updateStats();
+</script>
+
   </script>
 
 </body>
