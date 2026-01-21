@@ -17,7 +17,7 @@ body {
   background: url("./ui-background.jpeg") center / cover no-repeat;
 }
 
-/* ===== STRUTTURA ===== */
+/* ===== STRUTTURA BASE ===== */
 #game {
   display: grid;
   grid-template-columns: 220px 1fr 260px;
@@ -25,80 +25,79 @@ body {
   height: 100vh;
 }
 
-/* ===== STATISTICHE ===== */
+/* ===== SINISTRA E CENTRO (INVARIATI) ===== */
 #stats {
-  padding: 18px;
-  background: rgba(0,0,0,0.75);
+  padding: 20px;
+  background: rgba(0,0,0,0.6);
 }
 
-#stats h2 {
-  margin-top: 0;
-}
-
-.stat {
-  margin: 10px 0;
-}
-
-/* ===== INVENTARIO ===== */
-#inventory-panel {
-  padding: 18px;
-  background: rgba(0,0,0,0.75);
-}
-
-#inventory {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.slot {
-  height: 70px;
-  background: linear-gradient(#1a1a1a, #000);
-  border: 2px solid rgba(255,255,255,0.25);
-  box-shadow: inset 0 0 8px rgba(0,0,0,0.8);
-}
-
-/* ===== CENTRO ===== */
 #center {
-  padding: 40px 60px 0;
+  padding-top: 36px;
   text-align: center;
 }
 
-/* ===== AREA MISSIONE (PERGAMENA) ===== */
 #mission {
-  max-width: 640px;
+  max-width: 580px;
   margin: 0 auto;
-  padding: 22px;
-  background: rgba(220,200,160,0.9);
+  padding: 18px 22px;
+  background: rgba(225,205,165,0.92);
   color: #222;
-  box-shadow: inset 0 0 12px rgba(0,0,0,0.4);
 }
 
-#mission h1 {
-  margin-top: 0;
-  color: #111;
+/* ===== INVENTARIO: TRASPARENTE ===== */
+#inventory-panel {
+  position: relative;
+  padding: 0;
+  background: none; /* TRASPARENTE */
+}
+
+/* TITOLO */
+#inventory-title {
+  position: absolute;
+  top: 18px;
+  left: 20px;
+  font-size: 20px;
+}
+
+/* ===== GRIGLIA INVENTARIO (PIXEL PERFECT) ===== */
+#inventory {
+  position: absolute;
+  top: 60px;     /* REGOLA QUI SE SERVE */
+  left: 20px;    /* REGOLA QUI SE SERVE */
+
+  display: grid;
+  grid-template-columns: repeat(3, 72px);
+  grid-template-rows: repeat(3, 72px);
+  column-gap: 12px;
+  row-gap: 12px;
+}
+
+/* ===== SLOT ===== */
+.slot {
+  width: 72px;
+  height: 72px;
+
+  background: transparent; /* FONDAMENTALE */
+  border: 2px solid rgba(255,255,255,0.15);
+
+  box-sizing: border-box;
 }
 
 /* ===== TIRO DADO ===== */
 #dice {
   grid-column: 2;
-  padding: 20px;
+  padding: 16px;
   text-align: center;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0,0,0,0.8);
 }
 
-/* ===== PULSANTE ===== */
 button {
-  padding: 14px 28px;
-  font-size: 16px;
-  background: linear-gradient(#555, #222);
+  padding: 12px 26px;
+  font-size: 15px;
+  background: linear-gradient(#5a5a5a, #2a2a2a);
   color: #eee;
-  border: 2px solid #888;
+  border: 2px solid #777;
   cursor: pointer;
-}
-
-button:hover {
-  background: linear-gradient(#777, #333);
 }
 </style>
 </head>
@@ -110,9 +109,9 @@ button:hover {
   <!-- STATISTICHE -->
   <div id="stats">
     <h2>Statistiche</h2>
-    <div class="stat">❤️ Salute: 4</div>
-    <div class="stat">🧠 Stress: 2</div>
-    <div class="stat">🎒 Risorse: 3</div>
+    <div>❤️ Salute: 4</div>
+    <div>🧠 Stress: 2</div>
+    <div>🎒 Risorse: 3</div>
   </div>
 
   <!-- CENTRO -->
@@ -128,7 +127,7 @@ button:hover {
 
   <!-- INVENTARIO -->
   <div id="inventory-panel">
-    <h2>Inventario</h2>
+    <div id="inventory-title">Inventario</div>
     <div id="inventory">
       <div class="slot"></div><div class="slot"></div><div class="slot"></div>
       <div class="slot"></div><div class="slot"></div><div class="slot"></div>
