@@ -9,21 +9,30 @@
 body {
   margin: 0;
   padding: 0;
-  background: #0e0e0e;
-  color: #e6e6e6;
   font-family: Arial, sans-serif;
+  background: #000;
 }
 
+/* === SFONDO UI === */
+#background {
+  position: fixed;
+  inset: 0;
+  background: url("ui-background.png") center center / cover no-repeat;
+  filter: brightness(0.75);
+  z-index: -1;
+}
+
+/* === LAYOUT === */
 #game {
   display: grid;
   grid-template-columns: 220px 1fr 260px;
   height: 100vh;
+  color: #e6e6e6;
 }
 
 /* === PANNELLI === */
 .panel {
-  background: #1b1b1b;
-  border-right: 2px solid #2a2a2a;
+  background: rgba(20, 20, 20, 0.85);
   padding: 14px;
   box-sizing: border-box;
 }
@@ -31,14 +40,14 @@ body {
 .panel-title {
   text-transform: uppercase;
   font-size: 13px;
-  opacity: 0.7;
+  opacity: 0.8;
   margin-bottom: 12px;
   letter-spacing: 1px;
 }
 
 /* === STATISTICHE === */
 .stat {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .stat-label {
@@ -57,17 +66,9 @@ body {
   background: #333;
 }
 
-.segment.active {
-  background: #66ff99;
-}
-
-.segment.stress {
-  background: #ffd966;
-}
-
-.segment.hp {
-  background: #ff6666;
-}
+.segment.active.hp { background: #ff6666; }
+.segment.active.stress { background: #ffd966; }
+.segment.active.res { background: #66ff99; }
 
 /* === CENTRO === */
 #center {
@@ -78,9 +79,8 @@ body {
 /* AREA MISSIONE */
 #mission {
   flex: 1;
-  padding: 20px;
-  background: #181818;
-  border-bottom: 2px solid #2a2a2a;
+  padding: 22px;
+  background: rgba(15, 15, 15, 0.75);
 }
 
 #mission h1 {
@@ -97,14 +97,14 @@ body {
 .difficulty {
   margin-top: 10px;
   font-style: italic;
-  opacity: 0.7;
+  opacity: 0.75;
 }
 
 /* === TIRO DADO === */
 #dice-area {
-  padding: 14px;
-  background: #141414;
-  border-top: 2px solid #2a2a2a;
+  padding: 16px;
+  background: rgba(10, 10, 10, 0.85);
+  border-top: 2px solid rgba(255,255,255,0.1);
 }
 
 .die {
@@ -133,30 +133,24 @@ body {
   margin-top: 10px;
   padding: 10px;
   border-left: 6px solid #666;
-  background: #1e1e1e;
+  background: rgba(30,30,30,0.9);
 }
 
 .crit-fail {
   border-color: #b30000;
-  background: #2a0000;
-  color: #ffb3b3;
+  background: rgba(40,0,0,0.9);
 }
 
 .bonus {
   border-color: #2ecc71;
-  background: #002a15;
-  color: #b9ffd9;
+  background: rgba(0,40,20,0.9);
 }
 
 /* === AZIONI === */
-#actions {
-  margin-top: 14px;
-}
-
 button {
   width: 100%;
   padding: 12px;
-  margin-bottom: 10px;
+  margin-top: 10px;
   background: #2a2a2a;
   color: #eee;
   border: none;
@@ -177,17 +171,19 @@ button:hover {
 
 .slot {
   height: 60px;
-  background: #222;
-  border: 2px solid #333;
+  background: rgba(30,30,30,0.8);
+  border: 2px solid rgba(255,255,255,0.15);
 }
 </style>
 </head>
 
 <body>
 
+<div id="background"></div>
+
 <div id="game">
 
-<!-- SINISTRA: STAT -->
+<!-- SINISTRA -->
 <div class="panel">
   <div class="panel-title">Statistiche</div>
 
@@ -209,7 +205,6 @@ button:hover {
 
 <!-- CENTRO -->
 <div id="center">
-
   <div id="mission">
     <h1>Area Missione</h1>
     <div id="scene"></div>
@@ -219,12 +214,11 @@ button:hover {
   <div id="dice-area">
     <div class="panel-title">Tiro Dado</div>
     <div id="rollInfo"></div>
-    <div id="actions"></div>
+    <button onclick="explore()">Esplora l’area</button>
   </div>
-
 </div>
 
-<!-- DESTRA: INVENTARIO -->
+<!-- DESTRA -->
 <div class="panel">
   <div class="panel-title">Inventario</div>
   <div id="inventory">
@@ -241,101 +235,57 @@ const MAX = 6;
 let hp, stress, res;
 
 const table = {
-  "Estremo": ["CRIT_FAIL","CRIT_FAIL","FAIL","FAIL","PARTIAL","BONUS"],
-  "Molto Rischioso": ["CRIT_FAIL","FAIL","FAIL","PARTIAL","SUCCESS","BONUS"],
-  "Rischioso": ["CRIT_FAIL","FAIL","PARTIAL","PARTIAL","SUCCESS","BONUS"],
-  "Standard": ["CRIT_FAIL","FAIL","PARTIAL","PARTIAL","SUCCESS","BONUS"],
-  "Facile": ["FAIL","PARTIAL","SUCCESS","SUCCESS","BONUS","BONUS"],
-  "Molto Facile": ["PARTIAL","PARTIAL","SUCCESS","SUCCESS","BONUS","BONUS"]
+  "Rischioso": ["CRIT_FAIL","FAIL","PARTIAL","PARTIAL","SUCCESS","BONUS"]
 };
 
-function rollD6() {
-  return Math.floor(Math.random() * 6) + 1;
-}
+function rollD6(){ return Math.floor(Math.random()*6)+1; }
 
-function renderBar(id, value, cls) {
-  const bar = document.getElementById(id);
-  bar.innerHTML = "";
-  for (let i = 1; i <= MAX; i++) {
-    const seg = document.createElement("div");
-    seg.className = "segment " + (i <= value ? "active " + cls : "");
-    bar.appendChild(seg);
+function renderBar(id,val,cls){
+  const bar=document.getElementById(id); bar.innerHTML="";
+  for(let i=1;i<=MAX;i++){
+    const s=document.createElement("div");
+    s.className="segment"+(i<=val?` active ${cls}`:"");
+    bar.appendChild(s);
   }
 }
 
-function updateStats() {
-  hp = Math.max(0, Math.min(MAX, hp));
-  stress = Math.max(0, Math.min(MAX, stress));
-  res = Math.max(0, Math.min(MAX, res));
-
-  renderBar("hpBar", hp, "hp");
-  renderBar("stressBar", stress, "stress");
-  renderBar("resBar", res, "");
+function updateStats(){
+  hp=Math.max(0,Math.min(MAX,hp));
+  stress=Math.max(0,Math.min(MAX,stress));
+  res=Math.max(0,Math.min(MAX,res));
+  renderBar("hpBar",hp,"hp");
+  renderBar("stressBar",stress,"stress");
+  renderBar("resBar",res,"res");
 }
 
-function resolve(difficulty) {
-  const roll = rollD6();
-  const outcome = table[difficulty][roll - 1];
-  return { roll, difficulty, outcome };
+function explore(){
+  res--;
+  const roll=rollD6();
+  const outcome=table["Rischioso"][roll-1];
+  showRoll(roll,outcome);
+  applyOutcome(outcome);
 }
 
-function showRoll({roll, difficulty, outcome}) {
-  let cls = roll <= 2 ? "low" : roll >= 5 ? "high" : "mid";
-  document.getElementById("rollInfo").innerHTML = `
-    <div>Dado: <span class="die ${cls}">${roll}</span></div>
-    <div>Difficoltà: <strong>${difficulty}</strong></div>
-    <div>Esito: <strong>${outcome}</strong></div>
-  `;
+function showRoll(roll,outcome){
+  const cls=roll<=2?"low":roll>=5?"high":"mid";
+  document.getElementById("rollInfo").innerHTML=
+    `Dado: <span class="die ${cls}">${roll}</span><br>Esito: ${outcome}`;
 }
 
-function applyOutcome(outcome) {
-  let text = "";
-  let css = "outcome";
-
-  if (outcome === "CRIT_FAIL") {
-    text = "❌ Fallimento critico.";
-    hp--; stress += 2;
-    css += " crit-fail";
-  } else if (outcome === "FAIL") {
-    text = "Fallisci.";
-    stress++;
-  } else if (outcome === "PARTIAL") {
-    text = "Successo parziale.";
-    stress++;
-  } else if (outcome === "SUCCESS") {
-    text = "Successo.";
-  } else if (outcome === "BONUS") {
-    text = "⭐ Successo con bonus.";
-    res++; stress--;
-    css += " bonus";
-  }
-
-  document.getElementById("scene").innerHTML =
-    `<div class="${css}"><p>${text}</p></div>`;
-
+function applyOutcome(outcome){
+  let txt="",cls="outcome";
+  if(outcome==="CRIT_FAIL"){txt="❌ Fallimento critico.";hp--;stress+=2;cls+=" crit-fail";}
+  else if(outcome==="FAIL"){txt="Fallisci.";stress++;}
+  else if(outcome==="PARTIAL"){txt="Successo parziale.";stress++;}
+  else if(outcome==="SUCCESS"){txt="Successo.";}
+  else{txt="⭐ Successo con bonus.";res++;stress--;cls+=" bonus";}
+  document.getElementById("scene").innerHTML=`<div class="${cls}">${txt}</div>`;
   updateStats();
 }
 
-function explore() {
-  let diff = "Rischioso";
-  if (res >= 4) diff = "Standard";
-  if (res <= 1) diff = "Molto Rischioso";
-
-  document.getElementById("difficulty").textContent =
-    "Rischio percepito: " + diff;
-
-  res--;
-  const r = resolve(diff);
-  showRoll(r);
-  applyOutcome(r.outcome);
-}
-
-function start() {
-  hp = 4; stress = 2; res = 3;
-  document.getElementById("scene").innerHTML =
-    "<p>Ti trovi tra le rovine di una città devastata.</p>";
-  document.getElementById("actions").innerHTML =
-    `<button onclick="explore()">Esplora l'area</button>`;
+function start(){
+  hp=4;stress=2;res=3;
+  document.getElementById("scene").innerHTML="<p>Ti trovi tra le rovine di una città devastata.</p>";
   updateStats();
 }
 
