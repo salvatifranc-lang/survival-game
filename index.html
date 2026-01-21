@@ -2,54 +2,107 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>Survival Test</title>
+<title>Survival Game</title>
 
 <style>
+/* ===== RESET BASE ===== */
 html, body {
   margin: 0;
   padding: 0;
   height: 100%;
 }
 
+/* ===== SFONDO (WEB-SAFE) ===== */
 body {
   font-family: Arial, sans-serif;
-}
-
-/* SFONDO */
-body {
+  color: #eee;
   background:
-    linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)),
-    url("./ui-background.png") center / cover no-repeat;
+    linear-gradient(
+      rgba(0,0,0,0.45),
+      rgba(0,0,0,0.65)
+    ),
+    url("./ui-background.jpeg") center center / cover no-repeat;
 }
 
-/* CONTENUTO */
-#content {
+/* ===== LAYOUT ===== */
+#game {
+  display: grid;
+  grid-template-columns: 200px 1fr 240px;
   min-height: 100vh;
-  color: white;
-  background: rgba(0,0,0,0.5);
-  padding: 40px;
 }
 
+/* ===== PANNELLI ===== */
+.panel {
+  background: rgba(20,20,20,0.6);
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+h1, h3 {
+  margin-top: 0;
+}
+
+/* ===== BOTTONE ===== */
 button {
-  padding: 12px 20px;
+  padding: 14px;
+  width: 100%;
   font-size: 16px;
   cursor: pointer;
+  background: #333;
+  color: #eee;
+  border: none;
+}
+
+button:hover {
+  background: #555;
 }
 </style>
 </head>
 
 <body>
 
-<div id="content">
-  <h1>Test Survival Game</h1>
-  <p id="text">Se vedi questo testo, HTML e CSS funzionano.</p>
-  <button onclick="test()">Cliccami</button>
+<div id="game">
+
+  <!-- SINISTRA -->
+  <div class="panel">
+    <h3>Statistiche</h3>
+    <p>❤️ Salute: <span id="hp">4</span></p>
+    <p>🧠 Stress: <span id="stress">2</span></p>
+    <p>🎒 Risorse: <span id="res">3</span></p>
+  </div>
+
+  <!-- CENTRO -->
+  <div class="panel">
+    <h1>Area Missione</h1>
+    <p id="scene">
+      Ti trovi tra le rovine di una città devastata. Il vento muove la polvere tra i palazzi crollati.
+    </p>
+
+    <button onclick="explore()">Esplora l’area</button>
+  </div>
+
+  <!-- DESTRA -->
+  <div class="panel">
+    <h3>Inventario</h3>
+    <p>(vuoto)</p>
+  </div>
+
 </div>
 
 <script>
-function test() {
-  document.getElementById("text").innerText =
-    "JS funzionante. Click rilevato.";
+let hp = 4;
+let stress = 2;
+let res = 3;
+
+function explore() {
+  res--;
+  stress++;
+
+  document.getElementById("scene").innerText =
+    "Ti muovi tra le macerie. Ogni passo aumenta la tensione.";
+
+  document.getElementById("res").innerText = res;
+  document.getElementById("stress").innerText = stress;
 }
 </script>
 
