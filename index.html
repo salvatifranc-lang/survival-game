@@ -5,7 +5,6 @@
 <title>Survival Game</title>
 
 <style>
-/* === BASE === */
 body {
   margin: 0;
   padding: 0;
@@ -14,7 +13,7 @@ body {
   overflow: hidden;
 }
 
-/* === SFONDO (CACHE BUSTING) === */
+/* === SFONDO CON CACHE BUSTING === */
 #background {
   position: fixed;
   inset: 0;
@@ -23,11 +22,10 @@ body {
       rgba(0,0,0,0.35),
       rgba(0,0,0,0.55)
     ),
-    url("ui-bg-v2.png") center center / cover no-repeat;
+    url("ui-background.png?v=2") center center / cover no-repeat;
   z-index: -2;
 }
 
-/* vignettatura */
 #vignette {
   position: fixed;
   inset: 0;
@@ -39,7 +37,6 @@ body {
   z-index: -1;
 }
 
-/* === LAYOUT === */
 #game {
   display: grid;
   grid-template-columns: 220px 1fr 260px;
@@ -47,9 +44,8 @@ body {
   color: #e6e6e6;
 }
 
-/* === PANNELLI === */
 .panel {
-  background: rgba(15, 15, 15, 0.55);
+  background: rgba(15,15,15,0.55);
   backdrop-filter: blur(4px);
   padding: 14px;
   box-sizing: border-box;
@@ -63,19 +59,13 @@ body {
   letter-spacing: 1px;
 }
 
-/* === STATISTICHE === */
-.stat {
-  margin-bottom: 16px;
-}
-
-.stat-label {
-  font-size: 13px;
-  margin-bottom: 4px;
-}
+/* STAT */
+.stat { margin-bottom: 16px; }
+.stat-label { font-size: 13px; margin-bottom: 4px; }
 
 .bar {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(6,1fr);
   gap: 3px;
 }
 
@@ -84,117 +74,61 @@ body {
   background: rgba(255,255,255,0.15);
 }
 
-.segment.active.hp { background: #ff6666; }
-.segment.active.stress { background: #ffd966; }
-.segment.active.res { background: #66ff99; }
+.segment.active.hp { background:#ff6666; }
+.segment.active.stress { background:#ffd966; }
+.segment.active.res { background:#66ff99; }
 
-/* === CENTRO === */
-#center {
-  display: flex;
-  flex-direction: column;
-}
+/* CENTRO */
+#center { display:flex; flex-direction:column; }
 
-/* AREA MISSIONE */
 #mission {
-  flex: 1;
-  padding: 26px;
-  background: rgba(10, 10, 10, 0.35);
+  flex:1;
+  padding:26px;
+  background: rgba(10,10,10,0.35);
   backdrop-filter: blur(3px);
 }
 
 #mission h1 {
-  margin-top: 0;
-  text-align: center;
-  letter-spacing: 2px;
-  font-weight: normal;
+  margin-top:0;
+  text-align:center;
+  letter-spacing:2px;
+  font-weight:normal;
 }
 
-#scene {
-  margin-top: 24px;
-  line-height: 1.6;
-  font-size: 15px;
-}
+#scene { margin-top:24px; line-height:1.6; }
 
-.difficulty {
-  margin-top: 12px;
-  font-style: italic;
-  opacity: 0.8;
-}
-
-/* === TIRO DADO === */
 #dice-area {
-  padding: 16px;
-  background: rgba(10, 10, 10, 0.45);
+  padding:16px;
+  background: rgba(10,10,10,0.45);
   backdrop-filter: blur(3px);
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top:1px solid rgba(255,255,255,0.1);
 }
 
 .die {
-  display: inline-block;
-  padding: 10px 16px;
-  font-size: 26px;
-  font-weight: bold;
+  display:inline-block;
+  padding:10px 16px;
+  font-size:26px;
+  font-weight:bold;
   background: rgba(0,0,0,0.6);
-  border-radius: 6px;
-  margin: 6px 0;
-  animation: rollFlash 0.35s ease;
+  border-radius:6px;
+  margin:6px 0;
 }
 
-.low { color: #ff6666; }
-.mid { color: #ffd966; }
-.high { color: #66ff99; }
+.low { color:#ff6666; }
+.mid { color:#ffd966; }
+.high { color:#66ff99; }
 
-@keyframes rollFlash {
-  0% { transform: scale(1.4); }
-  50% { transform: scale(0.9); }
-  100% { transform: scale(1); }
-}
-
-/* === ESITO === */
-.outcome {
-  margin-top: 14px;
-  padding: 12px;
-  border-left: 6px solid #666;
-  background: rgba(0,0,0,0.45);
-}
-
-.crit-fail {
-  border-color: #b30000;
-  background: rgba(80,0,0,0.55);
-}
-
-.bonus {
-  border-color: #2ecc71;
-  background: rgba(0,80,40,0.55);
-}
-
-/* === AZIONI === */
-button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 12px;
-  background: rgba(40,40,40,0.8);
-  color: #eee;
-  border: none;
-  cursor: pointer;
-  font-size: 15px;
-}
-
-button:hover {
-  background: rgba(60,60,60,0.9);
-}
-
-/* === INVENTARIO === */
+/* INVENTARIO */
 #inventory {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
 }
 
 .slot {
-  height: 60px;
+  height:60px;
   background: rgba(0,0,0,0.4);
-  border: 2px solid rgba(255,255,255,0.2);
+  border:2px solid rgba(255,255,255,0.2);
 }
 </style>
 </head>
@@ -206,113 +140,62 @@ button:hover {
 
 <div id="game">
 
-<!-- SINISTRA -->
-<div class="panel">
-  <div class="panel-title">Statistiche</div>
+  <div class="panel">
+    <div class="panel-title">Statistiche</div>
 
-  <div class="stat">
-    <div class="stat-label">❤️ Salute</div>
-    <div class="bar" id="hpBar"></div>
+    <div class="stat">
+      <div class="stat-label">❤️ Salute</div>
+      <div class="bar" id="hpBar"></div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-label">🧠 Stress</div>
+      <div class="bar" id="stressBar"></div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-label">🎒 Risorse</div>
+      <div class="bar" id="resBar"></div>
+    </div>
   </div>
 
-  <div class="stat">
-    <div class="stat-label">🧠 Stress</div>
-    <div class="bar" id="stressBar"></div>
+  <div id="center">
+    <div id="mission">
+      <h1>Area Missione</h1>
+      <div id="scene"></div>
+    </div>
+
+    <div id="dice-area">
+      <div class="panel-title">Tiro Dado</div>
+      <div>Dado: <span class="die low">1</span></div>
+    </div>
   </div>
 
-  <div class="stat">
-    <div class="stat-label">🎒 Risorse</div>
-    <div class="bar" id="resBar"></div>
+  <div class="panel">
+    <div class="panel-title">Inventario</div>
+    <div id="inventory">
+      <div class="slot"></div><div class="slot"></div><div class="slot"></div>
+      <div class="slot"></div><div class="slot"></div><div class="slot"></div>
+      <div class="slot"></div><div class="slot"></div><div class="slot"></div>
+    </div>
   </div>
-</div>
-
-<!-- CENTRO -->
-<div id="center">
-  <div id="mission">
-    <h1>Area Missione</h1>
-    <div id="scene"></div>
-    <div class="difficulty" id="difficulty"></div>
-  </div>
-
-  <div id="dice-area">
-    <div class="panel-title">Tiro Dado</div>
-    <div id="rollInfo"></div>
-    <button onclick="explore()">Esplora l’area</button>
-  </div>
-</div>
-
-<!-- DESTRA -->
-<div class="panel">
-  <div class="panel-title">Inventario</div>
-  <div id="inventory">
-    <div class="slot"></div><div class="slot"></div><div class="slot"></div>
-    <div class="slot"></div><div class="slot"></div><div class="slot"></div>
-    <div class="slot"></div><div class="slot"></div><div class="slot"></div>
-  </div>
-</div>
 
 </div>
 
 <script>
-const MAX = 6;
-let hp, stress, res;
-
-const table = {
-  "Rischioso": ["CRIT_FAIL","FAIL","PARTIAL","PARTIAL","SUCCESS","BONUS"]
-};
-
-function rollD6(){ return Math.floor(Math.random()*6)+1; }
-
-function renderBar(id,val,cls){
-  const bar=document.getElementById(id); bar.innerHTML="";
+const MAX=6;
+function render(id,val,cls){
+  const b=document.getElementById(id); b.innerHTML="";
   for(let i=1;i<=MAX;i++){
     const s=document.createElement("div");
     s.className="segment"+(i<=val?` active ${cls}`:"");
-    bar.appendChild(s);
+    b.appendChild(s);
   }
 }
-
-function updateStats(){
-  hp=Math.max(0,Math.min(MAX,hp));
-  stress=Math.max(0,Math.min(MAX,stress));
-  res=Math.max(0,Math.min(MAX,res));
-  renderBar("hpBar",hp,"hp");
-  renderBar("stressBar",stress,"stress");
-  renderBar("resBar",res,"res");
-}
-
-function explore(){
-  res--;
-  const roll=rollD6();
-  const outcome=table["Rischioso"][roll-1];
-  showRoll(roll,outcome);
-  applyOutcome(outcome);
-}
-
-function showRoll(roll,outcome){
-  const cls=roll<=2?"low":roll>=5?"high":"mid";
-  document.getElementById("rollInfo").innerHTML=
-    `Dado: <span class="die ${cls}">${roll}</span><br>Esito: ${outcome}`;
-}
-
-function applyOutcome(outcome){
-  let txt="",cls="outcome";
-  if(outcome==="CRIT_FAIL"){txt="❌ Fallimento critico.";hp--;stress+=2;cls+=" crit-fail";}
-  else if(outcome==="FAIL"){txt="Fallisci.";stress++;}
-  else if(outcome==="PARTIAL"){txt="Successo parziale.";stress++;}
-  else if(outcome==="SUCCESS"){txt="Successo.";}
-  else{txt="⭐ Successo con bonus.";res++;stress--;cls+=" bonus";}
-  document.getElementById("scene").innerHTML=`<div class="${cls}">${txt}</div>`;
-  updateStats();
-}
-
-function start(){
-  hp=4;stress=2;res=3;
-  document.getElementById("scene").innerHTML="<p>Ti trovi tra le rovine di una città devastata.</p>";
-  updateStats();
-}
-
-start();
+render("hpBar",3,"hp");
+render("stressBar",5,"stress");
+render("resBar",1,"res");
+document.getElementById("scene").innerHTML="<p>Ti trovi tra le rovine di una città devastata.</p>";
 </script>
 
 </body>
