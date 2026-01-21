@@ -13,8 +13,8 @@ html, body {
 
 body {
   background: url("./ui-background.jpeg") center / cover no-repeat;
-  color: #eee;
   font-family: Arial, sans-serif;
+  color: #eee;
 }
 
 /* ===== STRUTTURA ===== */
@@ -47,22 +47,48 @@ body {
   background: rgba(255,255,255,0.15);
 }
 
-.hp-on { background: #c0392b; }
-.stress-on { background: #f1c40f; }
-.res-on { background: #7cb342; }
+.hp-on { background: #8e2b2b; }
+.stress-on { background: #c9a227; }
+.res-on { background: #6a8f3a; }
 
 /* ===== CENTRO ===== */
 #center {
-  padding-top: 36px;
+  padding-top: 32px;
   text-align: center;
 }
 
 #mission {
   max-width: 580px;
-  margin: 0 auto;
+  margin: 0 auto 18px;
   padding: 18px 22px;
   background: rgba(225,205,165,0.92);
   color: #222;
+  box-shadow: inset 0 0 14px rgba(0,0,0,0.35);
+}
+
+/* ===== AZIONI ===== */
+#actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 360px;
+  margin: 0 auto 22px;
+}
+
+.action-btn {
+  padding: 12px;
+  font-size: 15px;
+  background: linear-gradient(#4a4a4a, #1e1e1e);
+  border: 2px solid #777;
+  color: #eee;
+  cursor: pointer;
+  box-shadow:
+    inset 0 0 6px rgba(0,0,0,0.7),
+    0 2px 4px rgba(0,0,0,0.6);
+}
+
+.action-btn:hover {
+  background: linear-gradient(#5e5e5e, #2a2a2a);
 }
 
 /* ===== INVENTARIO (INVARIATO) ===== */
@@ -87,61 +113,46 @@ body {
   background: transparent;
 }
 
-/* ===== TIRO DADO ===== */
+/* ===== DADO (INVECCHIATO, GRANDE) ===== */
 #dice-area {
   grid-column: 2;
-  padding: 18px;
   text-align: center;
-  background: rgba(0,0,0,0.85);
+  padding-bottom: 20px;
 }
 
-/* DADO */
 #dice {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 12px;
-  background: #e6e1d6;
-  border-radius: 10px;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+  background: radial-gradient(circle at top left, #d8d1c2, #a89f8c);
+  border-radius: 18px;
   position: relative;
   box-shadow:
-    inset -4px -4px 8px rgba(0,0,0,0.25),
-    inset 4px 4px 8px rgba(255,255,255,0.4),
-    0 4px 10px rgba(0,0,0,0.6);
-  transition: transform 0.2s;
+    inset -6px -6px 12px rgba(0,0,0,0.35),
+    inset 6px 6px 12px rgba(255,255,255,0.25),
+    0 10px 20px rgba(0,0,0,0.7);
+  transition: transform 0.25s ease-out;
 }
 
-/* FACCINE */
+/* DOT */
 .dot {
-  width: 10px;
-  height: 10px;
-  background: #222;
+  width: 16px;
+  height: 16px;
+  background: #2b2b2b;
   border-radius: 50%;
   position: absolute;
   display: none;
+  box-shadow: inset 1px 1px 2px rgba(255,255,255,0.2);
 }
 
-/* POSIZIONI DOT */
-.tl { top: 12px; left: 12px; }
-.tr { top: 12px; right: 12px; }
-.ml { top: 27px; left: 12px; }
-.mm { top: 27px; left: 27px; }
-.mr { top: 27px; right: 12px; }
-.bl { bottom: 12px; left: 12px; }
-.br { bottom: 12px; right: 12px; }
-
-/* ===== BOTTONE ===== */
-button {
-  padding: 12px 28px;
-  font-size: 15px;
-  background: linear-gradient(#5a5a5a, #2a2a2a);
-  color: #eee;
-  border: 2px solid #777;
-  cursor: pointer;
-}
-
-button:hover {
-  background: linear-gradient(#707070, #3a3a3a);
-}
+/* POSIZIONI */
+.tl { top: 22px; left: 22px; }
+.tr { top: 22px; right: 22px; }
+.ml { top: 52px; left: 22px; }
+.mm { top: 52px; left: 52px; }
+.mr { top: 52px; right: 22px; }
+.bl { bottom: 22px; left: 22px; }
+.br { bottom: 22px; right: 22px; }
 </style>
 </head>
 
@@ -176,6 +187,12 @@ button:hover {
       <h1>Area Missione</h1>
       <p>Ti trovi tra le rovine di una città devastata. Il vento muove la polvere tra i palazzi crollati.</p>
     </div>
+
+    <div id="actions">
+      <button class="action-btn" onclick="rollDice()">Esplora con cautela</button>
+      <button class="action-btn" onclick="rollDice()">Forza il passaggio</button>
+      <button class="action-btn" onclick="rollDice()">Osserva l’area</button>
+    </div>
   </div>
 
   <!-- INVENTARIO -->
@@ -187,14 +204,13 @@ button:hover {
     </div>
   </div>
 
-  <!-- TIRO DADO -->
+  <!-- DADO -->
   <div id="dice-area">
     <div id="dice">
       <div class="dot tl"></div><div class="dot tr"></div>
       <div class="dot ml"></div><div class="dot mm"></div><div class="dot mr"></div>
       <div class="dot bl"></div><div class="dot br"></div>
     </div>
-    <button onclick="rollDice()">Esplora l’area</button>
   </div>
 
 </div>
@@ -204,10 +220,8 @@ function rollDice() {
   const dice = document.getElementById("dice");
   const dots = dice.querySelectorAll(".dot");
 
-  // reset
   dots.forEach(d => d.style.display = "none");
 
-  // animazione
   dice.style.transform = "rotate(" + (Math.random() * 360) + "deg)";
 
   const result = Math.floor(Math.random() * 6) + 1;
