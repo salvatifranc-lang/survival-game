@@ -52,15 +52,21 @@
     let stress = 2;
     let resources = 3;
 
-    function updateStats() {
-      document.getElementById("hp").textContent = hp;
-      document.getElementById("stress").textContent = stress;
-      document.getElementById("resources").textContent = resources;
+  function updateStats() {
+  // limiti minimi e massimi
+  hp = Math.max(0, Math.min(6, hp));
+  stress = Math.max(0, Math.min(6, stress));
+  resources = Math.max(0, Math.min(6, resources));
 
-      if (hp <= 0) {
-        document.body.innerHTML = "<h1>Sei morto.</h1><p>La città ti ha consumato.</p>";
-      }
-    }
+  document.getElementById("hp").textContent = hp;
+  document.getElementById("stress").textContent = stress;
+  document.getElementById("resources").textContent = resources;
+
+  if (hp === 0) {
+    document.body.innerHTML = "<h1>Sei morto.</h1><p>La città ti ha consumato.</p>";
+  }
+}
+
 
     function explore() {
       resources -= 1;
