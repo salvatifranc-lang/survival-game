@@ -26,9 +26,7 @@ body {
 }
 
 /* ===== STATISTICHE ===== */
-#stats {
-  position: relative;
-}
+#stats { position: relative; }
 
 .stat-bar {
   position: absolute;
@@ -41,12 +39,7 @@ body {
 #stress { top: 128px; }
 #res { top: 202px; }
 
-.segment {
-  width: 22px;
-  height: 14px;
-  background: rgba(255,255,255,0.15);
-}
-
+.segment { width: 22px; height: 14px; background: rgba(255,255,255,0.15); }
 .hp-on { background: #8e2b2b; }
 .stress-on { background: #c9a227; }
 .res-on { background: #6a8f3a; }
@@ -57,29 +50,13 @@ body {
   text-align: center;
 }
 
-/* ===== AREA MISSIONE ===== */
 #mission {
   max-width: 620px;
   min-height: 45vh;
   margin: 0 auto 14px;
   padding: 10px 18px;
-
   background: transparent;
-  color: #4a2f1a; /* MARRONE SCURO */
-}
-
-#mission h1 {
-  margin-top: 0;
-  margin-bottom: 14px;
-  font-size: 28px;
-  font-weight: normal;
-  color: #3b2414; /* marrone più scuro per il titolo */
-}
-
-#mission p {
-  margin: 0;
-  font-size: 17px;
-  line-height: 1.55;
+  color: #4a2f1a;
 }
 
 /* ===== AZIONI ===== */
@@ -100,14 +77,8 @@ body {
   cursor: pointer;
 }
 
-.action-btn:hover {
-  background: linear-gradient(#5e5e5e, #2a2a2a);
-}
-
 /* ===== INVENTARIO ===== */
-#inventory-panel {
-  position: relative;
-}
+#inventory-panel { position: relative; }
 
 #inventory {
   position: absolute;
@@ -115,7 +86,6 @@ body {
   left: 20px;
   display: grid;
   grid-template-columns: repeat(3, 72px);
-  grid-template-rows: repeat(3, 72px);
   gap: 12px;
 }
 
@@ -126,36 +96,55 @@ body {
   background: transparent;
 }
 
-/* ===== DADO ===== */
+/* =====================
+   DADO CONSUMATO
+   ===================== */
 #dice-area {
   grid-column: 2;
   text-align: center;
-  padding-bottom: 20px;
+  padding-bottom: 24px;
 }
 
 #dice {
   width: 120px;
   height: 120px;
   margin: 0 auto;
-  background: radial-gradient(circle at top left, #d8d1c2, #a89f8c);
-  border-radius: 18px;
   position: relative;
+  border-radius: 18px;
+
+  background:
+    radial-gradient(circle at 20% 20%, #d6cfbf, #9f957f),
+    repeating-linear-gradient(
+      45deg,
+      rgba(0,0,0,0.04),
+      rgba(0,0,0,0.04) 2px,
+      transparent 2px,
+      transparent 4px
+    );
+
   box-shadow:
-    inset -6px -6px 12px rgba(0,0,0,0.35),
-    inset 6px 6px 12px rgba(255,255,255,0.25),
-    0 10px 20px rgba(0,0,0,0.7);
-  transition: transform 0.25s ease-out;
+    inset -8px -8px 16px rgba(0,0,0,0.4),
+    inset 6px 6px 12px rgba(255,255,255,0.2),
+    0 14px 28px rgba(0,0,0,0.8);
+
+  transition: transform 0.6s cubic-bezier(.2,.8,.2,1);
 }
 
+/* ===== PUNTINI INCASSATI ===== */
 .dot {
   width: 16px;
   height: 16px;
-  background: #2b2b2b;
-  border-radius: 50%;
+  background: #3b3b3b;
+  border-radius: 45%;
   position: absolute;
   display: none;
+
+  box-shadow:
+    inset 2px 2px 4px rgba(0,0,0,0.8),
+    inset -1px -1px 2px rgba(255,255,255,0.1);
 }
 
+/* POSIZIONI */
 .tl { top: 22px; left: 22px; }
 .tr { top: 22px; right: 22px; }
 .ml { top: 52px; left: 22px; }
@@ -177,13 +166,11 @@ body {
       <div class="segment hp-on"></div><div class="segment hp-on"></div>
       <div class="segment"></div><div class="segment"></div>
     </div>
-
     <div id="stress" class="stat-bar">
       <div class="segment stress-on"></div><div class="segment stress-on"></div>
       <div class="segment"></div><div class="segment"></div>
       <div class="segment"></div><div class="segment"></div>
     </div>
-
     <div id="res" class="stat-bar">
       <div class="segment res-on"></div><div class="segment res-on"></div>
       <div class="segment res-on"></div>
@@ -195,10 +182,7 @@ body {
   <div id="center">
     <div id="mission">
       <h1>Area Missione</h1>
-      <p>
-        Ti trovi tra le rovine di una città devastata.  
-        Il vento muove la polvere tra i palazzi crollati.
-      </p>
+      <p>Ti trovi tra le rovine di una città devastata. Il vento muove la polvere tra i palazzi crollati.</p>
     </div>
 
     <div id="actions">
@@ -234,6 +218,30 @@ function rollDice() {
   const dots = dice.querySelectorAll(".dot");
 
   dots.forEach(d => d.style.display = "none");
-  dice.style.transform = "rotate(" + (Math.random() * 360) + "deg)";
+
+  dice.style.transform =
+    "rotate(" + (Math.random() * 360) + "deg) scale(1.12)";
+
+  setTimeout(() => {
+    dice.style.transform = "rotate(0deg) scale(1)";
+  }, 450);
 
   const result = Math.floor(Math.random() * 6) + 1;
+
+  const faces = {
+    1: ["mm"],
+    2: ["tl","br"],
+    3: ["tl","mm","br"],
+    4: ["tl","tr","bl","br"],
+    5: ["tl","tr","mm","bl","br"],
+    6: ["tl","ml","bl","tr","mr","br"]
+  };
+
+  faces[result].forEach(cls => {
+    dice.querySelector("." + cls).style.display = "block";
+  });
+}
+</script>
+
+</body>
+</html>
