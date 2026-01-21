@@ -2,106 +2,54 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>Survival Game</title>
+<title>Survival Test</title>
 
 <style>
-body {
+html, body {
   margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
   font-family: Arial, sans-serif;
-  background: black;
-  color: #eee;
 }
 
 /* SFONDO */
-#background {
-  position: fixed;
-  inset: 0;
+body {
   background:
     linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)),
     url("./ui-background.png") center / cover no-repeat;
-  z-index: -1;
 }
 
-/* LAYOUT */
-#game {
-  display: grid;
-  grid-template-columns: 200px 1fr 240px;
-  height: 100vh;
+/* CONTENUTO */
+#content {
+  min-height: 100vh;
+  color: white;
+  background: rgba(0,0,0,0.5);
+  padding: 40px;
 }
 
-/* PANNELLI */
-.panel {
-  background: rgba(20,20,20,0.6);
-  padding: 14px;
-}
-
-h1 {
-  text-align: center;
-  margin-top: 0;
-}
-
-/* BOTTONE */
 button {
-  width: 100%;
-  padding: 14px;
-  background: #333;
-  color: #eee;
-  border: none;
-  cursor: pointer;
+  padding: 12px 20px;
   font-size: 16px;
-}
-button:hover {
-  background: #555;
+  cursor: pointer;
 }
 </style>
 </head>
 
 <body>
 
-<div id="background"></div>
-
-<div id="game">
-
-  <!-- SINISTRA -->
-  <div class="panel">
-    <h3>Statistiche</h3>
-    <p>❤️ Salute: <span id="hp">4</span></p>
-    <p>🧠 Stress: <span id="stress">2</span></p>
-    <p>🎒 Risorse: <span id="res">3</span></p>
-  </div>
-
-  <!-- CENTRO -->
-  <div class="panel">
-    <h1>Area Missione</h1>
-    <p id="scene">
-      Ti trovi tra le rovine di una città devastata.
-    </p>
-
-    <button onclick="explore()">Esplora l’area</button>
-  </div>
-
-  <!-- DESTRA -->
-  <div class="panel">
-    <h3>Inventario</h3>
-    <p>(vuoto)</p>
-  </div>
-
+<div id="content">
+  <h1>Test Survival Game</h1>
+  <p id="text">Se vedi questo testo, HTML e CSS funzionano.</p>
+  <button onclick="test()">Cliccami</button>
 </div>
 
 <script>
-let hp = 4;
-let stress = 2;
-let res = 3;
-
-function explore() {
-  res--;
-  stress++;
-
-  document.getElementById("scene").innerText =
-    "Esplori le rovine. Ogni passo aumenta la tensione.";
-
-  document.getElementById("res").innerText = res;
-  document.getElementById("stress").innerText = stress;
+function test() {
+  document.getElementById("text").innerText =
+    "JS funzionante. Click rilevato.";
 }
 </script>
 
