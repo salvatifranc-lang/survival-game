@@ -2,279 +2,328 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>Survival Game</title>
+<title>Roguelite AI Game</title>
 
 <style>
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
+/* =========================
+   BASE UI
+========================= */
 
 body {
-  background: url("./ui-background.jpeg") center / cover no-repeat;
-  font-family: Arial, sans-serif;
-}
-
-/* =====================
-   STRUTTURA GENERALE
-   ===================== */
-#game {
-  display: grid;
-  grid-template-columns: 220px 1fr 260px;
-  grid-template-rows: 1fr auto;
-  height: 100vh;
-}
-
-/* =====================
-   STATISTICHE (SINISTRA)
-   ===================== */
-#stats {
-  position: relative;
-}
-
-.stat-bar {
-  position: absolute;
-  left: 24px;
-  display: flex;
-  gap: 6px;
-}
-
-#hp     { top: 54px;  }
-#stress { top: 128px; }
-#res    { top: 202px; }
-
-.segment {
-  width: 22px;
-  height: 14px;
-  background: rgba(255,255,255,0.15);
-}
-
-.hp-on     { background: #8e2b2b; }
-.stress-on { background: #c9a227; }
-.res-on    { background: #6a8f3a; }
-
-/* =====================
-   CENTRO
-   ===================== */
-#center {
-  padding-top: 12px;
-  text-align: center;
-}
-
-/* ===== AREA MISSIONE ===== */
-#mission {
-  max-width: 620px;
-  min-height: 45vh;
-  margin: 0 auto 14px;
-  padding: 10px 18px;
-  background: transparent;
-  color: #4a2f1a;
-}
-
-#mission h1 {
-  margin-top: 0;
-  margin-bottom: 16px;
-  font-size: 36px;
-  font-weight: normal;
-  color: #3b2414;
-}
-
-#mission p {
   margin: 0;
-  font-size: 22px;
-  line-height: 1.65;
+  background: #111;
+  color: #3b2a1a;
+  font-family: serif;
 }
 
-/* ===== AZIONI ===== */
-#actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-width: 360px;
-  margin: 0 auto 22px;
-}
-
-.action-btn {
-  padding: 12px;
-  font-size: 15px;
-  background: linear-gradient(#4a4a4a, #1e1e1e);
-  border: 2px solid #777;
-  color: #eee;
-  cursor: pointer;
-}
-
-/* =====================
-   INVENTARIO (DESTRA)
-   ===================== */
-#inventory-panel {
+#game {
+  width: 100vw;
+  height: 100vh;
   position: relative;
 }
 
-#inventory {
+/* =========================
+   AREA MISSIONE
+========================= */
+
+#mission {
   position: absolute;
-  top: 60px;
-  left: 20px;
-  display: grid;
-  grid-template-columns: repeat(3, 72px);
-  grid-template-rows: repeat(3, 72px);
+  top: 3%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  font-size: 1.3em;
+  text-align: center;
+  background: transparent;
+}
+
+/* =========================
+   DADO
+========================= */
+
+#dice {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 120px;
+  border: 3px solid #3b2a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3em;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+#dice.rolling {
+  animation: roll 1.2s linear;
+}
+
+@keyframes roll {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(720deg); }
+}
+
+/* =========================
+   PULSANTI AZIONE
+========================= */
+
+#actions {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
   gap: 12px;
 }
 
-.slot {
-  width: 72px;
-  height: 72px;
-  border: 2px solid rgba(255,255,255,0.15);
+button {
   background: transparent;
+  border: 2px solid #3b2a1a;
+  color: #3b2a1a;
+  padding: 10px 14px;
+  cursor: pointer;
 }
 
-/* =====================
-   DADO
-   ===================== */
-#dice-area {
-  grid-column: 2;
-  text-align: center;
-  padding-bottom: 40px;
-}
+/* =========================
+   STATISTICHE
+========================= */
 
-#dice {
-  width: 140px;
-  height: 140px;
-  margin: 0 auto;
-  position: relative;
-  border-radius: 22px;
-  background: #b8ae96;
-  box-shadow:
-    inset -12px -12px 20px rgba(0,0,0,0.6),
-    inset 8px 8px 14px rgba(255,255,255,0.15),
-    0 18px 35px rgba(0,0,0,0.85);
-  overflow: hidden;
-  transition: transform 0.8s cubic-bezier(.2,.8,.2,1);
-}
-
-/* Sporco irregolare */
-#dice::before {
-  content: "";
+.stats {
   position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 20% 30%, rgba(0,0,0,0.35), transparent 40%),
-    radial-gradient(circle at 70% 60%, rgba(0,0,0,0.25), transparent 45%),
-    radial-gradient(circle at 40% 80%, rgba(0,0,0,0.3), transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(0,0,0,0.2), transparent 35%);
-  mix-blend-mode: multiply;
-  pointer-events: none;
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 40px;
 }
 
-/* Puntini */
-.dot {
+.stat {
+  display: flex;
+  gap: 4px;
+}
+
+.stat div {
   width: 18px;
-  height: 18px;
-  position: absolute;
-  border-radius: 45% 55% 50% 48%;
-  background: #2e2e2e;
-  box-shadow:
-    inset 3px 3px 6px rgba(0,0,0,0.9),
-    inset -1px -1px 2px rgba(255,255,255,0.1);
-  display: none;
+  height: 12px;
+  border: 1px solid #3b2a1a;
 }
 
-/* Posizioni */
-.tl { top: 28px; left: 28px; }
-.tr { top: 28px; right: 28px; }
-.ml { top: 61px; left: 28px; }
-.mm { top: 61px; left: 61px; }
-.mr { top: 61px; right: 28px; }
-.bl { bottom: 28px; left: 28px; }
-.br { bottom: 28px; right: 28px; }
+.stat div.active {
+  background: #7a3b1c;
+}
+
+/* =========================
+   FEEDBACK VISIVO
+========================= */
+
+.flash-fail { animation: flashRed 0.3s; }
+.flash-success { animation: flashGreen 0.3s; }
+
+@keyframes flashRed {
+  0% { background:#400; }
+  100% { background:#111; }
+}
+
+@keyframes flashGreen {
+  0% { background:#143; }
+  100% { background:#111; }
+}
 </style>
 </head>
 
 <body>
 
 <div id="game">
+  <div id="mission"></div>
 
-  <!-- STATISTICHE -->
-  <div id="stats">
-    <div id="hp" class="stat-bar">
-      <div class="segment hp-on"></div><div class="segment hp-on"></div>
-      <div class="segment hp-on"></div><div class="segment hp-on"></div>
-      <div class="segment"></div><div class="segment"></div>
-    </div>
+  <div id="dice" onclick="rollDice()">🎲</div>
 
-    <div id="stress" class="stat-bar">
-      <div class="segment stress-on"></div><div class="segment stress-on"></div>
-      <div class="segment"></div><div class="segment"></div>
-      <div class="segment"></div><div class="segment"></div>
-    </div>
-
-    <div id="res" class="stat-bar">
-      <div class="segment res-on"></div><div class="segment res-on"></div>
-      <div class="segment res-on"></div>
-      <div class="segment"></div><div class="segment"></div><div class="segment"></div>
-    </div>
+  <div id="actions">
+    <button onclick="sendAction('esplora area')">Esplora</button>
+    <button onclick="sendAction('cerca risorse')">Cerca</button>
+    <button onclick="sendAction('riposa')">Riposa</button>
   </div>
 
-  <!-- CENTRO -->
-  <div id="center">
-    <div id="mission">
-      <h1>Area Missione</h1>
-      <p>
-        Ti trovi tra le rovine di una città devastata.  
-        Il vento muove la polvere tra i palazzi crollati.
-      </p>
-    </div>
-
-    <div id="actions">
-      <button class="action-btn" onclick="rollDice()">Esplora con cautela</button>
-      <button class="action-btn" onclick="rollDice()">Forza il passaggio</button>
-      <button class="action-btn" onclick="rollDice()">Osserva l’area</button>
-    </div>
+  <div class="stats">
+    <div class="stat" id="salute"></div>
+    <div class="stat" id="stress"></div>
+    <div class="stat" id="risorse"></div>
   </div>
-
-  <!-- INVENTARIO -->
-  <div id="inventory-panel">
-    <div id="inventory">
-      <div class="slot"></div><div class="slot"></div><div class="slot"></div>
-      <div class="slot"></div><div class="slot"></div><div class="slot"></div>
-      <div class="slot"></div><div class="slot"></div><div class="slot"></div>
-    </div>
-  </div>
-
-  <!-- DADO -->
-  <div id="dice-area">
-    <div id="dice">
-      <div class="dot tl"></div><div class="dot tr"></div>
-      <div class="dot ml"></div><div class="dot mm"></div><div class="dot mr"></div>
-      <div class="dot bl"></div><div class="dot br"></div>
-    </div>
-  </div>
-
 </div>
 
 <script>
-const dice = document.getElementById("dice");
-const dots = dice.querySelectorAll(".dot");
+/* =========================
+   CONFIG
+========================= */
+
+const API_URL = "https://still-hat-5795.salvatifranc.workers.dev";
+
+/* =========================
+   META-PROGRESSION (A7)
+========================= */
+
+let meta = JSON.parse(localStorage.getItem("meta")) || {
+  runs: 0,
+  bonus_salute: 0,
+  rischio_mod: 0
+};
+
+/* =========================
+   STATO RUN
+========================= */
+
+let playerState = JSON.parse(localStorage.getItem("run")) || {
+  salute: 4 + meta.bonus_salute,
+  stress: 2,
+  risorse: 3
+};
+
+let turnCount = 0;
+
+/* =========================
+   UI INIT
+========================= */
+
+function initBars(id) {
+  const el = document.getElementById(id);
+  el.innerHTML = "";
+  for (let i = 0; i < 6; i++) {
+    el.appendChild(document.createElement("div"));
+  }
+}
+initBars("salute");
+initBars("stress");
+initBars("risorse");
+updateStats();
+
+/* =========================
+   RISCHIO DINAMICO (A4)
+========================= */
+
+function calculateRisk() {
+  const r =
+    playerState.stress * 1.2 +
+    turnCount * 0.3 -
+    playerState.salute * 0.8 +
+    meta.rischio_mod;
+
+  if (r >= 6) return "Estremo";
+  if (r >= 4.5) return "Molto Rischioso";
+  if (r >= 3) return "Rischioso";
+  if (r >= 1.5) return "Standard";
+  if (r >= 0.5) return "Facile";
+  return "Molto Facile";
+}
+
+/* =========================
+   DADO
+========================= */
 
 function rollDice() {
-  dots.forEach(d => d.style.display = "none");
-
-  dice.style.transform =
-    "rotate(" + (Math.random() * 720 - 360) + "deg) scale(1.15)";
+  const dice = document.getElementById("dice");
+  dice.classList.add("rolling");
 
   setTimeout(() => {
-    dice.style.transform = "rotate(0deg) scale(1)";
-  }, 700);
+    dice.classList.remove("rolling");
+    const roll = Math.floor(Math.random() * 6) + 1;
+    dice.innerText = roll;
+    sendAction({ type: "dice", value: roll });
+  }, 1200);
+}
 
-  const r = Math.floor(Math.random() * 6) + 1;
-  const faces = {
-    1:["mm"],2:["tl","br"],3:["tl","mm","br"],
-    4:["tl","tr","bl","br"],
-    5:["tl","tr","mm","bl","br"],
-    6:["tl","ml","bl","tr","mr","br"]
-  };
+/* =========================
+   INVIO AZIONE AI
+========================= */
 
-  faces[r].forEach(c => dice.querySelector("." + c).style.display = "block");
+async function sendAction(action) {
+  turnCount++;
+
+  const response = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      last_action: action,
+      player_state: {
+        ...playerState,
+        rischio: calculateRisk(),
+        turn: turnCount
+      }
+    })
+  });
+
+  const result = await response.json();
+  applyResult(result);
+}
+
+/* =========================
+   APPLICAZIONE RISULTATO
+========================= */
+
+function applyResult(r) {
+  document.getElementById("mission").innerText = r.narrazione;
+
+  playerState.salute += r.effetti.salute;
+  playerState.stress += r.effetti.stress;
+  playerState.risorse += r.effetti.risorse;
+
+  clamp();
+  updateStats();
+  saveRun();
+  playFeedback(r.esito);
+
+  if (playerState.salute <= 0) gameOver();
+}
+
+/* =========================
+   FEEDBACK (A5)
+========================= */
+
+function playFeedback(esito) {
+  if (esito.includes("fallimento")) {
+    document.body.classList.add("flash-fail");
+    setTimeout(() => document.body.classList.remove("flash-fail"), 300);
+  } else {
+    document.body.classList.add("flash-success");
+    setTimeout(() => document.body.classList.remove("flash-success"), 300);
+  }
+}
+
+/* =========================
+   UTILITÀ
+========================= */
+
+function clamp() {
+  for (let k in playerState) {
+    playerState[k] = Math.max(0, Math.min(6, playerState[k]));
+  }
+}
+
+function updateStats() {
+  ["salute","stress","risorse"].forEach(stat => {
+    const bars = document.getElementById(stat).children;
+    [...bars].forEach((b,i) =>
+      b.classList.toggle("active", i < playerState[stat])
+    );
+  });
+}
+
+function saveRun() {
+  localStorage.setItem("run", JSON.stringify(playerState));
+}
+
+/* =========================
+   GAME OVER (A7)
+========================= */
+
+function gameOver() {
+  meta.runs++;
+  if (meta.runs % 3 === 0) meta.bonus_salute++;
+  localStorage.setItem("meta", JSON.stringify(meta));
+  localStorage.removeItem("run");
+  location.reload();
 }
 </script>
 
