@@ -1,103 +1,90 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<title>Roguelite AI Game</title>
+<meta charset="UTF-8" />
+<title>Survival Game</title>
 
 <style>
-/* =========================
-   BASE UI
-========================= */
-
-body {
+html, body {
   margin: 0;
-  background: #111;
-  color: #3b2a1a;
-  font-family: serif;
+  padding: 0;
+  background: #0e0e0e;
+  color: #a87c4a;
+  font-family: Arial, sans-serif;
+  height: 100%;
 }
 
+/* --- STRUTTURA --- */
 #game {
-  width: 100vw;
-  height: 100vh;
   position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
 }
 
-/* =========================
-   AREA MISSIONE
-========================= */
-
+/* --- AREA MISSIONE --- */
 #mission {
   position: absolute;
-  top: 3%;
+  top: 4%;
   left: 50%;
   transform: translateX(-50%);
   width: 70%;
-  font-size: 1.3em;
   text-align: center;
-  background: transparent;
+  font-size: 1.6rem;
+  z-index: 10;
 }
 
-/* =========================
-   DADO
-========================= */
-
+/* --- DADO --- */
 #dice {
   position: absolute;
-  top: 45%;
+  top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 120px;
   height: 120px;
-  border: 3px solid #3b2a1a;
+  border: 2px solid #a87c4a;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3em;
+  font-size: 3rem;
   cursor: pointer;
-  transition: transform 0.2s;
+  user-select: none;
+  z-index: 20;
 }
 
-#dice.rolling {
-  animation: roll 1.2s linear;
-}
-
-@keyframes roll {
-  0% { transform: translate(-50%, -50%) rotate(0deg); }
-  100% { transform: translate(-50%, -50%) rotate(720deg); }
-}
-
-/* =========================
-   PULSANTI AZIONE
-========================= */
-
+/* --- AZIONI --- */
 #actions {
   position: absolute;
-  top: 60%;
+  top: 55%;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 12px;
+  gap: 16px;
+  z-index: 30;
 }
 
 button {
   background: transparent;
-  border: 2px solid #3b2a1a;
-  color: #3b2a1a;
-  padding: 10px 14px;
+  border: 1px solid #a87c4a;
+  color: #a87c4a;
+  padding: 10px 18px;
   cursor: pointer;
+  font-size: 1rem;
 }
 
-/* =========================
-   STATISTICHE
-========================= */
+button:hover {
+  background: rgba(168,124,74,0.15);
+}
 
+/* --- STATISTICHE --- */
 .stats {
   position: absolute;
-  bottom: 8%;
+  bottom: 4%;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   gap: 40px;
+  z-index: 10;
 }
 
 .stat {
@@ -105,31 +92,19 @@ button {
   gap: 4px;
 }
 
-.stat div {
-  width: 18px;
-  height: 12px;
-  border: 1px solid #3b2a1a;
+.box {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #a87c4a;
 }
 
-.stat div.active {
-  background: #7a3b1c;
+.box.filled {
+  background: #a87c4a;
 }
 
-/* =========================
-   FEEDBACK VISIVO
-========================= */
-
-.flash-fail { animation: flashRed 0.3s; }
-.flash-success { animation: flashGreen 0.3s; }
-
-@keyframes flashRed {
-  0% { background:#400; }
-  100% { background:#111; }
-}
-
-@keyframes flashGreen {
-  0% { background:#143; }
-  100% { background:#111; }
+/* --- SICUREZZA CLICK --- */
+* {
+  pointer-events: auto;
 }
 </style>
 </head>
@@ -137,14 +112,17 @@ button {
 <body>
 
 <div id="game">
-  <div id="mission"></div>
 
-  <div id="dice" onclick="rollDice()">🎲</div>
+  <div id="mission">
+    Ti trovi tra le rovine di una città devastata. Il silenzio è innaturale.
+  </div>
+
+  <div id="dice">?</div>
 
   <div id="actions">
-    <button onclick="sendAction('esplora area')">Esplora</button>
-    <button onclick="sendAction('cerca risorse')">Cerca</button>
-    <button onclick="sendAction('riposa')">Riposa</button>
+    <button onclick="doAction('esplora')">Esplora</button>
+    <button onclick="doAction('cerca')">Cerca</button>
+    <button onclick="doAction('riposa')">Riposa</button>
   </div>
 
   <div class="stats">
@@ -152,178 +130,77 @@ button {
     <div class="stat" id="stress"></div>
     <div class="stat" id="risorse"></div>
   </div>
+
 </div>
 
 <script>
-/* =========================
-   CONFIG
-========================= */
+/* --- CONFIG --- */
+const WORKER_URL = "https://still-hat-5795.salvatifranc.workers.dev";
 
-const API_URL = "https://still-hat-5795.salvatifranc.workers.dev";
-
-/* =========================
-   META-PROGRESSION (A7)
-========================= */
-
-let meta = JSON.parse(localStorage.getItem("meta")) || {
-  runs: 0,
-  bonus_salute: 0,
-  rischio_mod: 0
-};
-
-/* =========================
-   STATO RUN
-========================= */
-
-let playerState = JSON.parse(localStorage.getItem("run")) || {
-  salute: 4 + meta.bonus_salute,
+/* --- STATO GIOCO --- */
+let state = {
+  salute: 4,
   stress: 2,
   risorse: 3
 };
 
-let turnCount = 0;
-
-/* =========================
-   UI INIT
-========================= */
-
-function initBars(id) {
-  const el = document.getElementById(id);
-  el.innerHTML = "";
-  for (let i = 0; i < 6; i++) {
-    el.appendChild(document.createElement("div"));
-  }
-}
-initBars("salute");
-initBars("stress");
-initBars("risorse");
-updateStats();
-
-/* =========================
-   RISCHIO DINAMICO (A4)
-========================= */
-
-function calculateRisk() {
-  const r =
-    playerState.stress * 1.2 +
-    turnCount * 0.3 -
-    playerState.salute * 0.8 +
-    meta.rischio_mod;
-
-  if (r >= 6) return "Estremo";
-  if (r >= 4.5) return "Molto Rischioso";
-  if (r >= 3) return "Rischioso";
-  if (r >= 1.5) return "Standard";
-  if (r >= 0.5) return "Facile";
-  return "Molto Facile";
-}
-
-/* =========================
-   DADO
-========================= */
-
-function rollDice() {
-  const dice = document.getElementById("dice");
-  dice.classList.add("rolling");
-
-  setTimeout(() => {
-    dice.classList.remove("rolling");
-    const roll = Math.floor(Math.random() * 6) + 1;
-    dice.innerText = roll;
-    sendAction({ type: "dice", value: roll });
-  }, 1200);
-}
-
-/* =========================
-   INVIO AZIONE AI
-========================= */
-
-async function sendAction(action) {
-  turnCount++;
-
-  const response = await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      last_action: action,
-      player_state: {
-        ...playerState,
-        rischio: calculateRisk(),
-        turn: turnCount
-      }
-    })
-  });
-
-  const result = await response.json();
-  applyResult(result);
-}
-
-/* =========================
-   APPLICAZIONE RISULTATO
-========================= */
-
-function applyResult(r) {
-  document.getElementById("mission").innerText = r.narrazione;
-
-  playerState.salute += r.effetti.salute;
-  playerState.stress += r.effetti.stress;
-  playerState.risorse += r.effetti.risorse;
-
-  clamp();
-  updateStats();
-  saveRun();
-  playFeedback(r.esito);
-
-  if (playerState.salute <= 0) gameOver();
-}
-
-/* =========================
-   FEEDBACK (A5)
-========================= */
-
-function playFeedback(esito) {
-  if (esito.includes("fallimento")) {
-    document.body.classList.add("flash-fail");
-    setTimeout(() => document.body.classList.remove("flash-fail"), 300);
-  } else {
-    document.body.classList.add("flash-success");
-    setTimeout(() => document.body.classList.remove("flash-success"), 300);
-  }
-}
-
-/* =========================
-   UTILITÀ
-========================= */
-
-function clamp() {
-  for (let k in playerState) {
-    playerState[k] = Math.max(0, Math.min(6, playerState[k]));
-  }
-}
-
-function updateStats() {
-  ["salute","stress","risorse"].forEach(stat => {
-    const bars = document.getElementById(stat).children;
-    [...bars].forEach((b,i) =>
-      b.classList.toggle("active", i < playerState[stat])
-    );
+/* --- UI --- */
+function renderStats() {
+  ["salute", "stress", "risorse"].forEach(key => {
+    const el = document.getElementById(key);
+    el.innerHTML = "";
+    for (let i = 0; i < 6; i++) {
+      const box = document.createElement("div");
+      box.className = "box" + (i < state[key] ? " filled" : "");
+      el.appendChild(box);
+    }
   });
 }
 
-function saveRun() {
-  localStorage.setItem("run", JSON.stringify(playerState));
-}
+renderStats();
 
-/* =========================
-   GAME OVER (A7)
-========================= */
+/* --- DADO --- */
+document.getElementById("dice").onclick = () => {
+  const roll = Math.floor(Math.random() * 6) + 1;
+  document.getElementById("dice").innerText = roll;
+};
 
-function gameOver() {
-  meta.runs++;
-  if (meta.runs % 3 === 0) meta.bonus_salute++;
-  localStorage.setItem("meta", JSON.stringify(meta));
-  localStorage.removeItem("run");
-  location.reload();
+/* --- AZIONI + AI --- */
+async function doAction(action) {
+  document.getElementById("mission").innerText = "…";
+
+  const payload = {
+    last_action: action,
+    player_state: state
+  };
+
+  try {
+    const res = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const text = await res.text();
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      document.getElementById("mission").innerText = text;
+      return;
+    }
+
+    if (data.state) state = data.state;
+    if (data.narrazione)
+      document.getElementById("mission").innerText = data.narrazione;
+
+    renderStats();
+
+  } catch (e) {
+    document.getElementById("mission").innerText =
+      "Errore di connessione con l'IA.";
+  }
 }
 </script>
 
