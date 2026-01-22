@@ -1,95 +1,107 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8" />
-<title>Survival Game</title>
+<meta charset="UTF-8">
+<title>Survival Roguelite</title>
 
 <style>
 html, body {
   margin: 0;
   padding: 0;
-  background: #0e0e0e;
+  background: #0b0b0b;
   color: #a87c4a;
-  font-family: Arial, sans-serif;
+  font-family: serif;
   height: 100%;
+  overflow: hidden;
 }
 
-/* --- STRUTTURA --- */
+/* =========================
+   STRUTTURA
+========================= */
+
 #game {
   position: relative;
   width: 100%;
   height: 100vh;
-  overflow: hidden;
 }
 
-/* --- AREA MISSIONE --- */
+/* =========================
+   AREA MISSIONE
+========================= */
+
 #mission {
   position: absolute;
-  top: 4%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 70%;
+  top: 3%;
+  width: 100%;
   text-align: center;
-  font-size: 1.6rem;
   z-index: 10;
 }
 
-/* --- DADO --- */
+#narration {
+  max-width: 900px;
+  margin: auto;
+  font-size: 1.6rem;
+  line-height: 1.4;
+}
+
+/* =========================
+   DADO
+========================= */
+
 #dice {
   position: absolute;
-  top: 40%;
+  top: 42%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  width: 120px;
-  height: 120px;
-  border: 2px solid #a87c4a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3rem;
-  cursor: pointer;
-  user-select: none;
+  transform: translateX(-50%);
+  font-size: 5rem;
+  display: none;
   z-index: 20;
 }
 
-/* --- AZIONI --- */
-#actions {
+/* =========================
+   SCELTE
+========================= */
+
+#choices {
   position: absolute;
-  top: 55%;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 58%;
+  width: 100%;
   display: flex;
-  gap: 16px;
+  justify-content: center;
+  gap: 24px;
   z-index: 30;
 }
 
-button {
-  background: transparent;
+.choice {
+  padding: 16px 34px;
   border: 1px solid #a87c4a;
+  background: transparent;
   color: #a87c4a;
-  padding: 10px 18px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.1rem;
 }
 
-button:hover {
+.choice:hover {
   background: rgba(168,124,74,0.15);
 }
 
-/* --- STATISTICHE --- */
-.stats {
+/* =========================
+   STATISTICHE
+========================= */
+
+#stats {
   position: absolute;
   bottom: 4%;
-  left: 50%;
-  transform: translateX(-50%);
+  width: 100%;
   display: flex;
-  gap: 40px;
+  justify-content: center;
+  gap: 60px;
   z-index: 10;
 }
 
 .stat {
   display: flex;
-  gap: 4px;
+  gap: 6px;
 }
 
 .box {
@@ -102,7 +114,10 @@ button:hover {
   background: #a87c4a;
 }
 
-/* --- SICUREZZA CLICK --- */
+/* =========================
+   SICUREZZA CLICK
+========================= */
+
 * {
   pointer-events: auto;
 }
@@ -114,18 +129,18 @@ button:hover {
 <div id="game">
 
   <div id="mission">
-    Ti trovi tra le rovine di una città devastata. Il silenzio è innaturale.
+    <div id="narration">Caricamento...</div>
   </div>
 
-  <div id="dice">?</div>
+  <div id="dice">🎲</div>
 
-  <div id="actions">
-    <button onclick="doAction('esplora')">Esplora</button>
-    <button onclick="doAction('cerca')">Cerca</button>
-    <button onclick="doAction('riposa')">Riposa</button>
+  <div id="choices">
+    <button class="choice" id="btnA" onclick="choose('A')">A</button>
+    <button class="choice" id="btnB" onclick="choose('B')">B</button>
+    <button class="choice" id="btnC" onclick="choose('C')">C</button>
   </div>
 
-  <div class="stats">
+  <div id="stats">
     <div class="stat" id="salute"></div>
     <div class="stat" id="stress"></div>
     <div class="stat" id="risorse"></div>
@@ -134,73 +149,138 @@ button:hover {
 </div>
 
 <script>
-/* --- CONFIG --- */
-const WORKER_URL = "https://still-hat-5795.salvatifranc.workers.dev";
+/* =========================
+   CONFIG
+========================= */
 
-/* --- STATO GIOCO --- */
-let state = {
+const WORKER_URL =
+  "https://still-hat-5795.salvatifranc.workers.dev";
+
+/* =========================
+   STATO GIOCATORE
+========================= */
+
+let playerState = {
   salute: 4,
   stress: 2,
   risorse: 3
 };
 
-/* --- UI --- */
+let lastAI = null;
+
+/* =========================
+   INIT STAT
+========================= */
+
+function initStat(id) {
+  const el = document.getElementById(id);
+  el.innerHTML = "";
+  for (let i = 0; i < 6; i++) {
+    const box = document.createElement("div");
+    box.className = "box";
+    el.appendChild(box);
+  }
+}
+
+["salute", "stress", "risorse"].forEach(initStat);
+renderStats();
+
+/* =========================
+   RENDER STAT
+========================= */
+
 function renderStats() {
-  ["salute", "stress", "risorse"].forEach(key => {
-    const el = document.getElementById(key);
-    el.innerHTML = "";
-    for (let i = 0; i < 6; i++) {
-      const box = document.createElement("div");
-      box.className = "box" + (i < state[key] ? " filled" : "");
-      el.appendChild(box);
-    }
+  ["salute", "stress", "risorse"].forEach(stat => {
+    const boxes = document
+      .getElementById(stat)
+      .querySelectorAll(".box");
+
+    boxes.forEach((b, i) => {
+      b.classList.toggle("filled", i < playerState[stat]);
+    });
   });
 }
 
-renderStats();
+/* =========================
+   FETCH AI
+========================= */
 
-/* --- DADO --- */
-document.getElementById("dice").onclick = () => {
-  const roll = Math.floor(Math.random() * 6) + 1;
-  document.getElementById("dice").innerText = roll;
-};
+async function fetchAI(payload) {
+  const res = await fetch(WORKER_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload || {})
+  });
+  return await res.json();
+}
 
-/* --- AZIONI + AI --- */
-async function doAction(action) {
-  document.getElementById("mission").innerText = "…";
+/* =========================
+   AVVIO GIOCO
+========================= */
 
-  const payload = {
-    last_action: action,
-    player_state: state
-  };
+startGame();
 
-  try {
-    const res = await fetch(WORKER_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+async function startGame() {
+  const ai = await fetchAI({});
+  renderAI(ai);
+}
 
-    const text = await res.text();
+/* =========================
+   RENDER AI
+========================= */
 
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      document.getElementById("mission").innerText = text;
-      return;
+function renderAI(ai) {
+  lastAI = ai;
+
+  document.getElementById("narration").textContent =
+    ai.narration;
+
+  document.getElementById("btnA").textContent =
+    "A — " + ai.choices.A;
+  document.getElementById("btnB").textContent =
+    "B — " + ai.choices.B;
+  document.getElementById("btnC").textContent =
+    "C — " + ai.choices.C;
+}
+
+/* =========================
+   SCELTA GIOCATORE
+========================= */
+
+async function choose(letter) {
+  let diceValue = null;
+  let success = true;
+
+  const dice = document.getElementById("dice");
+
+  if (lastAI.test.required) {
+    dice.style.display = "block";
+    diceValue = Math.floor(Math.random() * 6) + 1;
+    dice.textContent = diceValue;
+
+    success = diceValue >= lastAI.test.difficulty;
+
+    const effects = success
+      ? lastAI.effects.success
+      : lastAI.effects.fail;
+
+    for (let k in effects) {
+      playerState[k] += effects[k];
+      playerState[k] = Math.max(0, Math.min(6, playerState[k]));
     }
 
-    if (data.state) state = data.state;
-    if (data.narrazione)
-      document.getElementById("mission").innerText = data.narrazione;
-
     renderStats();
-
-  } catch (e) {
-    document.getElementById("mission").innerText =
-      "Errore di connessione con l'IA.";
   }
+
+  const ai = await fetchAI({
+    selected: letter,
+    dice: diceValue,
+    success,
+    player_state: playerState
+  });
+
+  dice.style.display = "none";
+  renderAI(ai);
 }
 </script>
 
