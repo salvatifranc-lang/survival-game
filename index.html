@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>Survival AI</title>
+  <title>Survival TEST</title>
   <style>
     body {
       font-family: monospace;
@@ -10,82 +10,27 @@
       color: #eee;
       padding: 20px;
     }
-    button {
-      display: block;
-      margin: 8px 0;
-      width: 100%;
-      padding: 10px;
-      background: #222;
-      color: #eee;
-      border: 1px solid #444;
-      cursor: pointer;
-    }
-    button:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-    #dice {
-      margin-top: 10px;
-    }
   </style>
 </head>
 <body>
 
-<h2>Survival</h2>
-<div id="hud"></div>
-<p id="narration">Caricamento…</p>
-
-<div id="choices">
-  <button onclick="choose('A')"></button>
-  <button onclick="choose('B')"></button>
-  <button onclick="choose('C')"></button>
-</div>
-
-<div id="dice"></div>
+<h2>Survival – Test connessione</h2>
+<p id="output">Caricamento…</p>
 
 <script>
 const WORKER_URL = "https://still-hat-5795.salvatrifranc.workers.dev";
 
-let playerState = {
-  salute: 10,
-  stress: 0,
-  risorse: 5
-};
+fetch(WORKER_URL)
+  .then(r => r.text())
+  .then(t => {
+    document.getElementById("output").innerText =
+      "RISPOSTA DAL WORKER:\n\n" + t;
+  })
+  .catch(err => {
+    document.getElementById("output").innerText =
+      "ERRORE FETCH:\n" + err;
+  });
+</script>
 
-async function playTurn(action) {
-  disableChoices();
-  document.getElementById("dice").innerText = "";
-
-  try {
-    const res = await fetch(WORKER_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        last_action: action,
-        player_state: playerState
-      })
-    });
-
-    if (!res.ok) throw new Error("HTTP " + res.status);
-
-    const data = await res.json();
-
-    document.getElementById("narration").innerText = data.narration;
-
-    const buttons = document.querySelectorAll("#choices button");
-    buttons[0].innerText = "A) " + data.choices.A;
-    buttons[1].innerText = "B) " + data.choices.B;
-    buttons[2].innerText = "C) " + data.choices.C;
-
-    if (data.test.required) {
-      const roll = rollDice();
-      const success = roll >= data.test.difficulty;
-      applyEffects(success ? data.effects.success : data.effects.fail);
-    }
-
-    updateHUD();
-    enableChoices();
-
-  } catch (err) {
-    document.getElementById("narration").innerText =
-      "Errore di comunicazione c
+</body>
+</html>
