@@ -12,7 +12,6 @@ body {
   font-size: 18px;
   height: 100vh;
   color: #d6f5d6;
-
   background-image: url("SFONDOTOP.jpg");
   background-size: cover;
   background-position: center;
@@ -44,9 +43,8 @@ body {
 }
 
 #narration {
-  height: 53vh;                 /* ← CONTROLLO REALE DELL’ALTEZZA */
-  max-height: 53vh;
-  border: 0px solid rgba(255,255,255,0.35);
+  height: 53vh;
+  border: 1px solid rgba(255,255,255,0.35);
   padding: 20px;
   margin-bottom: 40px;
   white-space: pre-wrap;
@@ -55,10 +53,9 @@ body {
   overflow-y: auto;
 }
 
-
 /* CHOICES */
 .choice {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 /* CONTROLS */
@@ -74,7 +71,7 @@ button {
   cursor: pointer;
   background: transparent;
   color: #d6f5d6;
-  border: 0px solid rgba(255,255,255,0.45);
+  border: 1px solid rgba(255,255,255,0.45);
 }
 
 button:hover {
@@ -93,14 +90,13 @@ button:hover {
   margin-bottom: 8px;
 }
 
-/* ===== CURSORE TERMINALE ===== */
+/* CURSOR */
 .cursor {
   display: inline-block;
   width: 10px;
   margin-left: 2px;
   animation: blink 1s steps(1) infinite;
 }
-
 @keyframes blink {
   50% { opacity: 0; }
 }
@@ -113,10 +109,9 @@ button:hover {
 
   <!-- LEFT -->
   <aside id="stats">
-    <div class="stat">❤️ Salute: 10</div>
-    <div class="stat">🧠 Stress: 0</div>
-    <div class="stat">🎒 Risorse: 5</div>
-    <div class="stat">⭐ Livello: 1</div>
+    <div class="stat">❤️ Salute: <span id="stat-salute">10</span></div>
+    <div class="stat">⚡ Stamina: <span id="stat-stamina">10</span></div>
+    <div class="stat">⭐ Livello: <span id="stat-livello">1</span></div>
   </aside>
 
   <!-- CENTER -->
@@ -149,12 +144,19 @@ button:hover {
 </div>
 
 <script>
-/* 🔗 LINK CORRETTO AL WORKER */
+/* WORKER */
 const WORKER_URL = "https://still-hat-5795.salvatifranc.workers.dev/";
+
+/* STATO GIOCATORE */
+let playerState = {
+  salute: 10,
+  stamina: 10,
+  livello: 1
+};
 
 let lastNarration = "";
 
-/* ===== TYPEWRITER ===== */
+/* TYPEWRITER */
 function typeWriter(element, text, speed = 18) {
   element.innerText = "";
   let i = 0;
@@ -175,6 +177,13 @@ function typeWriter(element, text, speed = 18) {
   }, speed);
 }
 
+/* UI UPDATE */
+function updateStatsUI() {
+  document.getElementById("stat-salute").innerText = playerState.salute;
+  document.getElementById("stat-stamina").innerText = playerState.stamina;
+  document.getElementById("stat-livello").innerText = playerState.livello;
+}
+
 async function playTurn(action) {
   try {
     const res = await fetch(WORKER_URL, {
@@ -182,7 +191,7 @@ async function playTurn(action) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         last_action: action,
-        last_narration: lastNarration
+        player_state: playerState
       })
     });
 
@@ -203,6 +212,17 @@ async function playTurn(action) {
 
     lastNarration = data.narration || "";
 
+    /* APPLICAZIONE EFFETTI (PREPARATO) */
+    if (data.effects) {
+      if (typeof data.effects.salute === "number") {
+        playerState.salute += data.effects.salute;
+      }
+      if (typeof data.effects.stamina === "number") {
+        playerState.stamina += data.effects.stamina;
+      }
+      updateStatsUI();
+    }
+
   } catch (err) {
     narration.innerText = "Impossibile contattare il server.";
   }
@@ -212,7 +232,8 @@ function choose(letter) {
   playTurn(letter);
 }
 
-/* Avvio */
+/* AVVIO */
+updateStatsUI();
 playTurn("inizio");
 </script>
 
