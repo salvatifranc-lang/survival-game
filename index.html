@@ -21,16 +21,16 @@ body {
   height: 100vh;
 }
 
-#stats, #inventory {
+/* LEFT */
+#stats {
   padding: 20px;
+  border-right: 1px solid #333;
   background: #141414;
 }
 
-#stats { border-right: 1px solid #333; }
-#inventory { border-left: 1px solid #333; }
-
 .stat { margin-bottom: 14px; }
 
+/* CENTER */
 #main {
   padding: 24px;
   display: flex;
@@ -63,6 +63,13 @@ button {
   font-size: 20px;
 }
 button:hover { background: #333; }
+
+/* RIGHT */
+#inventory {
+  padding: 20px;
+  border-left: 1px solid #333;
+  background: #141414;
+}
 </style>
 </head>
 
@@ -70,6 +77,7 @@ button:hover { background: #333; }
 
 <div id="app">
 
+  <!-- LEFT: STATS -->
   <aside id="stats">
     <div class="stat">❤️ Salute: 10</div>
     <div class="stat">🧠 Stress: 0</div>
@@ -77,6 +85,7 @@ button:hover { background: #333; }
     <div class="stat">⭐ Livello: 1</div>
   </aside>
 
+  <!-- CENTER: GAME -->
   <main id="main">
     <div id="narration">Caricamento…</div>
 
@@ -93,6 +102,7 @@ button:hover { background: #333; }
     </div>
   </main>
 
+  <!-- RIGHT: INVENTORY -->
   <aside id="inventory">
     <strong>Inventario</strong>
     <div>• Torcia</div>
@@ -105,34 +115,46 @@ button:hover { background: #333; }
 </div>
 
 <script>
-const WORKER_URL = "https://still-hat-5795.salvatrifranc.workers.dev";
+/* 🔗 LINK CORRETTO AL WORKER */
+const WORKER_URL = "https://still-hat-5795.salvatifranc.workers.dev/";
 
 let lastNarration = "";
 
 async function playTurn(action) {
-  const res = await fetch(WORKER_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      last_action: action,
-      last_narration: lastNarration
-    })
-  });
+  try {
+    const res = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        last_action: action,
+        last_narration: lastNarration
+      })
+    });
 
-  const data = await res.json();
+    if (!res.ok) {
+      narration.innerText = "Errore di comunicazione con il server.";
+      return;
+    }
 
-  narration.innerText = data.narration;
-  choiceA.innerText = "A) " + data.choices.A;
-  choiceB.innerText = "B) " + data.choices.B;
-  choiceC.innerText = "C) " + data.choices.C;
+    const data = await res.json();
 
-  lastNarration = data.narration;
+    narration.innerText = data.narration || "…";
+    choiceA.innerText = "A) " + (data.choices?.A || "");
+    choiceB.innerText = "B) " + (data.choices?.B || "");
+    choiceC.innerText = "C) " + (data.choices?.C || "");
+
+    lastNarration = data.narration || "";
+
+  } catch (err) {
+    narration.innerText = "Impossibile contattare il server.";
+  }
 }
 
 function choose(letter) {
   playTurn(letter);
 }
 
+/* Avvio */
 playTurn("inizio");
 </script>
 
