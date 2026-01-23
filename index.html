@@ -44,8 +44,7 @@
 <div id="dice"></div>
 
 <script>
-/* 🔴 CAMBIA SOLO QUESTO */
-const WORKER_URL = "still-hat-5795.salvatifranc.workers.dev";
+const WORKER_URL = "https://still-hat-5795.salvatrifranc.workers.dev";
 
 let playerState = {
   salute: 10,
@@ -89,33 +88,4 @@ async function playTurn(action) {
 
   } catch (err) {
     document.getElementById("narration").innerText =
-      "Errore di comunicazione con il server.";
-    enableChoices();
-  }
-}
-
-function choose(letter) {
-  playTurn(letter);
-}
-
-function rollDice() {
-  const roll = Math.ceil(Math.random() * 6);
-  document.getElementById("dice").innerText = "🎲 Tiro: " + roll;
-  return roll;
-}
-
-function applyEffects(effects) {
-  ["salute", "stress", "risorse"].forEach(key => {
-    if (typeof effects[key] === "number") {
-      playerState[key] += effects[key];
-    }
-  });
-
-  playerState.salute = Math.max(0, playerState.salute);
-  playerState.stress = Math.max(0, playerState.stress);
-  playerState.risorse = Math.max(0, playerState.risorse);
-}
-
-function updateHUD() {
-  document.getElementById("hud").innerText =
-    `❤️ ${playerState.salute} | 🧠 ${playe
+      "Errore di comunicazione c
