@@ -209,9 +209,9 @@ function esitoLabel(code) {
 
 /* UI */
 function updateStatsUI() {
-  stat-salute.innerText = playerState.salute;
-  stat-stamina.innerText = playerState.stamina;
-  stat-livello.innerText = playerState.livello;
+  document.getElementById("stat-salute").innerText = playerState.salute;
+  document.getElementById("stat-stamina").innerText = playerState.stamina;
+  document.getElementById("stat-livello").innerText = playerState.livello;
 }
 
 /* ===== LOOP ===== */
