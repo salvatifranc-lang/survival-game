@@ -30,7 +30,6 @@ body {
 #stats {
   padding: 20px;
   border-right: 1px solid rgba(255,255,255,0.25);
-  background: transparent;
 }
 
 .stat { margin-bottom: 14px; }
@@ -46,22 +45,20 @@ body {
   height: 53vh;
   border: 1px solid rgba(255,255,255,0.35);
   padding: 20px;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
   white-space: pre-wrap;
   line-height: 1.6;
-  background: transparent;
   overflow-y: auto;
 }
 
 /* CHOICES */
-.choice {
-  margin-bottom: 8px;
-}
+.choice { margin-bottom: 8px; }
 
 /* CONTROLS */
 #controls {
   display: flex;
   gap: 12px;
+  margin-bottom: 16px;
 }
 
 button {
@@ -78,11 +75,18 @@ button:hover {
   background: rgba(0,0,0,0.35);
 }
 
+/* TEST RESULT */
+#test-box {
+  border: 1px dashed rgba(255,255,255,0.35);
+  padding: 10px;
+  font-size: 16px;
+  min-height: 48px;
+}
+
 /* RIGHT */
 #inventory {
   padding: 20px;
   border-left: 1px solid rgba(255,255,255,0.25);
-  background: transparent;
 }
 
 #inventory strong {
@@ -129,6 +133,11 @@ button:hover {
       <button onclick="choose('B')">B</button>
       <button onclick="choose('C')">C</button>
     </div>
+
+    <!-- 🎲 TEST RESULT -->
+    <div id="test-box">
+      🎲 Dado: — | 🧪 Esito: —
+    </div>
   </main>
 
   <!-- RIGHT -->
@@ -136,18 +145,13 @@ button:hover {
     <strong>Inventario</strong>
     <div>• Torcia</div>
     <div>• Coltello</div>
-    <br>
-    <strong>Abilità</strong>
-    <div>• Sopravvivenza base</div>
   </aside>
 
 </div>
 
 <script>
-/* WORKER */
 const WORKER_URL = "https://still-hat-5795.salvatifranc.workers.dev/";
 
-/* STATO GIOCATORE */
 let playerState = {
   salute: 10,
   stamina: 10,
@@ -156,11 +160,10 @@ let playerState = {
 
 let lastNarration = "";
 
-/* TYPEWRITER */
+/* ===== TYPEWRITER ===== */
 function typeWriter(element, text, speed = 18) {
   element.innerText = "";
   let i = 0;
-
   const cursor = document.createElement("span");
   cursor.className = "cursor";
   cursor.innerText = "█";
@@ -177,13 +180,41 @@ function typeWriter(element, text, speed = 18) {
   }, speed);
 }
 
-/* UI UPDATE */
-function updateStatsUI() {
-  document.getElementById("stat-salute").innerText = playerState.salute;
-  document.getElementById("stat-stamina").innerText = playerState.stamina;
-  document.getElementById("stat-livello").innerText = playerState.livello;
+/* ===== DADO ===== */
+function rollD6() {
+  return Math.floor(Math.random() * 6) + 1;
 }
 
+function resolveTest(d6, difficulty = "Standard") {
+  const table = {
+    "Estremo":        ["FC","FC","F","F","P","B"],
+    "Molto Rischioso":["FC","F","F","P","S","B"],
+    "Rischioso":     ["FC","F","P","P","S","B"],
+    "Standard":      ["FC","F","P","P","S","B"],
+    "Facile":        ["F","P","S","S","B","B"],
+    "Molto Facile":  ["P","P","S","S","B","B"]
+  };
+  return table[difficulty][d6 - 1];
+}
+
+function esitoLabel(code) {
+  return {
+    "FC": "Fallimento Critico",
+    "F":  "Fallimento",
+    "P":  "Successo Parziale",
+    "S":  "Successo",
+    "B":  "Successo con Bonus"
+  }[code];
+}
+
+/* UI */
+function updateStatsUI() {
+  stat-salute.innerText = playerState.salute;
+  stat-stamina.innerText = playerState.stamina;
+  stat-livello.innerText = playerState.livello;
+}
+
+/* ===== LOOP ===== */
 async function playTurn(action) {
   try {
     const res = await fetch(WORKER_URL, {
@@ -195,36 +226,27 @@ async function playTurn(action) {
       })
     });
 
-    if (!res.ok) {
-      narration.innerText = "Errore di comunicazione con il server.";
-      return;
-    }
-
     const data = await res.json();
 
     typeWriter(narration, data.narration || "…", 20);
 
     setTimeout(() => {
-      typeWriter(choiceA, "A) " + (data.choices?.A || ""), 12);
-      typeWriter(choiceB, "B) " + (data.choices?.B || ""), 12);
-      typeWriter(choiceC, "C) " + (data.choices?.C || ""), 12);
+      typeWriter(choiceA, "A) " + data.choices.A, 12);
+      typeWriter(choiceB, "B) " + data.choices.B, 12);
+      typeWriter(choiceC, "C) " + data.choices.C, 12);
     }, 300);
 
     lastNarration = data.narration || "";
 
-    /* APPLICAZIONE EFFETTI (PREPARATO) */
-    if (data.effects) {
-      if (typeof data.effects.salute === "number") {
-        playerState.salute += data.effects.salute;
-      }
-      if (typeof data.effects.stamina === "number") {
-        playerState.stamina += data.effects.stamina;
-      }
-      updateStatsUI();
-    }
+    /* 🎲 TEST (SIMULATO) */
+    const d6 = rollD6();
+    const resultCode = resolveTest(d6, "Standard");
 
-  } catch (err) {
-    narration.innerText = "Impossibile contattare il server.";
+    document.getElementById("test-box").innerText =
+      `🎲 Dado: ${d6} | 🧪 Esito: ${esitoLabel(resultCode)}`;
+
+  } catch {
+    narration.innerText = "Errore di comunicazione.";
   }
 }
 
@@ -232,7 +254,6 @@ function choose(letter) {
   playTurn(letter);
 }
 
-/* AVVIO */
 updateStatsUI();
 playTurn("inizio");
 </script>
