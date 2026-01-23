@@ -12,30 +12,25 @@ body {
   font-family: monospace;
   background: #0e0e0e;
   color: #e0e0e0;
-  font-size: 18px; /* BASE FONT */
+  font-size: 18px;
 }
 
-/* LAYOUT */
 #app {
   display: grid;
   grid-template-columns: 280px 1fr 280px;
-  grid-template-rows: 1fr;
   height: 100vh;
 }
 
-/* LEFT PANEL */
-#stats {
+#stats, #inventory {
   padding: 20px;
-  border-right: 1px solid #333;
   background: #141414;
 }
 
-.stat {
-  margin-bottom: 14px;
-  font-size: 19px;
-}
+#stats { border-right: 1px solid #333; }
+#inventory { border-left: 1px solid #333; }
 
-/* CENTER PANEL */
+.stat { margin-bottom: 14px; }
+
 #main {
   padding: 24px;
   display: flex;
@@ -48,35 +43,11 @@ body {
   padding: 20px;
   margin-bottom: 18px;
   white-space: pre-wrap;
-  font-size: 20px;
   line-height: 1.5;
 }
 
-#choices {
-  margin-bottom: 22px;
-}
+.choice { margin-bottom: 8px; }
 
-.choice {
-  margin-bottom: 8px;
-  font-size: 18px;
-}
-
-/* DICE + RESULT */
-#test-area {
-  display: flex;
-  gap: 14px;
-  margin-bottom: 22px;
-}
-
-#dice, #test-result {
-  flex: 1;
-  border: 1px solid #333;
-  padding: 14px;
-  text-align: center;
-  font-size: 18px;
-}
-
-/* BUTTONS */
 #controls {
   display: flex;
   gap: 12px;
@@ -91,28 +62,7 @@ button {
   cursor: pointer;
   font-size: 20px;
 }
-
-button:hover {
-  background: #333;
-}
-
-/* RIGHT PANEL */
-#inventory {
-  padding: 20px;
-  border-left: 1px solid #333;
-  background: #141414;
-}
-
-.section-title {
-  margin-bottom: 10px;
-  font-weight: bold;
-  font-size: 19px;
-}
-
-.list-item {
-  margin-bottom: 6px;
-  font-size: 18px;
-}
+button:hover { background: #333; }
 </style>
 </head>
 
@@ -120,7 +70,6 @@ button:hover {
 
 <div id="app">
 
-  <!-- LEFT: STATS -->
   <aside id="stats">
     <div class="stat">❤️ Salute: 10</div>
     <div class="stat">🧠 Stress: 0</div>
@@ -128,47 +77,64 @@ button:hover {
     <div class="stat">⭐ Livello: 1</div>
   </aside>
 
-  <!-- CENTER: GAME -->
   <main id="main">
-
-    <div id="narration">
-Ti risvegli in un luogo sconosciuto.
-Il silenzio è innaturale.
-Qualcosa ti osserva.
-    </div>
+    <div id="narration">Caricamento…</div>
 
     <div id="choices">
-      <div class="choice">A) Avanzi con cautela</div>
-      <div class="choice">B) Ti fermi ad ascoltare</div>
-      <div class="choice">C) Ti nascondi</div>
-    </div>
-
-    <div id="test-area">
-      <div id="dice">🎲 Dado: —</div>
-      <div id="test-result">Esito prova: —</div>
+      <div class="choice" id="choiceA"></div>
+      <div class="choice" id="choiceB"></div>
+      <div class="choice" id="choiceC"></div>
     </div>
 
     <div id="controls">
-      <button>A</button>
-      <button>B</button>
-      <button>C</button>
+      <button onclick="choose('A')">A</button>
+      <button onclick="choose('B')">B</button>
+      <button onclick="choose('C')">C</button>
     </div>
-
   </main>
 
-  <!-- RIGHT: INVENTORY -->
   <aside id="inventory">
-    <div class="section-title">Inventario</div>
-    <div class="list-item">• Torcia</div>
-    <div class="list-item">• Coltello</div>
-
+    <strong>Inventario</strong>
+    <div>• Torcia</div>
+    <div>• Coltello</div>
     <br>
-
-    <div class="section-title">Abilità</div>
-    <div class="list-item">• Sopravvivenza base</div>
+    <strong>Abilità</strong>
+    <div>• Sopravvivenza base</div>
   </aside>
 
 </div>
+
+<script>
+const WORKER_URL = "https://still-hat-5795.salvatrifranc.workers.dev";
+
+let lastNarration = "";
+
+async function playTurn(action) {
+  const res = await fetch(WORKER_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      last_action: action,
+      last_narration: lastNarration
+    })
+  });
+
+  const data = await res.json();
+
+  narration.innerText = data.narration;
+  choiceA.innerText = "A) " + data.choices.A;
+  choiceB.innerText = "B) " + data.choices.B;
+  choiceC.innerText = "C) " + data.choices.C;
+
+  lastNarration = data.narration;
+}
+
+function choose(letter) {
+  playTurn(letter);
+}
+
+playTurn("inizio");
+</script>
 
 </body>
 </html>
