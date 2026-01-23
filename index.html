@@ -1,36 +1,165 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <title>Survival TEST</title>
-  <style>
-    body {
-      font-family: monospace;
-      background: #111;
-      color: #eee;
-      padding: 20px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>Survival Web Game</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: monospace;
+  background: #0e0e0e;
+  color: #e0e0e0;
+}
+
+/* LAYOUT */
+#app {
+  display: grid;
+  grid-template-columns: 260px 1fr 260px;
+  grid-template-rows: 1fr auto;
+  height: 100vh;
+}
+
+/* LEFT PANEL */
+#stats {
+  padding: 16px;
+  border-right: 1px solid #333;
+  background: #141414;
+}
+
+.stat {
+  margin-bottom: 12px;
+}
+
+/* CENTER PANEL */
+#main {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+#narration {
+  flex: 1;
+  border: 1px solid #333;
+  padding: 16px;
+  margin-bottom: 16px;
+  white-space: pre-wrap;
+}
+
+#choices {
+  margin-bottom: 20px;
+}
+
+.choice {
+  margin-bottom: 6px;
+}
+
+/* DICE + RESULT */
+#test-area {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+#dice, #test-result {
+  flex: 1;
+  border: 1px solid #333;
+  padding: 12px;
+  text-align: center;
+}
+
+/* BUTTONS */
+#controls {
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  flex: 1;
+  padding: 12px;
+  background: #222;
+  color: #eee;
+  border: 1px solid #444;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #333;
+}
+
+/* RIGHT PANEL */
+#inventory {
+  padding: 16px;
+  border-left: 1px solid #333;
+  background: #141414;
+}
+
+.section-title {
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.list-item {
+  margin-bottom: 4px;
+}
+</style>
 </head>
+
 <body>
 
-<h2>Survival – Test connessione</h2>
-<p id="output">Caricamento…</p>
+<div id="app">
 
-<script>
-const WORKER_URL = "https://still-hat-5795.salvatrifranc.workers.dev";
+  <!-- LEFT: STATS -->
+  <aside id="stats">
+    <div class="stat">❤️ Salute: 10</div>
+    <div class="stat">🧠 Stress: 0</div>
+    <div class="stat">🎒 Risorse: 5</div>
+    <div class="stat">⭐ Livello: 1</div>
+  </aside>
 
-fetch(WORKER_URL)
-  .then(r => r.text())
-  .then(t => {
-    document.getElementById("output").innerText =
-      "RISPOSTA DAL WORKER:\n\n" + t;
-  })
-  .catch(err => {
-    document.getElementById("output").innerText =
-      "ERRORE FETCH:\n" + err;
-  });
-</script>
+  <!-- CENTER: GAME -->
+  <main id="main">
+
+    <div id="narration">
+Ti risvegli in un luogo sconosciuto.
+Il silenzio è innaturale.
+Qualcosa ti osserva.
+    </div>
+
+    <div id="choices">
+      <div class="choice">A) Avanzi con cautela</div>
+      <div class="choice">B) Ti fermi ad ascoltare</div>
+      <div class="choice">C) Ti nascondi</div>
+    </div>
+
+    <div id="test-area">
+      <div id="dice">🎲 Dado: —</div>
+      <div id="test-result">Esito prova: —</div>
+    </div>
+
+    <div id="controls">
+      <button>A</button>
+      <button>B</button>
+      <button>C</button>
+    </div>
+
+  </main>
+
+  <!-- RIGHT: INVENTORY -->
+  <aside id="inventory">
+    <div class="section-title">Inventario</div>
+    <div class="list-item">• Torcia</div>
+    <div class="list-item">• Coltello</div>
+
+    <br>
+
+    <div class="section-title">Abilità</div>
+    <div class="list-item">• Sopravvivenza base</div>
+  </aside>
+
+</div>
 
 </body>
 </html>
