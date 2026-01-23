@@ -151,12 +151,9 @@ button:hover {
 const WORKER_URL = "https://still-hat-5795.salvatifranc.workers.dev/";
 
 let lastNarration = "";
-let typingInterval = null;
 
 /* ===== TYPEWRITER ===== */
 function typeWriter(element, text, speed = 18) {
-  if (typingInterval) clearInterval(typingInterval);
-
   element.innerText = "";
   let i = 0;
 
@@ -165,14 +162,13 @@ function typeWriter(element, text, speed = 18) {
   cursor.innerText = "█";
   element.appendChild(cursor);
 
-  typingInterval = setInterval(() => {
+  const interval = setInterval(() => {
     if (i < text.length) {
       cursor.before(text.charAt(i));
       i++;
     } else {
-      clearInterval(typingInterval);
+      clearInterval(interval);
       cursor.remove();
-      typingInterval = null;
     }
   }, speed);
 }
