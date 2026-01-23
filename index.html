@@ -44,7 +44,8 @@
 <div id="dice"></div>
 
 <script>
-console.log("JS caricato");
+/* 🔴 CAMBIA SOLO QUESTO */
+const WORKER_URL = "still-hat-5795.salvatifranc.workers.dev";
 
 let playerState = {
   salute: 10,
@@ -52,14 +53,12 @@ let playerState = {
   risorse: 5
 };
 
-let lastAction = "inizio";
-
 async function playTurn(action) {
   disableChoices();
   document.getElementById("dice").innerText = "";
 
   try {
-    const res = await fetch("/api", {
+    const res = await fetch(WORKER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -89,7 +88,6 @@ async function playTurn(action) {
     enableChoices();
 
   } catch (err) {
-    console.error(err);
     document.getElementById("narration").innerText =
       "Errore di comunicazione con il server.";
     enableChoices();
@@ -97,7 +95,6 @@ async function playTurn(action) {
 }
 
 function choose(letter) {
-  lastAction = letter;
   playTurn(letter);
 }
 
@@ -121,20 +118,4 @@ function applyEffects(effects) {
 
 function updateHUD() {
   document.getElementById("hud").innerText =
-    `❤️ ${playerState.salute} | 🧠 ${playerState.stress} | 🎒 ${playerState.risorse}`;
-}
-
-function disableChoices() {
-  document.querySelectorAll("#choices button").forEach(b => b.disabled = true);
-}
-
-function enableChoices() {
-  document.querySelectorAll("#choices button").forEach(b => b.disabled = false);
-}
-
-console.log("Avvio gioco");
-playTurn("inizio");
-</script>
-
-</body>
-</html>
+    `❤️ ${playerState.salute} | 🧠 ${playe
