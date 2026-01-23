@@ -12,30 +12,32 @@ body {
   font-family: monospace;
   background: #0e0e0e;
   color: #e0e0e0;
+  font-size: 18px; /* BASE FONT */
 }
 
 /* LAYOUT */
 #app {
   display: grid;
-  grid-template-columns: 260px 1fr 260px;
-  grid-template-rows: 1fr auto;
+  grid-template-columns: 280px 1fr 280px;
+  grid-template-rows: 1fr;
   height: 100vh;
 }
 
 /* LEFT PANEL */
 #stats {
-  padding: 16px;
+  padding: 20px;
   border-right: 1px solid #333;
   background: #141414;
 }
 
 .stat {
-  margin-bottom: 12px;
+  margin-bottom: 14px;
+  font-size: 19px;
 }
 
 /* CENTER PANEL */
 #main {
-  padding: 20px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
 }
@@ -43,46 +45,51 @@ body {
 #narration {
   flex: 1;
   border: 1px solid #333;
-  padding: 16px;
-  margin-bottom: 16px;
+  padding: 20px;
+  margin-bottom: 18px;
   white-space: pre-wrap;
+  font-size: 20px;
+  line-height: 1.5;
 }
 
 #choices {
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
 .choice {
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  font-size: 18px;
 }
 
 /* DICE + RESULT */
 #test-area {
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 14px;
+  margin-bottom: 22px;
 }
 
 #dice, #test-result {
   flex: 1;
   border: 1px solid #333;
-  padding: 12px;
+  padding: 14px;
   text-align: center;
+  font-size: 18px;
 }
 
 /* BUTTONS */
 #controls {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
 button {
   flex: 1;
-  padding: 12px;
+  padding: 14px;
   background: #222;
   color: #eee;
   border: 1px solid #444;
   cursor: pointer;
+  font-size: 20px;
 }
 
 button:hover {
@@ -91,18 +98,20 @@ button:hover {
 
 /* RIGHT PANEL */
 #inventory {
-  padding: 16px;
+  padding: 20px;
   border-left: 1px solid #333;
   background: #141414;
 }
 
 .section-title {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   font-weight: bold;
+  font-size: 19px;
 }
 
 .list-item {
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  font-size: 18px;
 }
 </style>
 </head>
