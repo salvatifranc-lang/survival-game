@@ -1,164 +1,83 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<title>Survival Roguelite</title>
+<meta charset="UTF-8" />
+<title>Survival AI Game</title>
 
 <style>
-html, body {
+body {
   margin: 0;
-  padding: 0;
   background: #0b0b0b;
-  color: #a87c4a;
+  color: #caa56a;
   font-family: serif;
-  height: 100%;
-  overflow: hidden;
-}
-
-/* =========================
-   STRUTTURA
-========================= */
-
-#game {
-  position: relative;
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   height: 100vh;
 }
 
-/* =========================
-   AREA MISSIONE
-========================= */
-
-#mission {
-  position: absolute;
-  top: 3%;
-  width: 100%;
-  text-align: center;
-  z-index: 10;
-}
-
 #narration {
-  max-width: 900px;
-  margin: auto;
-  font-size: 1.6rem;
-  line-height: 1.4;
+  max-width: 800px;
+  text-align: center;
+  font-size: 18px;
+  margin-bottom: 30px;
 }
-
-/* =========================
-   DADO
-========================= */
-
-#dice {
-  position: absolute;
-  top: 42%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 5rem;
-  display: none;
-  z-index: 20;
-}
-
-/* =========================
-   SCELTE
-========================= */
 
 #choices {
-  position: absolute;
-  top: 58%;
-  width: 100%;
   display: flex;
-  justify-content: center;
-  gap: 24px;
-  z-index: 30;
+  gap: 20px;
+  margin-bottom: 30px;
 }
 
 .choice {
-  padding: 16px 34px;
-  border: 1px solid #a87c4a;
+  padding: 12px 26px;
+  border: 1px solid #caa56a;
   background: transparent;
-  color: #a87c4a;
+  color: #caa56a;
   cursor: pointer;
-  font-size: 1.1rem;
+  font-size: 16px;
 }
 
 .choice:hover {
-  background: rgba(168,124,74,0.15);
+  background: rgba(202,165,106,0.1);
 }
 
-/* =========================
-   STATISTICHE
-========================= */
+#dice {
+  font-size: 64px;
+  margin: 20px;
+  display: none;
+}
 
 #stats {
-  position: absolute;
-  bottom: 4%;
-  width: 100%;
   display: flex;
-  justify-content: center;
-  gap: 60px;
-  z-index: 10;
-}
-
-.stat {
-  display: flex;
-  gap: 6px;
-}
-
-.box {
-  width: 16px;
-  height: 16px;
-  border: 1px solid #a87c4a;
-}
-
-.box.filled {
-  background: #a87c4a;
-}
-
-/* =========================
-   SICUREZZA CLICK
-========================= */
-
-* {
-  pointer-events: auto;
+  gap: 40px;
+  margin-top: 20px;
+  font-size: 14px;
 }
 </style>
 </head>
 
 <body>
 
-<div id="game">
+<div id="narration">Caricamento...</div>
 
-  <div id="mission">
-    <div id="narration">Caricamento...</div>
-  </div>
+<div id="choices">
+  <button class="choice" id="btnA">A</button>
+  <button class="choice" id="btnB">B</button>
+  <button class="choice" id="btnC">C</button>
+</div>
 
-  <div id="dice">🎲</div>
+<div id="dice"></div>
 
-  <div id="choices">
-    <button class="choice" id="btnA" onclick="choose('A')">A</button>
-    <button class="choice" id="btnB" onclick="choose('B')">B</button>
-    <button class="choice" id="btnC" onclick="choose('C')">C</button>
-  </div>
-
-  <div id="stats">
-    <div class="stat" id="salute"></div>
-    <div class="stat" id="stress"></div>
-    <div class="stat" id="risorse"></div>
-  </div>
-
+<div id="stats">
+  <div>Salute: <span id="salute"></span></div>
+  <div>Stress: <span id="stress"></span></div>
+  <div>Risorse: <span id="risorse"></span></div>
 </div>
 
 <script>
-/* =========================
-   CONFIG
-========================= */
-
-const WORKER_URL =
-  "https://still-hat-5795.salvatifranc.workers.dev";
-
-/* =========================
-   STATO GIOCATORE
-========================= */
+const WORKER_URL = "https://still-hat-5795.salvatifranc.workers.dev";
 
 let playerState = {
   salute: 4,
@@ -166,122 +85,75 @@ let playerState = {
   risorse: 3
 };
 
-let lastAI = null;
+let lastAction = "inizio";
+let currentTurn = null;
 
-/* =========================
-   INIT STAT
-========================= */
+const narrationEl = document.getElementById("narration");
+const diceEl = document.getElementById("dice");
 
-function initStat(id) {
-  const el = document.getElementById(id);
-  el.innerHTML = "";
-  for (let i = 0; i < 6; i++) {
-    const box = document.createElement("div");
-    box.className = "box";
-    el.appendChild(box);
-  }
+const saluteEl = document.getElementById("salute");
+const stressEl = document.getElementById("stress");
+const risorseEl = document.getElementById("risorse");
+
+function updateStats() {
+  saluteEl.textContent = playerState.salute;
+  stressEl.textContent = playerState.stress;
+  risorseEl.textContent = playerState.risorse;
 }
 
-["salute", "stress", "risorse"].forEach(initStat);
-renderStats();
+async function fetchTurn() {
+  narrationEl.textContent = "Caricamento...";
+  diceEl.style.display = "none";
 
-/* =========================
-   RENDER STAT
-========================= */
-
-function renderStats() {
-  ["salute", "stress", "risorse"].forEach(stat => {
-    const boxes = document
-      .getElementById(stat)
-      .querySelectorAll(".box");
-
-    boxes.forEach((b, i) => {
-      b.classList.toggle("filled", i < playerState[stat]);
-    });
-  });
-}
-
-/* =========================
-   FETCH AI
-========================= */
-
-async function fetchAI(payload) {
   const res = await fetch(WORKER_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload || {})
+    body: JSON.stringify({
+      last_action: lastAction,
+      player_state: playerState
+    })
   });
-  return await res.json();
+
+  currentTurn = await res.json();
+
+  narrationEl.textContent = currentTurn.narration;
+
+  document.getElementById("btnA").textContent = "A – " + currentTurn.choices.A;
+  document.getElementById("btnB").textContent = "B – " + currentTurn.choices.B;
+  document.getElementById("btnC").textContent = "C – " + currentTurn.choices.C;
+
+  if (currentTurn.test.required) {
+    runTest();
+  }
 }
 
-/* =========================
-   AVVIO GIOCO
-========================= */
+function runTest() {
+  diceEl.style.display = "block";
 
-startGame();
+  const roll = Math.ceil(Math.random() * 6);
+  diceEl.textContent = roll;
 
-async function startGame() {
-  const ai = await fetchAI({});
-  renderAI(ai);
-}
+  const success = roll >= currentTurn.test.difficulty;
+  const effects = success ? currentTurn.effects.success : currentTurn.effects.fail;
 
-/* =========================
-   RENDER AI
-========================= */
-
-function renderAI(ai) {
-  lastAI = ai;
-
-  document.getElementById("narration").textContent =
-    ai.narration;
-
-  document.getElementById("btnA").textContent =
-    "A — " + ai.choices.A;
-  document.getElementById("btnB").textContent =
-    "B — " + ai.choices.B;
-  document.getElementById("btnC").textContent =
-    "C — " + ai.choices.C;
-}
-
-/* =========================
-   SCELTA GIOCATORE
-========================= */
-
-async function choose(letter) {
-  let diceValue = null;
-  let success = true;
-
-  const dice = document.getElementById("dice");
-
-  if (lastAI.test.required) {
-    dice.style.display = "block";
-    diceValue = Math.floor(Math.random() * 6) + 1;
-    dice.textContent = diceValue;
-
-    success = diceValue >= lastAI.test.difficulty;
-
-    const effects = success
-      ? lastAI.effects.success
-      : lastAI.effects.fail;
-
-    for (let k in effects) {
-      playerState[k] += effects[k];
-      playerState[k] = Math.max(0, Math.min(6, playerState[k]));
-    }
-
-    renderStats();
+  for (let k in effects) {
+    playerState[k] += effects[k];
   }
 
-  const ai = await fetchAI({
-    selected: letter,
-    dice: diceValue,
-    success,
-    player_state: playerState
-  });
-
-  dice.style.display = "none";
-  renderAI(ai);
+  updateStats();
 }
+
+function choose(option) {
+  lastAction = option;
+  fetchTurn();
+}
+
+document.getElementById("btnA").onclick = () => choose("A");
+document.getElementById("btnB").onclick = () => choose("B");
+document.getElementById("btnC").onclick = () => choose("C");
+
+updateStats();
+fetchTurn();
 </script>
 
 </body>
