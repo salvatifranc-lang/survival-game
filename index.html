@@ -18,7 +18,6 @@ body {
   background-repeat: no-repeat;
 }
 
-/* layout */
 #app {
   display: grid;
   grid-template-columns: 280px 1fr 280px;
@@ -31,7 +30,6 @@ body {
   padding: 20px;
   border-right: 1px solid rgba(255,255,255,0.25);
 }
-
 .stat { margin-bottom: 14px; }
 
 /* CENTER */
@@ -58,7 +56,7 @@ body {
 #controls {
   display: flex;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 button {
@@ -70,17 +68,15 @@ button {
   color: #d6f5d6;
   border: 1px solid rgba(255,255,255,0.45);
 }
+button:hover { background: rgba(0,0,0,0.35); }
 
-button:hover {
-  background: rgba(0,0,0,0.35);
-}
-
-/* TEST RESULT */
+/* TEST BOX */
 #test-box {
   border: 1px dashed rgba(255,255,255,0.35);
   padding: 10px;
   font-size: 16px;
-  min-height: 48px;
+  min-height: 64px;
+  line-height: 1.4;
 }
 
 /* RIGHT */
@@ -88,7 +84,6 @@ button:hover {
   padding: 20px;
   border-left: 1px solid rgba(255,255,255,0.25);
 }
-
 #inventory strong {
   display: block;
   margin-bottom: 8px;
@@ -101,9 +96,7 @@ button:hover {
   margin-left: 2px;
   animation: blink 1s steps(1) infinite;
 }
-@keyframes blink {
-  50% { opacity: 0; }
-}
+@keyframes blink { 50% { opacity: 0; } }
 </style>
 </head>
 
@@ -134,9 +127,11 @@ button:hover {
       <button onclick="choose('C')">C</button>
     </div>
 
-    <!-- 🎲 TEST RESULT -->
+    <!-- TEST RESULT -->
     <div id="test-box">
-      🎲 Dado: — | 🧪 Esito: —
+      🎲 Dado: —<br>
+      ⚠️ Difficoltà: —<br>
+      🧪 Esito: —
     </div>
   </main>
 
@@ -161,13 +156,13 @@ let playerState = {
 let lastNarration = "";
 
 /* ===== TYPEWRITER ===== */
-function typeWriter(element, text, speed = 18) {
-  element.innerText = "";
+function typeWriter(el, text, speed = 18) {
+  el.innerText = "";
   let i = 0;
   const cursor = document.createElement("span");
   cursor.className = "cursor";
   cursor.innerText = "█";
-  element.appendChild(cursor);
+  el.appendChild(cursor);
 
   const interval = setInterval(() => {
     if (i < text.length) {
@@ -180,12 +175,19 @@ function typeWriter(element, text, speed = 18) {
   }, speed);
 }
 
+/* ===== STATS UI ===== */
+function updateStatsUI() {
+  document.getElementById("stat-salute").innerText = playerState.salute;
+  document.getElementById("stat-stamina").innerText = playerState.stamina;
+  document.getElementById("stat-livello").innerText = playerState.livello;
+}
+
 /* ===== DADO ===== */
 function rollD6() {
   return Math.floor(Math.random() * 6) + 1;
 }
 
-function resolveTest(d6, difficulty = "Standard") {
+function resolveTest(d6, difficulty) {
   const table = {
     "Estremo":        ["FC","FC","F","F","P","B"],
     "Molto Rischioso":["FC","F","F","P","S","B"],
@@ -199,19 +201,12 @@ function resolveTest(d6, difficulty = "Standard") {
 
 function esitoLabel(code) {
   return {
-    "FC": "Fallimento Critico",
-    "F":  "Fallimento",
-    "P":  "Successo Parziale",
-    "S":  "Successo",
-    "B":  "Successo con Bonus"
+    FC: "Fallimento Critico",
+    F:  "Fallimento",
+    P:  "Successo Parziale",
+    S:  "Successo Pieno",
+    B:  "Successo con Bonus"
   }[code];
-}
-
-/* UI */
-function updateStatsUI() {
-  document.getElementById("stat-salute").innerText = playerState.salute;
-  document.getElementById("stat-stamina").innerText = playerState.stamina;
-  document.getElementById("stat-livello").innerText = playerState.livello;
 }
 
 /* ===== LOOP ===== */
@@ -238,12 +233,19 @@ async function playTurn(action) {
 
     lastNarration = data.narration || "";
 
-    /* 🎲 TEST (SIMULATO) */
-    const d6 = rollD6();
-    const resultCode = resolveTest(d6, "Standard");
+    /* ===== TEST (PREPARATO) ===== */
+    let difficulty = "Standard";
+    if (data.test && data.test.required && data.test.difficulty) {
+      difficulty = data.test.difficulty;
+    }
 
-    document.getElementById("test-box").innerText =
-      `🎲 Dado: ${d6} | 🧪 Esito: ${esitoLabel(resultCode)}`;
+    const d6 = rollD6();
+    const resultCode = resolveTest(d6, difficulty);
+
+    document.getElementById("test-box").innerHTML =
+      `🎲 Dado: ${d6}<br>` +
+      `⚠️ Difficoltà: ${difficulty}<br>` +
+      `🧪 Esito: ${esitoLabel(resultCode)}`;
 
   } catch {
     narration.innerText = "Errore di comunicazione.";
@@ -254,6 +256,7 @@ function choose(letter) {
   playTurn(letter);
 }
 
+/* START */
 updateStatsUI();
 playTurn("inizio");
 </script>
