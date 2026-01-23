@@ -75,7 +75,7 @@ button:hover { background: rgba(0,0,0,0.35); }
   border: 1px dashed rgba(255,255,255,0.35);
   padding: 10px;
   font-size: 16px;
-  min-height: 64px;
+  min-height: 80px;
   line-height: 1.4;
 }
 
@@ -104,14 +104,12 @@ button:hover { background: rgba(0,0,0,0.35); }
 
 <div id="app">
 
-  <!-- LEFT -->
   <aside id="stats">
     <div class="stat">❤️ Salute: <span id="stat-salute">10</span></div>
     <div class="stat">⚡ Stamina: <span id="stat-stamina">10</span></div>
     <div class="stat">⭐ Livello: <span id="stat-livello">1</span></div>
   </aside>
 
-  <!-- CENTER -->
   <main id="main">
     <div id="narration">Caricamento…</div>
 
@@ -127,7 +125,6 @@ button:hover { background: rgba(0,0,0,0.35); }
       <button onclick="choose('C')">C</button>
     </div>
 
-    <!-- TEST RESULT -->
     <div id="test-box">
       🎲 Dado: —<br>
       ⚠️ Difficoltà: —<br>
@@ -135,7 +132,6 @@ button:hover { background: rgba(0,0,0,0.35); }
     </div>
   </main>
 
-  <!-- RIGHT -->
   <aside id="inventory">
     <strong>Inventario</strong>
     <div>• Torcia</div>
@@ -147,13 +143,8 @@ button:hover { background: rgba(0,0,0,0.35); }
 <script>
 const WORKER_URL = "https://still-hat-5795.salvatifranc.workers.dev/";
 
-let playerState = {
-  salute: 10,
-  stamina: 10,
-  livello: 1
-};
-
-let lastNarration = "";
+let playerState = { salute: 10, stamina: 10, livello: 1 };
+let lastTest = null;
 
 /* ===== TYPEWRITER ===== */
 function typeWriter(el, text, speed = 18) {
@@ -189,35 +180,41 @@ function rollD6() {
 
 function resolveTest(d6, difficulty) {
   const table = {
-    "Estremo":        ["FC","FC","F","F","P","B"],
-    "Molto Rischioso":["FC","F","F","P","S","B"],
-    "Rischioso":     ["FC","F","P","P","S","B"],
-    "Standard":      ["FC","F","P","P","S","B"],
-    "Facile":        ["F","P","S","S","B","B"],
-    "Molto Facile":  ["P","P","S","S","B","B"]
+    "Estremo":        ["critical_fail","critical_fail","fail","fail","partial","bonus"],
+    "Molto Rischioso":["critical_fail","fail","fail","partial","success","bonus"],
+    "Rischioso":     ["critical_fail","fail","partial","partial","success","bonus"],
+    "Standard":      ["critical_fail","fail","partial","partial","success","bonus"],
+    "Facile":        ["fail","partial","success","success","bonus","bonus"],
+    "Molto Facile":  ["partial","partial","success","success","bonus","bonus"]
   };
   return table[difficulty][d6 - 1];
 }
 
 function esitoLabel(code) {
   return {
-    FC: "Fallimento Critico",
-    F:  "Fallimento",
-    P:  "Successo Parziale",
-    S:  "Successo Pieno",
-    B:  "Successo con Bonus"
+    critical_fail: "Fallimento Critico",
+    fail: "Fallimento",
+    partial: "Successo Parziale",
+    success: "Successo",
+    bonus: "Successo con Bonus"
   }[code];
 }
 
 /* ===== LOOP ===== */
 async function playTurn(action) {
+
+  /* 🔒 reset esito precedente prima del nuovo turno */
+  const testToSend = lastTest;
+  lastTest = null;
+
   try {
     const res = await fetch(WORKER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         last_action: action,
-        player_state: playerState
+        player_state: playerState,
+        last_test: testToSend
       })
     });
 
@@ -231,21 +228,34 @@ async function playTurn(action) {
       typeWriter(choiceC, "C) " + data.choices.C, 12);
     }, 300);
 
-    lastNarration = data.narration || "";
+    /* 🎲 TEST SOLO SE IL WORKER LO RICHIEDE */
+    if (data.test && data.test.required === true) {
 
-    /* ===== TEST (PREPARATO) ===== */
-    let difficulty = "Standard";
-    if (data.test && data.test.required && data.test.difficulty) {
-      difficulty = data.test.difficulty;
+      const difficulty = data.test.difficulty;
+      const d6 = rollD6();
+      const outcome = resolveTest(d6, difficulty);
+
+      document.getElementById("test-box").innerHTML =
+        `🎲 Dado: ${d6}<br>` +
+        `⚠️ Difficoltà: ${difficulty}<br>` +
+        `🧪 Esito: ${esitoLabel(outcome)}`;
+
+      const outcomeData = data.outcomes[outcome];
+
+      if (outcomeData && outcomeData.effects) {
+        if (outcomeData.effects.salute)
+          playerState.salute += outcomeData.effects.salute;
+        if (outcomeData.effects.stamina)
+          playerState.stamina += outcomeData.effects.stamina;
+        updateStatsUI();
+      }
+
+      lastTest = { outcome };
+
+    } else {
+      document.getElementById("test-box").innerHTML =
+        `🎲 Dado: —<br>⚠️ Difficoltà: —<br>🧪 Esito: —`;
     }
-
-    const d6 = rollD6();
-    const resultCode = resolveTest(d6, difficulty);
-
-    document.getElementById("test-box").innerHTML =
-      `🎲 Dado: ${d6}<br>` +
-      `⚠️ Difficoltà: ${difficulty}<br>` +
-      `🧪 Esito: ${esitoLabel(resultCode)}`;
 
   } catch {
     narration.innerText = "Errore di comunicazione.";
