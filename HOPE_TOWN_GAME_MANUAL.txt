@@ -27,7 +27,126 @@ portare a termine missioni per la comunità
 
 Ogni uscita può essere l’ultima.
 Il giocatore non è un eroe.
+📘 SEZIONE MANUALE — INIZIO GIOCO / INIZIO MISSIONE
+INIZIO GIOCO (OBBLIGATORIO)
 
+All’inizio di una nuova partita, prima di qualsiasi altra regola, applicare sempre questa procedura.
+
+CONTESTO INIZIALE
+
+Anno: 2095
+
+Il mondo di superficie è estremamente ostile
+
+La superficie è dominata da macchine senzienti assassine di vario tipo
+
+Gli esseri umani sopravvissuti sono rari, dispersi, in fuga
+
+Il giocatore è un Rider solitario
+
+Il Rider non conosce la posizione di Hope Town
+
+Hope Town è un luogo reale, ma non visibile, non raggiungibile direttamente, non garantito.
+
+RISVEGLIO
+
+Il gioco inizia sempre con il risveglio del Rider in superficie.
+
+Il risveglio avviene in una delle location di missione disponibili
+
+La location iniziale è scelta casualmente tra le location del gioco
+
+Il Rider non ha una base sicura
+
+L’ambiente è instabile, silenzioso o ostile
+
+Non è presente una minaccia immediata inevitabile, ma il pericolo è percepibile
+
+EQUIPAGGIAMENTO INIZIALE
+
+All’inizio del gioco, il Rider possiede esattamente 3 oggetti, scelti casualmente dal manuale:
+
+1 arma
+
+1 oggetto stabile
+
+1 oggetto consumabile
+
+Gli oggetti iniziali:
+
+non sono scelti dal giocatore
+
+non sono ottimali
+
+possono essere inadatti alla location iniziale
+
+OBIETTIVO INIZIALE
+
+Il primo obiettivo del gioco è sempre:
+
+Sopravvivere alla location iniziale e trovare indizi utili per raggiungere Hope Town
+
+Hope Town non viene mai trovata immediatamente
+
+La prima missione serve a:
+
+comprendere il mondo
+
+consumare risorse
+
+subire conseguenze
+
+ottenere informazioni parziali
+
+STRUTTURA DELLA PRIMA SITUAZIONE
+
+La prima situazione di gioco deve:
+
+descrivere l’ambiente della location iniziale
+
+comunicare pericolo e isolamento
+
+offrire 3 scelte operative
+
+non introdurre test automatici
+
+non garantire sicurezza in nessuna scelta
+
+Le scelte devono rappresentare:
+
+direzioni
+
+approcci
+
+decisioni esplorative
+
+VINCOLI OBBLIGATORI
+
+È vietato, all’inizio del gioco:
+
+trovare Hope Town
+
+ottenere una base sicura
+
+ricevere spiegazioni complete sul mondo
+
+ricevere equipaggiamento avanzato
+
+avere alleati affidabili
+
+FILOSOFIA DELL’INIZIO
+
+L’inizio di Hope Town non è eroico.
+
+Il Rider:
+
+non è preparato
+
+non è al sicuro
+
+non ha certezze
+
+Il mondo non aspetta il giocatore.
 STRUTTURA GENERALE DEL GIOCO
 
 Il gioco è diviso in CICLI DI MISSIONE.
@@ -227,6 +346,7 @@ minaccia
 risorse
 
 obiettivo immediato
+OGGettI Stabili:
 
 ID: TUNNEL_LAMP_FRAG
 Nome: Lampada da tunnel artigianale
@@ -467,6 +587,7 @@ Note:
 * Sensibile agli urti
 
 ---
+Oggetti ARMI:
 
 ID: PISTOLA_SERV
 Nome: Pistola di servizio dismessa
@@ -611,6 +732,7 @@ Note:
 * Pericolosa anche per l’utilizzatore
 
 ---
+Oggetti consumabili:
 
 ID: RAZIONE_SECCA
 Nome: Razione alimentare secca
@@ -730,6 +852,177 @@ Note:
 * Uso singolo
 * Non ricaricabile
 
+Location luoghi Missione
+
+ID: LOC_METRO_COLLASSATA
+Nome: Stazione metropolitana collassata
+Descrizione:
+Nodo sotterraneo parzialmente crollato, invaso da acqua stagnante e detriti metallici.
+
+Contesto di Missione:
+
+Recupero di materiali pre-bellici
+
+Attraversamento di un’area instabile
+
+Rischi:
+
+Cedimenti improvvisi
+
+Presenza di macchine in modalità di pattugliamento
+
+ID: LOC_DATA_CENTER
+Nome: Data center dismesso
+Descrizione:
+Struttura sotterranea di archiviazione dati, ancora alimentata in modo irregolare.
+
+Contesto di Missione:
+
+Estrazione di informazioni obsolete
+
+Disattivazione di sistemi automatici
+
+Rischi:
+
+Sicurezza autonoma ancora attiva
+
+Interferenze elettroniche
+
+ID: LOC_QUARTIERE_SOMMERSO
+Nome: Quartiere residenziale sommerso
+Descrizione:
+Zona urbana allagata dopo il collasso delle infrastrutture di drenaggio.
+
+Contesto di Missione:
+
+Ricerca di scorte
+
+Tracciamento di segnali radio dispersi
+
+Rischi:
+
+Visibilità ridotta
+
+Movimenti nascosti sotto la superficie
+
+ID: LOC_IMPIANTO_DEPURAZ
+Nome: Impianto di depurazione abbandonato
+Descrizione:
+Complesso industriale in rovina, ancora collegato a reti idriche sotterranee.
+
+Contesto di Missione:
+
+Verifica della potabilità dell’acqua
+
+Riattivazione parziale di sistemi
+
+Rischi:
+
+Contaminazione chimica
+
+Macchinari instabili
+
+ID: LOC_MAGAZZINI_LOG
+Nome: Magazzini logistici automatizzati
+Descrizione:
+Depositi periferici controllati da sistemi di smistamento obsoleti.
+
+Contesto di Missione:
+
+Recupero di beni industriali
+
+Disattivazione di linee automatiche
+
+Rischi:
+
+Droni di sicurezza erratici
+
+Spazi aperti difficili da coprire
+
+ID: LOC_OSPEDALE_SUP
+Nome: Ospedale di superficie
+Descrizione:
+Struttura sanitaria invasa dalla vegetazione e da tecnologie mediche attive.
+
+Contesto di Missione:
+
+Recupero di materiali medici
+
+Ricerca di archivi clinici
+
+Rischi:
+
+Sistemi automatici difettosi
+
+Percorsi ostruiti
+
+ID: LOC_CANTIERE_TUNNEL
+Nome: Cantiere di scavo incompiuto
+Descrizione:
+Tunnel parzialmente scavato, mai completato prima dell’evacuazione.
+
+Contesto di Missione:
+
+Apertura di nuove vie sotterranee
+
+Ispezione strutturale
+
+Rischi:
+
+Frane
+
+Presenza di macchine da scavo autonome
+
+ID: LOC_CENTRO_COMM
+Nome: Centro di comunicazione militare
+Descrizione:
+Bunker isolato con antenne collassate e terminali criptati.
+
+Contesto di Missione:
+
+Recupero di codici o mappe
+
+Interruzione di segnali attivi
+
+Rischi:
+
+Sistemi difensivi automatici
+
+Segnali tracciabili
+
+ID: LOC_DISCARICA_TEC
+Nome: Discarica tecnologica
+Descrizione:
+Accumulo caotico di macchinari distrutti e componenti elettronici.
+
+Contesto di Missione:
+
+Raccolta di parti recuperabili
+
+Smantellamento mirato
+
+Rischi:
+
+Materiali instabili
+
+Attività meccanica residua
+
+ID: LOC_ASCENSORE_SUP
+Nome: Complesso di ascensori di superficie
+Descrizione:
+Sistema verticale che collegava la superficie agli strati sotterranei.
+
+Contesto di Missione:
+
+Riattivazione di un collegamento
+
+Blocco di accessi esterni
+
+Rischi:
+
+Meccanismi difettosi
+
+Forte esposizione alla superficie
 
 FILOSOFIA
 
