@@ -5,7 +5,7 @@ const WORKER_URL = "https://still-hat-5795.salvatifranc.workers.dev/";
 const MANUAL_URL = "https://raw.githubusercontent.com/salvatifranc-lang/survival-game/main/HOPE_TOWN_GAME_MANUAL.txt";
 
 /* ======================================================
-   ITEM NAMES (TEMPORANEO, FINCHÉ NON LEGGIAMO DAL MANUALE)
+   ITEM NAMES (TEMPORANEO)
    ====================================================== */
 const ITEM_NAMES = {
   PISTOLA_SERV: "Pistola di servizio dismessa",
@@ -15,7 +15,7 @@ const ITEM_NAMES = {
 };
 
 /* ======================================================
-   DOM (UI ONLY)
+   DOM
    ====================================================== */
 const statSalute   = document.getElementById("stat-salute");
 const statStamina  = document.getElementById("stat-stamina");
@@ -34,7 +34,7 @@ const testBox      = document.getElementById("test-box");
 const inventoryEl  = document.getElementById("inventory-list");
 
 /* ======================================================
-   PLAYER STATE
+   PLAYER
    ====================================================== */
 let playerState = {
   salute: 10,
@@ -69,13 +69,13 @@ let missionDiary = {
 let gameManual = "";
 
 /* ======================================================
-   STATO TURNO
+   TURNO
    ====================================================== */
 let lastResolution = null;
 let awaitingInput = false;
 
 /* ======================================================
-   UI HELPERS
+   UI
    ====================================================== */
 function updateStatsUI() {
   statSalute.textContent  = playerState.salute;
@@ -113,7 +113,7 @@ function typeWriter(el, text, speed = 18) {
 }
 
 /* ======================================================
-   DADO (COERENTE COL MANUALE)
+   DADO
    ====================================================== */
 function rollD6() {
   return Math.floor(Math.random() * 6) + 1;
@@ -121,56 +121,13 @@ function rollD6() {
 
 function resolveTest(d6, difficulty) {
   const table = {
-    "Estremo": [
-      { outcome: "critical_fail" },
-      { outcome: "critical_fail" },
-      { outcome: "fail" },
-      { outcome: "fail" },
-      { outcome: "partial" },
-      { outcome: "success" }
-    ],
-    "Molto Rischioso": [
-      { outcome: "critical_fail" },
-      { outcome: "fail" },
-      { outcome: "fail" },
-      { outcome: "partial" },
-      { outcome: "partial" },
-      { outcome: "success" }
-    ],
-    "Rischioso": [
-      { outcome: "fail" },
-      { outcome: "fail" },
-      { outcome: "partial" },
-      { outcome: "partial" },
-      { outcome: "success" },
-      { outcome: "success" }
-    ],
-    "Standard": [
-      { outcome: "fail" },
-      { outcome: "partial" },
-      { outcome: "partial" },
-      { outcome: "success" },
-      { outcome: "success" },
-      { outcome: "success" }
-    ],
-    "Facile": [
-      { outcome: "partial" },
-      { outcome: "success" },
-      { outcome: "success" },
-      { outcome: "success" },
-      { outcome: "success" },
-      { outcome: "success", extra: true }
-    ],
-    "Molto Facile": [
-      { outcome: "success" },
-      { outcome: "success" },
-      { outcome: "success" },
-      { outcome: "success" },
-      { outcome: "success", extra: true },
-      { outcome: "success", extra: true }
-    ]
+    "Estremo":        ["critical_fail","critical_fail","fail","fail","partial","success"],
+    "Molto Rischioso":["critical_fail","fail","fail","partial","partial","success"],
+    "Rischioso":     ["fail","fail","partial","partial","success","success"],
+    "Standard":      ["fail","partial","partial","success","success","success"],
+    "Facile":        ["partial","success","success","success","success","bonus"],
+    "Molto Facile":  ["success","success","success","success","bonus","bonus"]
   };
-
   return table[difficulty][d6 - 1];
 }
 
@@ -179,38 +136,13 @@ function esitoLabel(code) {
     critical_fail: "Fallimento Critico",
     fail: "Fallimento",
     partial: "Successo Parziale",
-    success: "Successo"
+    success: "Successo",
+    bonus: "Successo con Bonus"
   }[code];
 }
 
 /* ======================================================
-   RISCHIO & DIFFICOLTÀ (SOLO METADATI)
-   ====================================================== */
-function shouldTest(situation) {
-  if (!situation) return false;
-  if (!situation.threats || situation.threats.length === 0) return false;
-  if (situation.pressure === "alta") return true;
-  if (playerState.stamina <= 3) return true;
-  return false;
-}
-
-function determineDifficulty(situation) {
-  let score = 0;
-  if (situation.threats.length >= 2) score++;
-  if (situation.pressure === "alta") score++;
-  if (situation.visibility === "scarsa") score++;
-  if (situation.visibility === "nulla") score += 2;
-  if (playerState.stamina <= 3) score++;
-
-  if (score <= 1) return "Facile";
-  if (score === 2) return "Standard";
-  if (score === 3) return "Rischioso";
-  if (score === 4) return "Molto Rischioso";
-  return "Estremo";
-}
-
-/* ======================================================
-   OGGETTI: RICOMPENSE & ROTTURE (BASE)
+   OGGETTI
    ====================================================== */
 function handleExtraReward() {
   if (campaignDiary.inventario.length >= 6) return;
@@ -228,42 +160,44 @@ function handleCriticalFailure() {
 }
 
 /* ======================================================
-   RISOLUZIONE SITUAZIONE
+   RISOLUZIONE
    ====================================================== */
 function resolveSituation(situation) {
-  const difficulty = determineDifficulty(situation);
+  const difficulty = situation?.difficulty || "Standard";
   const d6 = rollD6();
-  const result = resolveTest(d6, difficulty);
+  const outcome = resolveTest(d6, difficulty);
 
   testBox.innerHTML =
     `🎲 Dado: ${d6}<br>` +
     `⚠️ Difficoltà: ${difficulty}<br>` +
-    `🧪 Esito: ${esitoLabel(result.outcome)}`;
+    `🧪 Esito: ${esitoLabel(outcome)}`;
 
-  if (result.outcome === "critical_fail") {
+  if (outcome === "critical_fail") {
     playerState.salute -= 1;
     playerState.stamina -= 2;
     handleCriticalFailure();
   }
-  else if (result.outcome === "fail") {
+  else if (outcome === "fail") {
     playerState.stamina -= 2;
   }
-  else if (result.outcome === "partial") {
+  else if (outcome === "partial") {
     playerState.stamina -= 1;
   }
-  else if (result.extra === true) {
+  else if (outcome === "bonus") {
     handleExtraReward();
   }
 
   updateStatsUI();
-  return { difficulty, d6, outcome: result.outcome };
+  return { d6, outcome };
 }
 
 /* ======================================================
-   GAME LOOP (FIX BOOTSTRAP MISSIONE)
+   GAME LOOP (FIX COMPLETO)
    ====================================================== */
 async function playTurn(action) {
-  if (!awaitingInput) return;
+
+  // 🔑 Consenti SEMPRE il primo turno
+  if (missionDiary.log.length > 0 && !awaitingInput) return;
   awaitingInput = false;
 
   const missionStatePayload =
@@ -285,7 +219,15 @@ async function playTurn(action) {
 
     const data = await res.json();
 
-    missionDiary.currentSituation = data.situation;
+    /* ===== GUARDIA ANTI-BLOCCO ===== */
+    if (!data || !data.narration || !data.choices) {
+      narrationEl.textContent =
+        "Il segnale si interrompe. Qualcosa non va in superficie.";
+      awaitingInput = true;
+      return;
+    }
+
+    missionDiary.currentSituation = data.situation || null;
 
     typeWriter(narrationEl, data.narration, 20);
 
@@ -295,7 +237,7 @@ async function playTurn(action) {
       choiceCEl.textContent = "C) " + data.choices.C;
     }, 300);
 
-    if (shouldTest(data.situation)) {
+    if (data.situation?.test === true) {
       lastResolution = resolveSituation(data.situation);
     } else {
       testBox.innerHTML =
@@ -307,12 +249,14 @@ async function playTurn(action) {
 
     missionDiary.log.push({
       narration: data.narration,
-      situation: data.situation,
+      choice: action,
       resolution: lastResolution
     });
 
   } catch {
-    narrationEl.textContent = "Errore di comunicazione.";
+    narrationEl.textContent =
+      "Errore di comunicazione. Il mondo là fuori è silenzioso.";
+    awaitingInput = true;
   }
 }
 
