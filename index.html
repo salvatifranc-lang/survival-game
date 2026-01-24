@@ -12,7 +12,7 @@ body {
   font-size: 18px;
   height: 100vh;
   color: #d6f5d6;
-  background-image: url("SFONDOTOP.jpg"); /* MANTENUTO */
+  background-image: url("SFONDOTOP.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -97,6 +97,45 @@ button:hover { background: rgba(0,0,0,0.35); }
   animation: blink 1s steps(1) infinite;
 }
 @keyframes blink { 50% { opacity: 0; } }
+
+/* ===========================
+   DEBUG LED PANEL
+   =========================== */
+#debug-led-panel {
+  position: fixed;
+  bottom: 12px;
+  left: 12px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.25);
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+#debug-led-panel .led {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #cfcfcf;
+}
+
+#debug-led-panel .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #550000;
+  box-shadow: 0 0 4px #000;
+}
+
+#debug-led-panel .dot.ok {
+  background: #00aa55;
+  box-shadow: 0 0 6px #00ff88;
+}
+
+#debug-led-panel .dot.err {
+  background: #aa0000;
+  box-shadow: 0 0 6px #ff3333;
+}
 </style>
 </head>
 
@@ -134,7 +173,7 @@ button:hover { background: rgba(0,0,0,0.35); }
     </div>
   </main>
 
-  <!-- INVENTORY (DINAMICO, VUOTO) -->
+  <!-- INVENTORY -->
   <aside id="inventory">
     <strong>Inventario</strong>
     <div id="inventory-list"></div>
@@ -142,14 +181,22 @@ button:hover { background: rgba(0,0,0,0.35); }
 
 </div>
 
-<!-- LOGICA DI GIOCO -->
+<!-- DEBUG LED PANEL -->
+<div id="debug-led-panel">
+  <div class="led"><span class="dot" id="led-config"></span> CONFIG</div>
+  <div class="led"><span class="dot" id="led-state"></span> STATE</div>
+  <div class="led"><span class="dot" id="led-ui"></span> UI</div>
+  <div class="led"><span class="dot" id="led-worker"></span> WORKER</div>
+  <div class="led"><span class="dot" id="led-loop"></span> LOOP</div>
+</div>
+
+<!-- LOGICA DI GIOCO (CONCATENATA) -->
 <script src="js/00_config.js"></script>
 <script src="js/01_state.js"></script>
 <script src="js/02_ui.js"></script>
 <script src="js/03_worker_api.js"></script>
 <script src="js/04_game_loop.js"></script>
 <script src="js/05_debug.js"></script>
-
 
 </body>
 </html>
