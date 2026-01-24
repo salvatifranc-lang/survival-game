@@ -12,7 +12,7 @@ body {
   font-size: 18px;
   height: 100vh;
   color: #d6f5d6;
-  background-image: url("SFONDOTOP.jpg");
+  background-image: url("SFONDOTOP.jpg"); /* MANTENUTO */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -66,7 +66,7 @@ button {
   cursor: pointer;
   background: transparent;
   color: #d6f5d6;
-  border: 0px solid rgba(255,255,255,0.45);
+  border: 0;
 }
 button:hover { background: rgba(0,0,0,0.35); }
 
@@ -104,12 +104,14 @@ button:hover { background: rgba(0,0,0,0.35); }
 
 <div id="app">
 
+  <!-- STATS -->
   <aside id="stats">
     <div class="stat">❤️ Salute: <span id="stat-salute">10</span></div>
     <div class="stat">⚡ Stamina: <span id="stat-stamina">10</span></div>
     <div class="stat">⭐ Livello: <span id="stat-livello">1</span></div>
   </aside>
 
+  <!-- MAIN -->
   <main id="main">
     <div id="narration">Caricamento…</div>
 
@@ -120,9 +122,9 @@ button:hover { background: rgba(0,0,0,0.35); }
     </div>
 
     <div id="controls">
-      <button onclick="choose('A')">A</button>
-      <button onclick="choose('B')">B</button>
-      <button onclick="choose('C')">C</button>
+      <button id="btnA">A</button>
+      <button id="btnB">B</button>
+      <button id="btnC">C</button>
     </div>
 
     <div id="test-box">
@@ -132,193 +134,16 @@ button:hover { background: rgba(0,0,0,0.35); }
     </div>
   </main>
 
+  <!-- INVENTORY (DINAMICO, VUOTO) -->
   <aside id="inventory">
     <strong>Inventario</strong>
-    <div>• Torcia</div>
-    <div>• Coltello</div>
+    <div id="inventory-list"></div>
   </aside>
 
 </div>
 
-<script>
-/* ===== URL ===== */
-const WORKER_URL = "https://still-hat-5795.salvatifranc.workers.dev/";
-const MANUAL_URL = "https://raw.githubusercontent.com/salvatifranc-lang/survival-game/main/HOPE_TOWN_GAME_MANUAL.txt";
-
-/* ===== STATE ===== */
-let playerState = { salute: 10, stamina: 10, livello: 1 };
-let lastTest = null;
-let gameManual = "";
-
-/* ===== GAME MEMORY ===== */
-
-// 📘 Diario di campagna (persistente)
-let campaignDiary = {
-  synopsis: "",
-  livello: 1,
-  inventario: ["Torcia", "Coltello"],
-  abilita: []
-};
-
-// 🧭 Diario di missione (temporaneo)
-let missionDiary = {
-  mission_id: null,
-  location: null,
-  log: []
-};
-
-function startNewMission(location) {
-  missionDiary = {
-    mission_id: Date.now(),
-    location,
-    log: []
-  };
-}
-
-/* ===== LOAD MANUAL ===== */
-async function loadGameManual() {
-  try {
-    const res = await fetch(MANUAL_URL);
-    gameManual = await res.text();
-    console.log("Manuale di gioco caricato");
-  } catch {
-    gameManual = "";
-  }
-}
-
-/* ===== TYPEWRITER ===== */
-function typeWriter(el, text, speed = 18) {
-  el.innerText = "";
-  let i = 0;
-  const cursor = document.createElement("span");
-  cursor.className = "cursor";
-  cursor.innerText = "█";
-  el.appendChild(cursor);
-
-  const interval = setInterval(() => {
-    if (i < text.length) {
-      cursor.before(text.charAt(i));
-      i++;
-    } else {
-      clearInterval(interval);
-      cursor.remove();
-    }
-  }, speed);
-}
-
-/* ===== STATS UI ===== */
-function updateStatsUI() {
-  stat-salute.innerText = playerState.salute;
-  stat-stamina.innerText = playerState.stamina;
-  stat-livello.innerText = playerState.livello;
-}
-
-/* ===== DADO ===== */
-function rollD6() {
-  return Math.floor(Math.random() * 6) + 1;
-}
-
-function resolveTest(d6, difficulty) {
-  const table = {
-    "Estremo":        ["critical_fail","critical_fail","fail","fail","partial","bonus"],
-    "Molto Rischioso":["critical_fail","fail","fail","partial","success","bonus"],
-    "Rischioso":     ["critical_fail","fail","partial","partial","success","bonus"],
-    "Standard":      ["critical_fail","fail","partial","partial","success","bonus"],
-    "Facile":        ["fail","partial","success","success","bonus","bonus"],
-    "Molto Facile":  ["partial","partial","success","success","bonus","bonus"]
-  };
-  return table[difficulty][d6 - 1];
-}
-
-function esitoLabel(code) {
-  return {
-    critical_fail: "Fallimento Critico",
-    fail: "Fallimento",
-    partial: "Successo Parziale",
-    success: "Successo",
-    bonus: "Successo con Bonus"
-  }[code];
-}
-
-/* ===== LOOP ===== */
-async function playTurn(action) {
-
-  const testToSend = lastTest;
-  lastTest = null;
-
-  try {
-    const res = await fetch(WORKER_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        last_action: action,
-        player_state: playerState,
-        last_test: testToSend,
-
-        game_manual: gameManual,
-        campaign_diary: campaignDiary,
-        mission_diary: missionDiary
-      })
-    });
-
-    const data = await res.json();
-
-    typeWriter(narration, data.narration || "…", 20);
-
-    setTimeout(() => {
-      typeWriter(choiceA, "A) " + data.choices.A, 12);
-      typeWriter(choiceB, "B) " + data.choices.B, 12);
-      typeWriter(choiceC, "C) " + data.choices.C, 12);
-    }, 300);
-
-    /* ===== TEST ===== */
-    if (data.test && data.test.required === true) {
-
-      const difficulty = data.test.difficulty;
-      const d6 = rollD6();
-      const outcome = resolveTest(d6, difficulty);
-
-      test-box.innerHTML =
-        `🎲 Dado: ${d6}<br>` +
-        `⚠️ Difficoltà: ${difficulty}<br>` +
-        `🧪 Esito: ${esitoLabel(outcome)}`;
-
-      const outcomeData = data.outcomes[outcome];
-      if (outcomeData?.effects) {
-        if (outcomeData.effects.salute) playerState.salute += outcomeData.effects.salute;
-        if (outcomeData.effects.stamina) playerState.stamina += outcomeData.effects.stamina;
-        updateStatsUI();
-      }
-
-      lastTest = { d6, outcome };
-    }
-
-    /* ===== UPDATE MISSION DIARY ===== */
-    missionDiary.log.push({
-      turn: missionDiary.log.length + 1,
-      narration: data.narration,
-      choice: action,
-      test: testToSend
-    });
-
-  } catch {
-    narration.innerText = "Errore di comunicazione.";
-  }
-}
-
-function choose(letter) {
-  playTurn(letter);
-}
-
-/* ===== START ===== */
-updateStatsUI();
-
-(async () => {
-  await loadGameManual();
-  startNewMission("Surface");
-  playTurn("inizio");
-})();
-</script>
+<!-- LOGICA DI GIOCO -->
+<script src="game.js"></script>
 
 </body>
 </html>
