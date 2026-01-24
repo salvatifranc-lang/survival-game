@@ -32,6 +32,8 @@ async function loadGameManual() {
 
 /* ===== TYPEWRITER ===== */
 function typeWriter(el, text, speed = 18) {
+  if (!el) return;
+
   el.innerText = "";
   let i = 0;
   const cursor = document.createElement("span");
@@ -52,9 +54,13 @@ function typeWriter(el, text, speed = 18) {
 
 /* ===== STATS UI ===== */
 function updateStatsUI() {
-  document.getElementById("stat-salute").innerText = playerState.salute;
-  document.getElementById("stat-stamina").innerText = playerState.stamina;
-  document.getElementById("stat-livello").innerText = playerState.livello;
+  const s = document.getElementById("stat-salute");
+  const st = document.getElementById("stat-stamina");
+  const l = document.getElementById("stat-livello");
+
+  if (s) s.innerText = playerState.salute;
+  if (st) st.innerText = playerState.stamina;
+  if (l) l.innerText = playerState.livello;
 }
 
 /* ===== DADO ===== */
@@ -71,17 +77,18 @@ function resolveTest(d6, difficulty) {
     "Facile":        ["fail","partial","success","success","bonus","bonus"],
     "Molto Facile":  ["partial","partial","success","success","bonus","bonus"]
   };
-  return table[difficulty][d6 - 1];
+  return table[difficulty]?.[d6 - 1] || "fail";
 }
 
 function esitoLabel(code) {
-  return {
+  const map = {
     critical_fail: "Fallimento Critico",
     fail: "Fallimento",
     partial: "Successo Parziale",
     success: "Successo",
     bonus: "Successo con Bonus"
-  }[code];
+  };
+  return map[code] || code;
 }
 
 /* ===== LOOP ===== */
@@ -90,42 +97,47 @@ async function playTurn(action) {
   const testToSend = lastTest;
   lastTest = null;
 
-  /* testo reale della scelta */
-  const choiceText = document.getElementById("choice" + action)?.innerText || "";
+  /* testo reale della scelta (SAFE) */
+  let choiceText = "";
+  const choiceEl = document.getElementById("choice" + action);
+  if (choiceEl) choiceText = choiceEl.innerText;
 
   /* ultima narrazione */
-  const previousNarration = document.getElementById("narration").innerText || "";
+  const narrationEl = document.getElementById("narration");
+  const previousNarration = narrationEl ? narrationEl.innerText : "";
 
   try {
     const res = await fetch(WORKER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        /* CORE */
         last_action: action,
         choice_text: choiceText,
         last_narration: previousNarration,
         test_result: testToSend,
 
-        /* STATE */
         player_state: playerState,
 
-        /* SUPPORT */
         game_manual: gameManual,
         campaign_diary: campaignDiary,
         mission_diary: missionDiary
       })
     });
 
+    if (!res.ok) {
+      if (narrationEl) narrationEl.innerText = "Errore di comunicazione con il server.";
+      return;
+    }
+
     const data = await res.json();
 
     /* ===== NARRATION ===== */
-    typeWriter(narration, data.narration || "…", 20);
+    typeWriter(narrationEl, data.narration || "…", 20);
 
     setTimeout(() => {
-      typeWriter(choiceA, "A) " + data.choices.A, 12);
-      typeWriter(choiceB, "B) " + data.choices.B, 12);
-      typeWriter(choiceC, "C) " + data.choices.C, 12);
+      typeWriter(document.getElementById("choiceA"), "A) " + data.choices.A, 12);
+      typeWriter(document.getElementById("choiceB"), "B) " + data.choices.B, 12);
+      typeWriter(document.getElementById("choiceC"), "C) " + data.choices.C, 12);
     }, 300);
 
     /* ===== TEST ===== */
@@ -140,13 +152,10 @@ async function playTurn(action) {
         `⚠️ Difficoltà: ${difficulty}<br>` +
         `🧪 Esito: ${esitoLabel(outcome)}`;
 
-      const outcomeData = data.outcomes[outcome];
-
-      if (outcomeData && outcomeData.effects) {
-        if (outcomeData.effects.salute)
-          playerState.salute += outcomeData.effects.salute;
-        if (outcomeData.effects.stamina)
-          playerState.stamina += outcomeData.effects.stamina;
+      if (data.outcomes && data.outcomes[outcome]?.effects) {
+        const eff = data.outcomes[outcome].effects;
+        if (eff.salute) playerState.salute += eff.salute;
+        if (eff.stamina) playerState.stamina += eff.stamina;
         updateStatsUI();
       }
 
@@ -164,8 +173,9 @@ async function playTurn(action) {
       test: testToSend
     });
 
-  } catch {
-    narration.innerText = "Errore di comunicazione.";
+  } catch (err) {
+    console.error(err);
+    if (narrationEl) narrationEl.innerText = "Errore di comunicazione.";
   }
 }
 
