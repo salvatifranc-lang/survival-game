@@ -150,14 +150,38 @@ let playerState = { salute: 10, stamina: 10, livello: 1 };
 let lastTest = null;
 let gameManual = "";
 
+/* ===== GAME MEMORY ===== */
+
+// 📘 Diario di campagna (persistente)
+let campaignDiary = {
+  synopsis: "",
+  livello: 1,
+  inventario: ["Torcia", "Coltello"],
+  abilita: []
+};
+
+// 🧭 Diario di missione (temporaneo)
+let missionDiary = {
+  mission_id: null,
+  location: null,
+  log: []
+};
+
+function startNewMission(location) {
+  missionDiary = {
+    mission_id: Date.now(),
+    location,
+    log: []
+  };
+}
+
 /* ===== LOAD MANUAL ===== */
 async function loadGameManual() {
   try {
     const res = await fetch(MANUAL_URL);
     gameManual = await res.text();
     console.log("Manuale di gioco caricato");
-  } catch (err) {
-    console.error("Errore caricamento manuale", err);
+  } catch {
     gameManual = "";
   }
 }
@@ -184,9 +208,9 @@ function typeWriter(el, text, speed = 18) {
 
 /* ===== STATS UI ===== */
 function updateStatsUI() {
-  document.getElementById("stat-salute").innerText = playerState.salute;
-  document.getElementById("stat-stamina").innerText = playerState.stamina;
-  document.getElementById("stat-livello").innerText = playerState.livello;
+  stat-salute.innerText = playerState.salute;
+  stat-stamina.innerText = playerState.stamina;
+  stat-livello.innerText = playerState.livello;
 }
 
 /* ===== DADO ===== */
@@ -230,7 +254,10 @@ async function playTurn(action) {
         last_action: action,
         player_state: playerState,
         last_test: testToSend,
-        game_manual: gameManual
+
+        game_manual: gameManual,
+        campaign_diary: campaignDiary,
+        mission_diary: missionDiary
       })
     });
 
@@ -244,33 +271,35 @@ async function playTurn(action) {
       typeWriter(choiceC, "C) " + data.choices.C, 12);
     }, 300);
 
+    /* ===== TEST ===== */
     if (data.test && data.test.required === true) {
 
       const difficulty = data.test.difficulty;
       const d6 = rollD6();
       const outcome = resolveTest(d6, difficulty);
 
-      document.getElementById("test-box").innerHTML =
+      test-box.innerHTML =
         `🎲 Dado: ${d6}<br>` +
         `⚠️ Difficoltà: ${difficulty}<br>` +
         `🧪 Esito: ${esitoLabel(outcome)}`;
 
       const outcomeData = data.outcomes[outcome];
-
-      if (outcomeData && outcomeData.effects) {
-        if (outcomeData.effects.salute)
-          playerState.salute += outcomeData.effects.salute;
-        if (outcomeData.effects.stamina)
-          playerState.stamina += outcomeData.effects.stamina;
+      if (outcomeData?.effects) {
+        if (outcomeData.effects.salute) playerState.salute += outcomeData.effects.salute;
+        if (outcomeData.effects.stamina) playerState.stamina += outcomeData.effects.stamina;
         updateStatsUI();
       }
 
-      lastTest = { outcome };
-
-    } else {
-      document.getElementById("test-box").innerHTML =
-        `🎲 Dado: —<br>⚠️ Difficoltà: —<br>🧪 Esito: —`;
+      lastTest = { d6, outcome };
     }
+
+    /* ===== UPDATE MISSION DIARY ===== */
+    missionDiary.log.push({
+      turn: missionDiary.log.length + 1,
+      narration: data.narration,
+      choice: action,
+      test: testToSend
+    });
 
   } catch {
     narration.innerText = "Errore di comunicazione.";
@@ -286,6 +315,7 @@ updateStatsUI();
 
 (async () => {
   await loadGameManual();
+  startNewMission("Surface");
   playTurn("inizio");
 })();
 </script>
