@@ -141,10 +141,26 @@ button:hover { background: rgba(0,0,0,0.35); }
 </div>
 
 <script>
+/* ===== URL ===== */
 const WORKER_URL = "https://still-hat-5795.salvatifranc.workers.dev/";
+const MANUAL_URL = "https://raw.githubusercontent.com/salvatifranc-lang/survival-game/main/HOPE_TOWN_GAME_MANUAL.txt";
 
+/* ===== STATE ===== */
 let playerState = { salute: 10, stamina: 10, livello: 1 };
 let lastTest = null;
+let gameManual = "";
+
+/* ===== LOAD MANUAL ===== */
+async function loadGameManual() {
+  try {
+    const res = await fetch(MANUAL_URL);
+    gameManual = await res.text();
+    console.log("Manuale di gioco caricato");
+  } catch (err) {
+    console.error("Errore caricamento manuale", err);
+    gameManual = "";
+  }
+}
 
 /* ===== TYPEWRITER ===== */
 function typeWriter(el, text, speed = 18) {
@@ -203,7 +219,6 @@ function esitoLabel(code) {
 /* ===== LOOP ===== */
 async function playTurn(action) {
 
-  /* 🔒 reset esito precedente prima del nuovo turno */
   const testToSend = lastTest;
   lastTest = null;
 
@@ -214,7 +229,8 @@ async function playTurn(action) {
       body: JSON.stringify({
         last_action: action,
         player_state: playerState,
-        last_test: testToSend
+        last_test: testToSend,
+        game_manual: gameManual
       })
     });
 
@@ -228,7 +244,6 @@ async function playTurn(action) {
       typeWriter(choiceC, "C) " + data.choices.C, 12);
     }, 300);
 
-    /* 🎲 TEST SOLO SE IL WORKER LO RICHIEDE */
     if (data.test && data.test.required === true) {
 
       const difficulty = data.test.difficulty;
@@ -266,9 +281,13 @@ function choose(letter) {
   playTurn(letter);
 }
 
-/* START */
+/* ===== START ===== */
 updateStatsUI();
-playTurn("inizio");
+
+(async () => {
+  await loadGameManual();
+  playTurn("inizio");
+})();
 </script>
 
 </body>
