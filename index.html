@@ -1,137 +1,294 @@
-export default {
-  async fetch(request, env) {
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<title>Hope Town</title>
 
-    if (request.method === "OPTIONS")
-      return new Response(null, { headers: cors() });
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-    if (request.method !== "POST")
-      return new Response("Not allowed", { status: 405, headers: cors() });
+body {
+  font-family: "Courier New", monospace;
+  font-size: 18px;
+  height: 100vh;
+  color: #d6f5d6;
+  background-image: url("SFONDOTOP.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
 
-    let body = {};
-    try { body = await request.json(); } catch {}
+#app {
+  display: grid;
+  grid-template-columns: 280px 1fr 280px;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.35);
+}
 
-    const manual = body.game_manual || "";
-    const prevNarration = body.previous_narration || "";
-    const choiceText = body.choice_text || "";
-    const testResult = body.test_result || null;
+/* LEFT */
+#stats {
+  padding: 20px;
+  border-right: 1px solid rgba(255,255,255,0.25);
+}
+.stat { margin-bottom: 14px; }
 
-    /* ===== INCIPIT UNICO ===== */
-    if (!prevNarration) {
-      return json({
-        narration:
-`Benvenuto a Hope Town.
-Anno 2095.
+/* CENTER */
+#main {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
 
-La superficie è morta.
-Le macchine vegliano.
+#narration {
+  height: 53vh;
+  border: 1px solid rgba(255,255,255,0.35);
+  padding: 20px;
+  margin-bottom: 30px;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  overflow-y: auto;
+}
 
-Tu sei un Rider.
-La prima missione sta per cominciare.`,
-        choices: {
-          A: "Raggiungere il centro commerciale abbandonato",
-          B: "Dirigerti verso la discarica delle macchine",
-          C: "Scendere nella metropolitana sommersa"
-        }
-      });
-    }
+/* CHOICES */
+.choice { margin-bottom: 13px; }
 
-    /* ===== PROMPT CONTINUATIVO ===== */
-    const prompt = `
-SEI UN NARRATORE DI GIOCO SURVIVAL.
+/* CONTROLS */
+#controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 15px;
+}
 
-MANUALE DI GIOCO:
-${manual}
+button {
+  flex: 1;
+  padding: 14px;
+  font-size: 20px;
+  cursor: pointer;
+  background: transparent;
+  color: #d6f5d6;
+  border: 0px solid rgba(255,255,255,0.45);
+}
+button:hover { background: rgba(0,0,0,0.35); }
 
-STATO DEL MONDO (ULTIMA NARRAZIONE):
-${prevNarration}
+/* TEST BOX */
+#test-box {
+  border: 1px dashed rgba(255,255,255,0.35);
+  padding: 10px;
+  font-size: 16px;
+  min-height: 80px;
+  line-height: 1.4;
+}
 
-AZIONE COMPIUTA DAL GIOCATORE:
-${choiceText}
+/* RIGHT */
+#inventory {
+  padding: 20px;
+  border-left: 1px solid rgba(255,255,255,0.25);
+}
+#inventory strong {
+  display: block;
+  margin-bottom: 8px;
+}
 
-${testResult ? `
-ESITO DEL TEST:
-- Dado: ${testResult.d6}
-- Esito: ${testResult.outcome}
-INTERPRETA L’ESITO NELLA NARRAZIONE.
-` : `
-NESSUN TEST È STATO EFFETTUATO.
-PROSEGUI LA STORIA BASANDOTI SOLO SULL’AZIONE.
-`}
+/* CURSOR */
+.cursor {
+  display: inline-block;
+  width: 10px;
+  margin-left: 2px;
+  animation: blink 1s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+</style>
+</head>
 
-REGOLE FERREE:
-- DEVI descrivere cosa ACCADE DOPO l’azione.
-- È VIETATO fermare la narrazione.
-- È VIETATO ripetere la stessa situazione.
-- Ogni risposta DEVE cambiare lo stato del mondo.
-- Fornisci SEMPRE 3 nuove scelte narrative coerenti.
+<body>
 
-FORMATO JSON OBBLIGATORIO:
-{
-  "narration": "...",
-  "choices": {
-    "A": "...",
-    "B": "...",
-    "C": "..."
-  },
+<div id="app">
 
-  "test": {
-    "required": true,
-    "difficulty": "Rischioso",
-    "difficulty_note": "...",
-    "modifiers_note": "..."
+  <aside id="stats">
+    <div class="stat">❤️ Salute: <span id="stat-salute">10</span></div>
+    <div class="stat">⚡ Stamina: <span id="stat-stamina">10</span></div>
+    <div class="stat">⭐ Livello: <span id="stat-livello">1</span></div>
+  </aside>
+
+  <main id="main">
+    <div id="narration">Caricamento…</div>
+
+    <div id="choices">
+      <div class="choice" id="choiceA"></div>
+      <div class="choice" id="choiceB"></div>
+      <div class="choice" id="choiceC"></div>
+    </div>
+
+    <div id="controls">
+      <button onclick="choose('A')">A</button>
+      <button onclick="choose('B')">B</button>
+      <button onclick="choose('C')">C</button>
+    </div>
+
+    <div id="test-box">
+      🎲 Dado: —<br>
+      ⚠️ Difficoltà: —<br>
+      🧪 Esito: —
+    </div>
+  </main>
+
+  <aside id="inventory">
+    <strong>Inventario</strong>
+    <div>• Torcia</div>
+    <div>• Coltello</div>
+  </aside>
+
+</div>
+
+<script>
+/* ===== URL ===== */
+const WORKER_URL = "https://still-hat-5795.salvatifranc.workers.dev/";
+const MANUAL_URL = "https://raw.githubusercontent.com/salvatifranc-lang/survival-game/main/HOPE_TOWN_GAME_MANUAL.txt";
+
+/* ===== STATE ===== */
+let playerState = { salute: 10, stamina: 10, livello: 1 };
+let lastTest = null;
+let gameManual = "";
+
+/* ===== LOAD MANUAL ===== */
+async function loadGameManual() {
+  try {
+    const res = await fetch(MANUAL_URL);
+    gameManual = await res.text();
+    console.log("Manuale di gioco caricato");
+  } catch (err) {
+    console.error("Errore caricamento manuale", err);
+    gameManual = "";
   }
 }
 
-Se NON serve un test, ometti completamente "test".
-`;
+/* ===== TYPEWRITER ===== */
+function typeWriter(el, text, speed = 18) {
+  el.innerText = "";
+  let i = 0;
+  const cursor = document.createElement("span");
+  cursor.className = "cursor";
+  cursor.innerText = "█";
+  el.appendChild(cursor);
 
-    return runAI(env, prompt);
-  }
-};
+  const interval = setInterval(() => {
+    if (i < text.length) {
+      cursor.before(text.charAt(i));
+      i++;
+    } else {
+      clearInterval(interval);
+      cursor.remove();
+    }
+  }, speed);
+}
 
-/* ===== AI ===== */
-async function runAI(env, prompt) {
+/* ===== STATS UI ===== */
+function updateStatsUI() {
+  document.getElementById("stat-salute").innerText = playerState.salute;
+  document.getElementById("stat-stamina").innerText = playerState.stamina;
+  document.getElementById("stat-livello").innerText = playerState.livello;
+}
+
+/* ===== DADO ===== */
+function rollD6() {
+  return Math.floor(Math.random() * 6) + 1;
+}
+
+function resolveTest(d6, difficulty) {
+  const table = {
+    "Estremo":        ["critical_fail","critical_fail","fail","fail","partial","bonus"],
+    "Molto Rischioso":["critical_fail","fail","fail","partial","success","bonus"],
+    "Rischioso":     ["critical_fail","fail","partial","partial","success","bonus"],
+    "Standard":      ["critical_fail","fail","partial","partial","success","bonus"],
+    "Facile":        ["fail","partial","success","success","bonus","bonus"],
+    "Molto Facile":  ["partial","partial","success","success","bonus","bonus"]
+  };
+  return table[difficulty][d6 - 1];
+}
+
+function esitoLabel(code) {
+  return {
+    critical_fail: "Fallimento Critico",
+    fail: "Fallimento",
+    partial: "Successo Parziale",
+    success: "Successo",
+    bonus: "Successo con Bonus"
+  }[code];
+}
+
+/* ===== LOOP ===== */
+async function playTurn(action) {
+
+  const testToSend = lastTest;
+  lastTest = null;
+
   try {
-    const result = await env.AI.run(
-      "@cf/meta/llama-3.1-8b-instruct",
-      { prompt }
-    );
+    const res = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        last_action: action,
+        player_state: playerState,
+        last_test: testToSend,
+        game_manual: gameManual
+      })
+    });
 
-    const data = JSON.parse(result.response || "");
+    const data = await res.json();
 
-    if (!data.narration || !data.choices?.A || !data.choices?.B || !data.choices?.C)
-      return fallback();
+    typeWriter(narration, data.narration || "…", 20);
 
-    return json(data);
+    setTimeout(() => {
+      typeWriter(choiceA, "A) " + data.choices.A, 12);
+      typeWriter(choiceB, "B) " + data.choices.B, 12);
+      typeWriter(choiceC, "C) " + data.choices.C, 12);
+    }, 300);
+
+    if (data.test && data.test.required === true) {
+
+      const difficulty = data.test.difficulty;
+      const d6 = rollD6();
+      const outcome = resolveTest(d6, difficulty);
+
+      document.getElementById("test-box").innerHTML =
+        `🎲 Dado: ${d6}<br>` +
+        `⚠️ Difficoltà: ${difficulty}<br>` +
+        `🧪 Esito: ${esitoLabel(outcome)}`;
+
+      const outcomeData = data.outcomes[outcome];
+
+      if (outcomeData && outcomeData.effects) {
+        if (outcomeData.effects.salute)
+          playerState.salute += outcomeData.effects.salute;
+        if (outcomeData.effects.stamina)
+          playerState.stamina += outcomeData.effects.stamina;
+        updateStatsUI();
+      }
+
+      lastTest = { outcome };
+
+    } else {
+      document.getElementById("test-box").innerHTML =
+        `🎲 Dado: —<br>⚠️ Difficoltà: —<br>🧪 Esito: —`;
+    }
 
   } catch {
-    return fallback();
+    narration.innerText = "Errore di comunicazione.";
   }
 }
 
-/* ===== UTILS ===== */
-function json(obj) {
-  return new Response(JSON.stringify(obj), {
-    headers: { ...cors(), "Content-Type": "application/json" }
-  });
+function choose(letter) {
+  playTurn(letter);
 }
 
-function fallback() {
-  return json({
-    narration:
-      "Il mondo non aspetta le tue decisioni. Qualcosa si muove, costringendoti a reagire.",
-    choices: {
-      A: "Agisci subito",
-      B: "Ti sposti cercando riparo",
-      C: "Forzi una scelta disperata"
-    }
-  });
-}
+/* ===== START ===== */
+updateStatsUI();
 
-function cors() {
-  return {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type"
-  };
-}
+(async () => {
+  await loadGameManual();
+  playTurn("inizio");
+})();
+</script>
+
+</body>
+</html>
