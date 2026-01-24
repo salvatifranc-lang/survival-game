@@ -27,6 +27,7 @@ portare a termine missioni per la comunità
 
 Ogni uscita può essere l’ultima.
 Il giocatore non è un eroe.
+
 📘 SEZIONE MANUALE — INIZIO GIOCO / INIZIO MISSIONE
 INIZIO GIOCO (OBBLIGATORIO)
 
@@ -52,7 +53,7 @@ RISVEGLIO
 
 Il gioco inizia sempre con il risveglio del Rider in superficie.
 
-Il risveglio avviene in una delle location di missione disponibili
+Il risveglio avviene in una delle location di missione disponibili elencate nel manuale
 
 La location iniziale è scelta casualmente tra le location del gioco
 
@@ -80,23 +81,19 @@ non sono ottimali
 
 possono essere inadatti alla location iniziale
 
-OBIETTIVO INIZIALE
+Obiettivo della Prima Missione
 
-Il primo obiettivo del gioco è sempre:
+La prima missione del Rider ha sempre come esito possibile la scoperta di Hope Town.
 
-Sopravvivere alla location iniziale e trovare indizi utili per raggiungere Hope Town
+Hope Town:
 
-Hope Town non viene mai trovata immediatamente
+non è accessibile immediatamente
 
-La prima missione serve a:
+non è sicura al momento della scoperta
 
-comprendere il mondo
+viene raggiunta solo al termine della prima missione, se il Rider sopravvive
 
-consumare risorse
-
-subire conseguenze
-
-ottenere informazioni parziali
+Il completamento della prima missione segna il passaggio alla fase HUB del gioco.
 
 STRUTTURA DELLA PRIMA SITUAZIONE
 
