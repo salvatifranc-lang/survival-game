@@ -1,0 +1,125 @@
+HOPE TOWN – GAME MANUAL
+
+GENERE
+Survival narrativo post-apocalittico.
+Tono cupo, teso, realistico.
+Il mondo è ostile, la sopravvivenza è temporanea.
+
+AMBIENTAZIONE
+Anno 2095.
+La superficie del pianeta è dominata da macchine autonome ostili.
+Le città sono rovine riconquistate dalla natura e dalla tecnologia fuori controllo.
+Gli ultimi esseri umani vivono in insediamenti sotterranei chiamati Hope Town.
+
+RUOLO DEL GIOCATORE
+Il giocatore è un Rider.
+Un esploratore che esce in superficie per:
+- recuperare risorse
+- raccogliere informazioni
+- esplorare zone perdute
+- portare a termine missioni per la comunità
+
+Ogni uscita può essere l’ultima.
+Il giocatore non è un eroe.
+
+STRUTTURA GENERALE DEL GIOCO
+Il gioco è diviso in CICLI DI MISSIONE.
+
+1) HUB – Hope Town
+Zona relativamente sicura.
+Qui il giocatore:
+- recupera parte delle risorse
+- riflette sugli eventi passati
+- sceglie la prossima missione
+
+2) USCITA / MISSIONE
+Il giocatore entra in una zona pericolosa.
+La tensione cresce progressivamente.
+
+3) ESPLORAZIONE
+Scelte difficili, ambiente ostile, pericoli costanti.
+
+4) TEST CON DADO (quando appropriato)
+Il dado viene usato SOLO quando l’azione comporta rischio reale.
+
+5) RISOLUZIONE
+Ogni situazione viene risolta definitivamente.
+La storia avanza sempre, anche nei fallimenti.
+
+6) RIENTRO ALL’HUB O FALLIMENTO
+
+STRUTTURA DI UNA SITUAZIONE
+Ogni situazione segue SEMPRE questo schema:
+
+- Descrizione di una situazione concreta
+- Tre scelte (A, B, C), tutte rischiose
+- Eventuale test con dado
+- Risoluzione definitiva
+- Passaggio a una nuova situazione
+
+È VIETATO restare nella stessa situazione dopo un test.
+
+RUOLO DEL DADO (d6)
+Il dado serve a CHIUDERE le situazioni.
+Non crea stalli, non blocca la storia.
+
+Interpretazione:
+- Successo → la storia avanza
+- Successo parziale → la storia avanza con un costo
+- Fallimento → la storia avanza peggiorando
+- Fallimento critico → la storia avanza in modo pericoloso
+
+Il dado rappresenta il COSTO della scelta, non il destino.
+
+DIFFICOLTÀ DEI TEST
+Le difficoltà sono:
+- Estremo
+- Molto Rischioso
+- Rischioso
+- Standard
+- Facile
+- Molto Facile
+
+La difficoltà deve essere sempre spiegata narrativamente.
+
+STATISTICHE
+Salute:
+- danni fisici gravi
+- scende raramente
+- difficile da recuperare
+
+Stamina:
+- fatica fisica e mentale
+- scende spesso
+- può essere recuperata con riposo o rientro all’hub
+
+OGGETTI E ABILITÀ
+Gli oggetti non sono bonus numerici astratti.
+Modificano il contesto narrativo e il rischio percepito.
+
+Esempi:
+- una torcia riduce il rischio nel buio
+- una corda rende una discesa più sicura
+- la stanchezza annulla alcuni vantaggi
+
+REGOLE NARRATIVE OBBLIGATORIE
+È VIETATO:
+- ripetere la stessa scena
+- usare stalli narrativi
+- lasciare il giocatore fermo dopo un test
+- creare scelte sicure
+
+È OBBLIGATORIO:
+- far avanzare la storia ogni turno
+- cambiare almeno una di queste cose:
+  posizione
+  minaccia
+  risorse
+  obiettivo immediato
+
+FILOSOFIA
+Hope Town non è una storia lineare.
+È una serie di spedizioni.
+
+Il giocatore non vince.
+Al massimo sopravvive un altro giorno.
