@@ -5,6 +5,16 @@ const WORKER_URL = "https://still-hat-5795.salvatifranc.workers.dev/";
 const MANUAL_URL = "https://raw.githubusercontent.com/salvatifranc-lang/survival-game/main/HOPE_TOWN_GAME_MANUAL.txt";
 
 /* ======================================================
+   ITEM NAMES (TEMPORANEO, FINCHÉ NON LEGGIAMO DAL MANUALE)
+   ====================================================== */
+const ITEM_NAMES = {
+  PISTOLA_SERV: "Pistola di servizio dismessa",
+  TUNNEL_LAMP_FRAG: "Lampada da tunnel artigianale",
+  RAZIONE_SECCA: "Razione alimentare secca",
+  BATTERIA_USATA: "Batteria riutilizzata"
+};
+
+/* ======================================================
    DOM (UI ONLY)
    ====================================================== */
 const statSalute   = document.getElementById("stat-salute");
@@ -38,9 +48,9 @@ let playerState = {
 let campaignDiary = {
   synopsis: "Prima uscita in superficie.",
   inventario: [
-    "PISTOLA_SERV",     // 1 arma
-    "TUNNEL_LAMP_FRAG", // 1 oggetto stabile
-    "RAZIONE_SECCA"     // 1 consumabile
+    "PISTOLA_SERV",
+    "TUNNEL_LAMP_FRAG",
+    "RAZIONE_SECCA"
   ],
   abilita: []
 };
@@ -77,7 +87,7 @@ function renderInventory() {
   inventoryEl.innerHTML = "";
   campaignDiary.inventario.forEach(id => {
     const div = document.createElement("div");
-    div.textContent = "• " + id;
+    div.textContent = "• " + (ITEM_NAMES[id] || id);
     inventoryEl.appendChild(div);
   });
 }
@@ -178,7 +188,7 @@ function esitoLabel(code) {
    ====================================================== */
 function shouldTest(situation) {
   if (!situation) return false;
-  if (situation.threats.length === 0) return false;
+  if (!situation.threats || situation.threats.length === 0) return false;
   if (situation.pressure === "alta") return true;
   if (playerState.stamina <= 3) return true;
   return false;
@@ -197,6 +207,24 @@ function determineDifficulty(situation) {
   if (score === 3) return "Rischioso";
   if (score === 4) return "Molto Rischioso";
   return "Estremo";
+}
+
+/* ======================================================
+   OGGETTI: RICOMPENSE & ROTTURE (BASE)
+   ====================================================== */
+function handleExtraReward() {
+  if (campaignDiary.inventario.length >= 6) return;
+  campaignDiary.inventario.push("BATTERIA_USATA");
+  renderInventory();
+}
+
+function handleCriticalFailure() {
+  if (campaignDiary.inventario.length === 0) return;
+  const lost =
+    campaignDiary.inventario[Math.floor(Math.random() * campaignDiary.inventario.length)];
+  campaignDiary.inventario =
+    campaignDiary.inventario.filter(i => i !== lost);
+  renderInventory();
 }
 
 /* ======================================================
@@ -232,29 +260,14 @@ function resolveSituation(situation) {
 }
 
 /* ======================================================
-   OGGETTI: RICOMPENSE & ROTTURE (BASE)
-   ====================================================== */
-function handleExtraReward() {
-  if (campaignDiary.inventario.length >= 6) return;
-  campaignDiary.inventario.push("BATTERIA_USATA");
-  renderInventory();
-}
-
-function handleCriticalFailure() {
-  if (campaignDiary.inventario.length === 0) return;
-  const lost =
-    campaignDiary.inventario[Math.floor(Math.random() * campaignDiary.inventario.length)];
-  campaignDiary.inventario =
-    campaignDiary.inventario.filter(i => i !== lost);
-  renderInventory();
-}
-
-/* ======================================================
-   GAME LOOP
+   GAME LOOP (FIX BOOTSTRAP MISSIONE)
    ====================================================== */
 async function playTurn(action) {
   if (!awaitingInput) return;
   awaitingInput = false;
+
+  const missionStatePayload =
+    missionDiary.log.length === 0 ? {} : { situation: missionDiary.currentSituation };
 
   try {
     const res = await fetch(WORKER_URL, {
@@ -263,7 +276,7 @@ async function playTurn(action) {
       body: JSON.stringify({
         game_manual: gameManual,
         campaign_diary: campaignDiary,
-        mission_state: { situation: missionDiary.currentSituation },
+        mission_state: missionStatePayload,
         player_state: playerState,
         last_resolution: lastResolution,
         last_action: action
@@ -273,6 +286,7 @@ async function playTurn(action) {
     const data = await res.json();
 
     missionDiary.currentSituation = data.situation;
+
     typeWriter(narrationEl, data.narration, 20);
 
     setTimeout(() => {
