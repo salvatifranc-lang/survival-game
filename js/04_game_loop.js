@@ -21,11 +21,13 @@ async function playTurn(action) {
 
   /* ===== PAYLOAD BASE ===== */
   const payload = {
-    last_action: action,
-    player_state: playerState,
-    campaign_diary: campaignDiary,
-    mission_diary: missionDiary
-  };
+  last_action: action,
+  game_manual: gameManual,
+  player_state: playerState,
+  campaign_diary: campaignDiary,
+  mission_diary: missionDiary
+};
+
 
   const data = await callWorker(payload);
 
