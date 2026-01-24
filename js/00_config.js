@@ -10,3 +10,7 @@ const MANUAL_URL = "https://raw.githubusercontent.com/salvatifranc-lang/survival
 
 // Flag di debug globale
 const DEBUG = true;
+
+
+/* ===== SEGNA FILE CARICATO ===== */
+document.getElementById("led-config")?.classList.add("ok")
