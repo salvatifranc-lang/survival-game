@@ -97,12 +97,12 @@ async function playTurn(action) {
   const testToSend = lastTest;
   lastTest = null;
 
-  /* testo reale della scelta (SAFE) */
+  /* scelta precedente (safe) */
   let choiceText = "";
   const choiceEl = document.getElementById("choice" + action);
   if (choiceEl) choiceText = choiceEl.innerText;
 
-  /* ultima narrazione */
+  /* narrazione precedente */
   const narrationEl = document.getElementById("narration");
   const previousNarration = narrationEl ? narrationEl.innerText : "";
 
@@ -117,7 +117,6 @@ async function playTurn(action) {
         test_result: testToSend,
 
         player_state: playerState,
-
         game_manual: gameManual,
         campaign_diary: campaignDiary,
         mission_diary: missionDiary
@@ -125,23 +124,29 @@ async function playTurn(action) {
     });
 
     if (!res.ok) {
-      if (narrationEl) narrationEl.innerText = "Errore di comunicazione con il server.";
+      if (narrationEl) narrationEl.innerText = "Errore di comunicazione.";
       return;
     }
 
     const data = await res.json();
 
-    /* ===== NARRATION ===== */
-    typeWriter(narrationEl, data.narration || "…", 20);
+    if (!data || !data.narration || !data.choices) {
+      if (narrationEl) narrationEl.innerText = "Risposta non valida dal server.";
+      return;
+    }
 
+    /* ===== NARRATION ===== */
+    typeWriter(narrationEl, data.narration, 20);
+
+    /* ===== CHOICES (SAFE) ===== */
     setTimeout(() => {
-      typeWriter(document.getElementById("choiceA"), "A) " + data.choices.A, 12);
-      typeWriter(document.getElementById("choiceB"), "B) " + data.choices.B, 12);
-      typeWriter(document.getElementById("choiceC"), "C) " + data.choices.C, 12);
+      typeWriter(document.getElementById("choiceA"), "A) " + (data.choices.A || ""), 12);
+      typeWriter(document.getElementById("choiceB"), "B) " + (data.choices.B || ""), 12);
+      typeWriter(document.getElementById("choiceC"), "C) " + (data.choices.C || ""), 12);
     }, 300);
 
     /* ===== TEST ===== */
-    if (data.test && data.test.required === true) {
+    if (data.test && data.test.required === true && data.outcomes) {
 
       const difficulty = data.test.difficulty;
       const d6 = rollD6();
@@ -152,8 +157,8 @@ async function playTurn(action) {
         `⚠️ Difficoltà: ${difficulty}<br>` +
         `🧪 Esito: ${esitoLabel(outcome)}`;
 
-      if (data.outcomes && data.outcomes[outcome]?.effects) {
-        const eff = data.outcomes[outcome].effects;
+      const eff = data.outcomes[outcome]?.effects;
+      if (eff) {
         if (eff.salute) playerState.salute += eff.salute;
         if (eff.stamina) playerState.stamina += eff.stamina;
         updateStatsUI();
@@ -166,7 +171,7 @@ async function playTurn(action) {
         `🎲 Dado: —<br>⚠️ Difficoltà: —<br>🧪 Esito: —`;
     }
 
-    /* ===== UPDATE MISSION DIARY ===== */
+    /* ===== MISSION DIARY ===== */
     missionDiary.push({
       narration: data.narration,
       choice: choiceText,
@@ -175,7 +180,7 @@ async function playTurn(action) {
 
   } catch (err) {
     console.error(err);
-    if (narrationEl) narrationEl.innerText = "Errore di comunicazione.";
+    if (narrationEl) narrationEl.innerText = "Errore JS.";
   }
 }
 
