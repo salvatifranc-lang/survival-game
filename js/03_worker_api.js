@@ -1,27 +1,31 @@
 /* ======================================================
-   WORKER API — FRONTEND BRIDGE (START ONLY)
+   WORKER API — FRONTEND BRIDGE (START + TURN)
    ====================================================== */
 
 async function callWorker(payload = {}) {
   try {
     console.log("[WORKER API] payload inviato:", payload);
 
-    // ===== CONTROLLO MINIMO =====
-    if (!payload.startManual || payload.startManual.length < 10) {
+    // ===== VALIDAZIONE MINIMA =====
+    if (!payload.action) {
+      throw new Error("Action mancante nel payload");
+    }
+
+    // startManual è richiesto SOLO allo start
+    if (
+      payload.action === "start" &&
+      (!payload.startManual || payload.startManual.length < 10)
+    ) {
       throw new Error("Start manual mancante o vuoto");
     }
 
-    // ===== CHIAMATA AL WORKER BACKEND =====
-    // ⚠️ QUESTO È IL TUO ENDPOINT CLOUDFLARE WORKER
+    // ===== CHIAMATA WORKER BACKEND =====
     const response = await fetch(WORKER_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        action: "start",
-        startManual: payload.startManual
-      })
+      body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
@@ -31,7 +35,7 @@ async function callWorker(payload = {}) {
     const data = await response.json();
     console.log("[WORKER API] risposta worker:", data);
 
-    // ===== VALIDAZIONE STRUTTURA =====
+    // ===== VALIDAZIONE RISPOSTA =====
     if (
       !data ||
       typeof data !== "object" ||
@@ -54,13 +58,14 @@ async function callWorker(payload = {}) {
     // ===== FALLBACK =====
     return {
       narration:
-        "Ti risvegli in un luogo ostile. L’aria è immobile, il silenzio innaturale. Restare fermo non è un’opzione.",
+        "Qualcosa va storto. Il mondo sembra osservarti in silenzio.",
       choices: {
         A: "Avanzare con cautela",
         B: "Cercare riparo",
         C: "Cambiare direzione"
       },
-      _fallback: true
+      _fallback: true,
+      _error: err.message
     };
   }
 }
