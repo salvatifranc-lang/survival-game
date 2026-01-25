@@ -42,14 +42,26 @@ body {
 }
 
 #narration {
-  height: 53vh;
-  border: 0px solid rgba(255,255,255,0.35);
+  position: absolute;
+
+  /* posizione griglia */
+  left: 280px;   /* 7 */
+  top: 120px;    /* 3 */
+
+  /* dimensioni griglia */
+  width: 840px;  /* 28 - 7 */
+  height: 200px; /* 8 - 3 */
+
   padding: 20px;
-  margin-bottom: 30px;
+  margin-bottom: 0;
+
   white-space: pre-wrap;
   line-height: 1.6;
   overflow-y: auto;
+
+  border: 0px solid rgba(255,255,255,0.35);
 }
+
 
 /* CHOICES */
 .choice { margin-bottom: 13px; }
