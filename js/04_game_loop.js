@@ -1,12 +1,14 @@
 /* ======================================================
-   GAME LOOP — CON MISSION DIARY
+   GAME LOOP — CON MISSION DIARY (SAFE)
    ====================================================== */
 
 let currentNarration = "";
 let currentChoices = null;
 let gameStarted = false;
 
-/* ===== AVVIO PARTITA ===== */
+/* ======================================================
+   AVVIO PARTITA
+   ====================================================== */
 async function initGame() {
   try {
     console.log("[04] initGame");
@@ -18,17 +20,16 @@ async function initGame() {
       throw new Error("Start manual non disponibile");
     }
 
-    // 2️⃣ avvia missione (solo se disponibile)
-if (typeof startMission === "function") {
-  startMission({
-    missionId: "MISSION_001",
-    location: "Superficie sconosciuta"
-  });
-  console.log("[04] missione avviata");
-} else {
-  console.warn("[04] startMission non disponibile (05 non caricato?)");
-}
-
+    // 2️⃣ avvia missione (se 05 presente)
+    if (typeof startMission === "function") {
+      startMission({
+        missionId: "MISSION_001",
+        location: "Luogo sconosciuto"
+      });
+      console.log("[04] missione avviata");
+    } else {
+      console.warn("[04] startMission non disponibile (05 non caricato?)");
+    }
 
     // 3️⃣ chiamata worker — START
     const result = await callWorker({
@@ -36,11 +37,19 @@ if (typeof startMission === "function") {
       startManual
     });
 
-    // 4️⃣ render
+    if (!result || !result.narration || !result.choices) {
+      throw new Error("Risposta worker non valida");
+    }
+
+    // 4️⃣ stato locale
     currentNarration = result.narration;
     currentChoices = result.choices;
 
-    renderStats(playerState, missionDiary);
+    // 5️⃣ render
+    renderStats(
+      playerState,
+      typeof missionDiary !== "undefined" ? missionDiary : null
+    );
 
     clearTestBox();
 
@@ -61,13 +70,10 @@ if (typeof startMission === "function") {
 /* ======================================================
    GESTIONE SCELTA GIOCATORE
    ====================================================== */
-
 async function handleChoice(choiceKey) {
   if (!gameStarted || !currentChoices) return;
 
   console.log("[04] scelta:", choiceKey);
-
-  const chosenText = currentChoices[choiceKey];
 
   try {
     // 1️⃣ chiamata worker — TURNO
@@ -76,19 +82,28 @@ async function handleChoice(choiceKey) {
       startManual,
       choice: choiceKey,
       situation: currentNarration,
-      missionDiary: getMissionDiaryForAI()
+      missionDiary:
+        typeof getMissionDiaryForAI === "function"
+          ? getMissionDiaryForAI()
+          : []
     });
 
-    // 2️⃣ scrittura Mission Diary
-    addMissionDiaryEntry({
-      situation: currentNarration,
-      choice: choiceKey,
-      consequence: result.narration,
-      changes: {
-        objective: "avanzato"
-      },
-      flags: []
-    });
+    if (!result || !result.narration || !result.choices) {
+      throw new Error("Risposta worker non valida (turno)");
+    }
+
+    // 2️⃣ scrittura Mission Diary (se disponibile)
+    if (typeof addMissionDiaryEntry === "function") {
+      addMissionDiaryEntry({
+        situation: currentNarration,
+        choice: choiceKey,
+        consequence: result.narration,
+        changes: {},
+        flags: []
+      });
+    } else {
+      console.warn("[04] addMissionDiaryEntry non disponibile");
+    }
 
     // 3️⃣ aggiorna stato locale
     currentNarration = result.narration;
@@ -110,7 +125,6 @@ async function handleChoice(choiceKey) {
 /* ======================================================
    EVENTI UI
    ====================================================== */
-
 btnA.addEventListener("click", () => handleChoice("A"));
 btnB.addEventListener("click", () => handleChoice("B"));
 btnC.addEventListener("click", () => handleChoice("C"));
@@ -118,6 +132,5 @@ btnC.addEventListener("click", () => handleChoice("C"));
 /* ======================================================
    AVVIO
    ====================================================== */
-
 console.log("[04] inizializzato");
 initGame();
