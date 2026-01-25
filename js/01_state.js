@@ -13,11 +13,12 @@ let playerState = {
 };
 
 /* ===== MEMORIA LUNGA (CAMPAGNA) ===== */
-let campaignDiary = {
+window.campaignDiary = {
   synopsis: "",
   inventario: [],
   abilita: [],
-  firstMissionCompleted: false
+  firstMissionCompleted: false,
+  keyEvents: [] // 👈 pronto per 06
 };
 
 /* ===== MEMORIA BREVE (MISSIONE) ===== */
