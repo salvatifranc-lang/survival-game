@@ -138,6 +138,27 @@ button:hover { background: rgba(0,0,0,0.35); }
   background: #aa0000;
   box-shadow: 0 0 6px #ff3333;
 }
+
+  /* ===========================
+   GRID DEBUG — TEMP
+   =========================== */
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+
+  background-image:
+    linear-gradient(to right, rgba(0,255,255,0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0,255,255,0.15) 1px, transparent 1px);
+
+  background-size: 80px 80px;
+}
+/* ===========================
+   GRID DEBUG — TEMP fine
+   =========================== */
 </style>
 </head>
 
