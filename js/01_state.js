@@ -43,6 +43,18 @@ async function loadGameManual() {
     document.getElementById("led-config")?.classList.add("err");
   }
 }
+let startManual = "";
+
+async function loadStartManual() {
+  try {
+    const res = await fetch(START_MANUAL_URL);
+    startManual = await res.text();
+    console.log("[START MANUAL] caricato correttamente");
+  } catch (err) {
+    console.error("[START MANUAL] errore caricamento", err);
+    startManual = "";
+  }
+}
 
 /* ===== AVVIO ===== */
 loadGameManual();
