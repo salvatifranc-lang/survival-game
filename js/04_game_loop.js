@@ -18,7 +18,8 @@ async function initGame() {
     console.log("[04] initGame");
 
     // 1️⃣ carica manuale start (gestito dallo STATE)
-    await loadStartManual();
+const startManual = await loadStartManual();
+
 
     // 2️⃣ inizializza campaign diary
     if (typeof initCampaignDiary === "function" && !campaignDiary.synopsis) {
