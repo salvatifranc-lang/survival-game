@@ -6,6 +6,7 @@
 const statSalute   = document.getElementById("stat-salute");
 const statStamina  = document.getElementById("stat-stamina");
 const statLivello  = document.getElementById("stat-livello");
+const statLocation = document.getElementById("stat-location");
 
 const narrationEl  = document.getElementById("narration");
 const choiceAEl    = document.getElementById("choiceA");
