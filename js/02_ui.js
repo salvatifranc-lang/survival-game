@@ -2,6 +2,8 @@
    UI — RENDER & DOM
    ====================================================== */
 
+import { getLastRoll } from "./07_dice.js";
+
 /* ===== DOM REFERENCES ===== */
 const statSalute   = document.getElementById("stat-salute");
 const statStamina  = document.getElementById("stat-stamina");
@@ -113,6 +115,25 @@ function clearTestBox() {
 }
 
 /* ======================================================
+   RENDER: TEST BOX (DADO / DIFFICOLTÀ / ESITO)
+   ====================================================== */
+function renderTestBox() {
+  if (!testBox) return;
+
+  const { roll, difficulty, outcome } = getLastRoll();
+
+  if (!roll || !difficulty || !outcome) {
+    clearTestBox();
+    return;
+  }
+
+  testBox.innerHTML =
+    `🎲 Dado: <strong>${roll}</strong><br>` +
+    `⚠️ Difficoltà: <strong>${difficulty}</strong><br>` +
+    `🧪 Esito: <strong>${outcome}</strong>`;
+}
+
+/* ======================================================
    ESPOSIZIONE API UI (PER GAME LOOP)
    ====================================================== */
 window.renderNarration = renderNarration;
@@ -120,6 +141,7 @@ window.renderChoices   = renderChoices;
 window.renderStats     = renderStats;
 window.renderInventory = renderInventory;
 window.clearTestBox    = clearTestBox;
+window.renderTestBox   = renderTestBox;
 
 /* ======================================================
    LED: FILE CARICATO
