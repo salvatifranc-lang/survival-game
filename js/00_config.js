@@ -1,6 +1,8 @@
 /* ======================================================
    CONFIGURAZIONE GLOBALE
    ====================================================== */
+// ===== WORKER BACKEND =====
+const WORKER_ENDPOINT = "https://still-hat-5795.salvatifranc.workers.dev/";
 
 const WORKER_URL = "https://still-hat-5795.salvatifranc.workers.dev/";
 const MANUAL_URL =
