@@ -2,7 +2,7 @@
    WORKER API — SOLO START (DEBUG)
    ====================================================== */
 
-const AI_ENDPOINT = "/api/ai"; // <-- endpoint del TUO worker
+
 
 async function callWorker(payload = {}) {
   try {
