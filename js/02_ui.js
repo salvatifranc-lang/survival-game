@@ -19,8 +19,12 @@ const btnC = document.getElementById("btnC");
 const testBox     = document.getElementById("test-box");
 const inventoryEl = document.getElementById("inventory-list");
 
-/* ===== TYPEWRITER ===== */
+/* ======================================================
+   TYPEWRITER
+   ====================================================== */
 function typeWriter(el, text, speed = 18, onDone) {
+  if (!el) return;
+
   el.innerText = "";
   let i = 0;
 
@@ -41,17 +45,40 @@ function typeWriter(el, text, speed = 18, onDone) {
   }, speed);
 }
 
-/* ===== RENDER: STATS ===== */
-function renderStats(playerState) {
-  if (!playerState) return;
-  statSalute.textContent  = playerState.salute;
-  statStamina.textContent = playerState.stamina;
-  statLivello.textContent = playerState.livello;
+/* ======================================================
+   RENDER: NARRATION
+   ====================================================== */
+function renderNarration(text) {
+  if (!text) return;
+  typeWriter(narrationEl, text, 18);
 }
 
-/* ===== RENDER: INVENTORY ===== */
+/* ======================================================
+   RENDER: STATS
+   ====================================================== */
+function renderStats(playerState) {
+  if (!playerState) return;
+
+  statSalute.textContent  = playerState.salute ?? "—";
+  statStamina.textContent = playerState.stamina ?? "—";
+  statLivello.textContent = playerState.livello ?? "—";
+}
+
+/* ======================================================
+   RENDER: INVENTORY
+   ====================================================== */
 function renderInventory(inventory = [], nameMap = {}) {
+  if (!inventoryEl) return;
+
   inventoryEl.innerHTML = "";
+
+  if (!Array.isArray(inventory) || inventory.length === 0) {
+    const empty = document.createElement("div");
+    empty.textContent = "— vuoto —";
+    inventoryEl.appendChild(empty);
+    return;
+  }
+
   inventory.forEach(id => {
     const div = document.createElement("div");
     div.textContent = "• " + (nameMap[id] || id);
@@ -59,25 +86,44 @@ function renderInventory(inventory = [], nameMap = {}) {
   });
 }
 
-/* ===== RENDER: CHOICES ===== */
-function renderChoices(choices) {
-  choiceAEl.textContent = choices?.A ? "A) " + choices.A : "";
-  choiceBEl.textContent = choices?.B ? "B) " + choices.B : "";
-  choiceCEl.textContent = choices?.C ? "C) " + choices.C : "";
+/* ======================================================
+   RENDER: CHOICES
+   ====================================================== */
+function renderChoices(choices = {}) {
+  choiceAEl.textContent = choices.A ? "A) " + choices.A : "";
+  choiceBEl.textContent = choices.B ? "B) " + choices.B : "";
+  choiceCEl.textContent = choices.C ? "C) " + choices.C : "";
 }
 
-/* ===== RENDER: TEST BOX ===== */
+/* ======================================================
+   TEST BOX
+   ====================================================== */
 function clearTestBox() {
+  if (!testBox) return;
+
   testBox.innerHTML =
     `🎲 Dado: —<br>` +
     `⚠️ Difficoltà: —<br>` +
     `🧪 Esito: —`;
 }
 
-/* ===== SEGNA FILE CARICATO ===== */
+/* ======================================================
+   ESPOSIZIONE API UI (PER GAME LOOP)
+   ====================================================== */
+window.renderNarration = renderNarration;
+window.renderChoices   = renderChoices;
+window.renderStats     = renderStats;
+window.renderInventory = renderInventory;
+window.clearTestBox    = clearTestBox;
+
+/* ======================================================
+   LED: FILE CARICATO
+   ====================================================== */
 document.getElementById("led-ui")?.classList.add("ok");
 
-/* ===== DEBUG ===== */
+/* ======================================================
+   DEBUG
+   ====================================================== */
 if (typeof DEBUG !== "undefined" && DEBUG) {
   console.log("[UI] inizializzata");
 }
