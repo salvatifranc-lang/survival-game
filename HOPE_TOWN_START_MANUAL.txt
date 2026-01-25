@@ -1,0 +1,155 @@
+HOPE TOWN — MANUALE DI INIZIO GIOCO
+Versione 1.0
+
+Questo documento definisce IN MODO VINCOLANTE
+le condizioni di inizio partita del gioco Hope Town.
+
+Questo file ha priorità su qualunque interpretazione narrativa.
+Il sistema DEVE applicare queste regole senza eccezioni.
+
+
+==============================
+1. CONTESTO INIZIALE
+==============================
+
+Anno: 2095
+
+Il mondo in superficie è ostile, instabile e dominato da macchine senzienti ostili.
+Le città sono rovine tecnologiche parzialmente riconquistate dalla natura.
+
+Il giocatore NON è un eroe.
+È un individuo solo, vulnerabile, in costante pericolo.
+
+
+==============================
+2. STATO INIZIALE DEL GIOCATORE
+==============================
+
+All’inizio della partita, il giocatore:
+
+- È vivo
+- È solo
+- È cosciente
+- Non ricorda come è arrivato nella location attuale
+
+Statistiche iniziali:
+- Salute: 10
+- Stamina: 10
+- Livello: 1
+
+
+==============================
+3. EQUIPAGGIAMENTO INIZIALE
+==============================
+
+Il giocatore inizia SEMPRE con ESATTAMENTE:
+
+- 1 arma
+- 1 oggetto stabile (strumento)
+- 1 oggetto consumabile
+
+Gli oggetti iniziali:
+
+- DEVONO essere selezionati dalla lista oggetti del MANUALE PRINCIPALE
+- DEVONO essere coerenti con un recupero casuale o di fortuna
+- NON devono garantire sicurezza
+- NON devono annullare il rischio
+
+L’equipaggiamento iniziale NON è ottimale.
+È sufficiente a sopravvivere solo temporaneamente.
+
+
+==============================
+4. LOCATION DI INIZIO
+==============================
+
+Il giocatore si risveglia in UNA SOLA location di missione.
+
+La location:
+
+- È una zona di superficie
+- È pericolosa
+- È isolata
+- Contiene minacce attive o latenti
+
+La location iniziale:
+
+- NON è Hope Town
+- NON è sicura
+- NON è permanente
+
+La lista delle location iniziali è definita nel MANUALE PRINCIPALE.
+
+
+==============================
+5. OBIETTIVO INIZIALE
+==============================
+
+L’obiettivo iniziale del giocatore è UNO SOLO:
+
+SOPRAVVIVERE ALLA LOCATION INIZIALE
+E TROVARE HOPE TOWN
+
+
+==============================
+6. STRUTTURA DELLA PRIMA SCENA
+==============================
+
+La prima scena di gioco DEVE:
+
+- Descrivere il risveglio del giocatore
+- Mostrare immediatamente l’ostilità dell’ambiente
+- Far percepire vulnerabilità e urgenza
+- Introdurre una minaccia o una tensione latente
+
+La scena NON deve:
+
+- Offrire rifugi sicuri
+- Introdurre NPC amichevoli
+- Risolvere conflitti
+- Concludere la missione
+
+
+==============================
+7. SCELTE INIZIALI
+==============================
+
+La prima situazione DEVE offrire:
+
+- 3 scelte distinte (A, B, C)
+- Tutte comportano rischio
+- Nessuna è neutra o sicura
+
+Le scelte DEVONO:
+
+- Cambiare la situazione
+- Avanzare la storia
+- Esporre il giocatore a conseguenze
+
+
+==============================
+8. HOPE TOWN
+==============================
+
+Hope Town:
+
+- NON è accessibile all’inizio del gioco
+- Viene scoperta SOLO al termine della prima missione
+- Diventa l’hub di gioco dopo la prima spedizione
+
+La prima missione termina quando:
+- Il giocatore trova Hope Town
+- Oppure fallisce in modo irreversibile
+
+
+==============================
+9. VINCOLI DI SISTEMA
+==============================
+
+Il sistema di gioco:
+
+- NON deve inventare regole non presenti in questo documento
+- NON deve modificare queste regole durante la partita
+- DEVE applicare questo manuale a ogni nuova partita
+
+Questo documento è IMMUTABILE durante una partita.
