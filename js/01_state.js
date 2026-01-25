@@ -53,7 +53,7 @@ async function loadGameManual() {
 }
 let startManual = "";
 
-async function loadStartManual() {
+export async function loadStartManual() {
   try {
     const res = await fetch(START_MANUAL_URL);
     startManual = await res.text();
