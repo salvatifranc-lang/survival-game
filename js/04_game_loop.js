@@ -16,16 +16,13 @@ async function initGame() {
   try {
     console.log("[04] initGame");
 
-    // 1️⃣ carica manuale start (RITORNA il testo)
-    const startManual = await loadStartManual();
+    // 1️⃣ carica manuale start (gestito dallo STATE)
+    await loadStartManual();
 
-    if (!startManual || typeof startManual !== "string") {
-      throw new Error("Start manual non disponibile");
-    }
+    // ❌ NON controllare startManual qui
+    // lo state è la fonte di verità
 
-    console.log("[04] Start manual length:", startManual.length);
-
-    // 2️⃣ inizializza campaign diary (una sola volta)
+    // 2️⃣ inizializza campaign diary
     if (typeof initCampaignDiary === "function" && !campaignDiary.synopsis) {
       initCampaignDiary();
     }
@@ -41,7 +38,7 @@ async function initGame() {
     // 4️⃣ chiamata worker — START
     const result = await callWorker({
       action: "start",
-      startManual,
+      startManual: window.startManual, // ✅ STATO GLOBALE
       campaignDiary
     });
 
@@ -79,7 +76,6 @@ async function handleChoice(choiceKey) {
   if (!gameStarted || !currentChoices) return;
 
   try {
-    // 1️⃣ TURNO: chiedi al worker cosa succede
     const turnResult = await callWorker({
       action: "turn",
       choice: choiceKey,
@@ -95,9 +91,6 @@ async function handleChoice(choiceKey) {
       throw new Error("Risposta worker non valida (turn)");
     }
 
-    /* ==================================================
-       NESSUN TEST
-       ================================================== */
     if (turnResult.requiresTest === false) {
       currentNarration = turnResult.narration;
       currentChoices = turnResult.choices;
@@ -109,19 +102,14 @@ async function handleChoice(choiceKey) {
       return;
     }
 
-    /* ==================================================
-       TEST RICHIESTO
-       ================================================== */
     if (turnResult.requiresTest === true) {
       const rollResult = performRoll(turnResult.difficulty);
-
-      // UI del test (già gestita da 07 + 02)
       renderTestBox();
 
       const resolveResult = await callWorker({
         action: "resolve",
         choice: choiceKey,
-        outcome: rollResult.outcome, // ⬅️ SOLO ETICHETTA TESTUALE
+        outcome: rollResult.outcome,
         situation: missionDiary.currentSituation,
         missionDiary:
           typeof getMissionDiaryForAI === "function"
@@ -130,17 +118,12 @@ async function handleChoice(choiceKey) {
         campaignDiary
       });
 
-      if (!resolveResult || !resolveResult.narration || !resolveResult.choices) {
-        throw new Error("Risposta worker non valida (resolve)");
-      }
-
       currentNarration = resolveResult.narration;
       currentChoices = resolveResult.choices;
       missionDiary.currentSituation = currentNarration;
 
       renderNarration(currentNarration);
       renderChoices(currentChoices);
-      return;
     }
 
   } catch (err) {
