@@ -1,25 +1,35 @@
 /* ======================================================
-   MISSION DIARY — MEMORIA NARRATIVA DI BREVE TERMINE
+   05 — MISSION DIARY
+   Memoria narrativa di breve termine (missione corrente)
    ====================================================== */
 
-const missionDiary = {
-  mission_id: null,
-  location: null,
-  turn: 0,
-  log: []
-};
+/*
+  NOTA:
+  - missionDiary DEVE essere dichiarato in 01_state.js
+  - Qui NON si ridefinisce lo stato
+*/
 
 /* ===== AVVIO NUOVA MISSIONE ===== */
 function startMission({ missionId, location }) {
-  missionDiary.mission_id = missionId;
-  missionDiary.location = location;
-  missionDiary.turn = 0;
-  missionDiary.log = [];
+  if (!window.missionDiary) {
+    console.warn("[MISSION DIARY] missionDiary non definito nello state");
+    return;
+  }
 
-  console.log("[MISSION DIARY] nuova missione:", missionId, location);
+  const diary = window.missionDiary;
+
+  diary.mission_id = missionId;
+  diary.location = location;
+  diary.turn = 0;
+  diary.log = [];
+
+  console.log("[MISSION DIARY] nuova missione avviata:", {
+    missionId,
+    location
+  });
 }
 
-/* ===== AGGIUNGI ENTRY ===== */
+/* ===== AGGIUNTA ENTRY ===== */
 function addMissionDiaryEntry({
   situation,
   choice,
@@ -27,10 +37,21 @@ function addMissionDiaryEntry({
   changes = {},
   flags = []
 }) {
-  missionDiary.turn += 1;
+  if (!window.missionDiary) {
+    console.warn("[MISSION DIARY] impossibile aggiungere entry (diario assente)");
+    return;
+  }
+
+  const diary = window.missionDiary;
+
+  if (!Array.isArray(diary.log)) {
+    diary.log = [];
+  }
+
+  diary.turn += 1;
 
   const entry = {
-    turn: missionDiary.turn,
+    turn: diary.turn,
     situation,
     choice,
     consequence,
@@ -38,23 +59,31 @@ function addMissionDiaryEntry({
     flags
   };
 
-  missionDiary.log.push(entry);
+  diary.log.push(entry);
 
   console.log("[MISSION DIARY] entry aggiunta:", entry);
 }
 
-/* ===== LETTURA PER AI ===== */
+/* ===== ESTRATTO PER AI ===== */
 function getMissionDiaryForAI(limit = 6) {
-  return missionDiary.log.slice(-limit);
+  if (!window.missionDiary || !Array.isArray(window.missionDiary.log)) {
+    return [];
+  }
+
+  return window.missionDiary.log.slice(-limit);
 }
 
 /* ===== DEBUG ===== */
 function printMissionDiary() {
-  console.table(missionDiary.log);
+  if (!window.missionDiary) {
+    console.warn("[MISSION DIARY] nessun diario presente");
+    return;
+  }
+
+  console.table(window.missionDiary.log);
 }
 
 /* ===== ESPOSIZIONE GLOBALE ===== */
-window.missionDiary = missionDiary;
 window.startMission = startMission;
 window.addMissionDiaryEntry = addMissionDiaryEntry;
 window.getMissionDiaryForAI = getMissionDiaryForAI;
