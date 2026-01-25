@@ -15,14 +15,14 @@ async function initGame() {
       throw new Error("START_MANUAL non disponibile");
     }
 
-    console.log("[04] start manual pronto, lunghezza:", startManual.length);
+    console.log("[04] start manual pronto:", startManual.length);
 
-    // 2️⃣ CHIAMATA WORKER (SOLO START)
+    // 2️⃣ CHIAMATA AL WORKER (NON ALL’AI)
     const result = await callWorker({
-      startManual: startManual
+      startManual
     });
 
-    // 3️⃣ RENDER UI
+    // 3️⃣ RENDER
     renderStats(playerState);
     renderInventory(campaignDiary.inventario || []);
     clearTestBox();
@@ -35,15 +35,12 @@ async function initGame() {
 
   } catch (err) {
     console.error("[04] errore initGame:", err);
-
     narrationEl.textContent =
       "Errore critico durante l'inizializzazione del gioco.";
-
     signalLoopError();
   }
 }
 
-/* ===== AVVIO AUTOMATICO ===== */
 initGame();
 
 /* ===== LED ===== */
@@ -55,7 +52,6 @@ function signalLoopError() {
   document.getElementById("led-loop")?.classList.add("err");
 }
 
-/* ===== DEBUG ===== */
 if (typeof DEBUG !== "undefined" && DEBUG) {
   console.log("[04] inizializzato");
 }
