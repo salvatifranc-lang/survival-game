@@ -4,6 +4,7 @@
 
 import { loadStartManual } from "./01_state.js";
 import { performRoll } from "./07_dice.js";
+import { callWorker } from "./03_worker_api.js";
 
 let currentNarration = "";
 let currentChoices = null;
@@ -18,9 +19,6 @@ async function initGame() {
 
     // 1️⃣ carica manuale start (gestito dallo STATE)
     await loadStartManual();
-
-    // ❌ NON controllare startManual qui
-    // lo state è la fonte di verità
 
     // 2️⃣ inizializza campaign diary
     if (typeof initCampaignDiary === "function" && !campaignDiary.synopsis) {
@@ -38,23 +36,20 @@ async function initGame() {
     // 4️⃣ chiamata worker — START
     const result = await callWorker({
       action: "start",
-      startManual: window.startManual, // ✅ STATO GLOBALE
+      startManual: window.startManual,
       campaignDiary
     });
 
-    if (!result || !result.narration || !result.choices) {
+    if (!result?.narration || !result?.choices) {
       throw new Error("Risposta worker non valida (start)");
     }
 
-    // 5️⃣ stato locale
     currentNarration = result.narration;
     currentChoices = result.choices;
     missionDiary.currentSituation = currentNarration;
 
-    // 6️⃣ render iniziale
     renderStats(playerState, missionDiary);
     clearTestBox();
-
     renderNarration(currentNarration);
     renderChoices(currentChoices);
 
@@ -87,11 +82,12 @@ async function handleChoice(choiceKey) {
       campaignDiary
     });
 
-    if (!turnResult || !turnResult.narration || !turnResult.choices) {
-      throw new Error("Risposta worker non valida (turn)");
-    }
-
+    /* ===== CASO: NESSUN TEST ===== */
     if (turnResult.requiresTest === false) {
+      if (!turnResult.narration || !turnResult.choices) {
+        throw new Error("Turn senza test non valido");
+      }
+
       currentNarration = turnResult.narration;
       currentChoices = turnResult.choices;
       missionDiary.currentSituation = currentNarration;
@@ -102,9 +98,16 @@ async function handleChoice(choiceKey) {
       return;
     }
 
+    /* ===== CASO: TEST RICHIESTO ===== */
     if (turnResult.requiresTest === true) {
       const rollResult = performRoll(turnResult.difficulty);
-      renderTestBox();
+
+      // mostra risultato test
+      renderTestBox(
+        rollResult.roll,
+        rollResult.difficulty,
+        rollResult.outcome
+      );
 
       const resolveResult = await callWorker({
         action: "resolve",
@@ -117,6 +120,10 @@ async function handleChoice(choiceKey) {
             : [],
         campaignDiary
       });
+
+      if (!resolveResult?.narration || !resolveResult?.choices) {
+        throw new Error("Risposta resolve non valida");
+      }
 
       currentNarration = resolveResult.narration;
       currentChoices = resolveResult.choices;
