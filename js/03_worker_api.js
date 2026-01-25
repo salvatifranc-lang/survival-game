@@ -1,60 +1,107 @@
-/* =====================================================
-   WORKER API — COMUNICAZIONE CON IL WORKER
-   ===================================================== */
+/* ======================================================
+   WORKER API — SOLO START (DEBUG)
+   ====================================================== */
 
 async function callWorker(payload = {}) {
   try {
-    const fullPayload = {
-      last_action: payload.last_action || "",
-      player_state: playerState,
-      campaign_diary: campaignDiary,
-      mission_diary: missionDiary,
-      game_manual: gameManual,
+    console.log("[WORKER] payload ricevuto:", payload);
 
-      // 👇 MANUALE DI INIZIO GIOCO
-      start_manual: startManual
-    };
-
-    if (DEBUG) {
-      console.log("[WORKER] invio payload", {
-        last_action: fullPayload.last_action,
-        hasGameManual: !!gameManual,
-        hasStartManual: !!startManual,
-        startManualLength: startManual.length
-      });
+    // ===== CONTROLLI MINIMI =====
+    if (!payload.startManual || payload.startManual.length < 10) {
+      throw new Error("Start manual mancante o vuoto");
     }
 
-    const res = await fetch(WORKER_URL, {
+    // ===== PROMPT RIGIDO =====
+    const prompt = `
+Sei il narratore di un gioco survival narrativo.
+
+USA ESCLUSIVAMENTE il seguente MANUALE DI INIZIO GIOCO
+per iniziare la partita.
+
+MANUALE START:
+"""
+${payload.startManual}
+"""
+
+REGOLE FONDAMENTALI:
+- Rispondi SOLO con JSON valido
+- Nessun testo fuori dal JSON
+- Nessun commento
+- Nessun markdown
+
+STRUTTURA OBBLIGATORIA DELLA RISPOSTA:
+
+{
+  "narration": "testo narrativo",
+  "choices": {
+    "A": "scelta A",
+    "B": "scelta B",
+    "C": "scelta C"
+  }
+}
+`;
+
+    // ===== CHIAMATA AI (Cloudflare Worker / fetch OpenAI) =====
+    const response = await fetch(AI_ENDPOINT, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(fullPayload)
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${AI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: AI_MODEL,
+        messages: [
+          { role: "system", content: "Rispondi solo in JSON." },
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.7
+      })
     });
 
-    const data = await res.json();
+    const raw = await response.json();
+    console.log("[WORKER] risposta AI GREZZA:", raw);
 
-    // Controllo minimo di validità
+    // ===== ESTRAZIONE TESTO =====
+    const text =
+      raw?.choices?.[0]?.message?.content?.trim();
+
+    if (!text) {
+      throw new Error("Risposta AI vuota");
+    }
+
+    // ===== PARSE JSON =====
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      console.error("[WORKER] JSON non valido:", text);
+      throw new Error("JSON non parsabile");
+    }
+
+    console.log("[WORKER] JSON parsato:", data);
+
+    // ===== VALIDAZIONE STRUTTURA =====
     if (
-      !data ||
       !data.narration ||
       !data.choices ||
       !data.choices.A ||
       !data.choices.B ||
       !data.choices.C
     ) {
-      throw new Error("Risposta worker non valida");
+      throw new Error("Struttura JSON non valida");
     }
 
     signalWorkerOK();
     return data;
 
   } catch (err) {
-    console.error("[WORKER] errore o fallback", err);
+    console.error("[WORKER] ERRORE:", err);
     signalWorkerError();
 
-    // FALLBACK SICURO
+    // ===== FALLBACK DI EMERGENZA =====
     return {
       narration:
-        "L’ambiente intorno a te cambia. Qualcosa non è più come prima, e restare fermo è una pessima idea.",
+        "Ti risvegli in un luogo ostile. L’aria è immobile, il silenzio innaturale. Restare fermo non è un’opzione.",
       choices: {
         A: "Avanzare con cautela",
         B: "Cercare riparo",
@@ -78,4 +125,9 @@ function signalWorkerError() {
   if (!led) return;
   led.classList.remove("ok");
   led.classList.add("err");
+}
+
+/* ===== DEBUG ===== */
+if (typeof DEBUG !== "undefined" && DEBUG) {
+  console.log("[WORKER] inizializzato (start-only)");
 }
