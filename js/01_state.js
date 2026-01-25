@@ -21,11 +21,14 @@ let campaignDiary = {
 };
 
 /* ===== MEMORIA BREVE (MISSIONE) ===== */
+/* ===== MEMORIA BREVE (MISSIONE) ===== */
 let missionDiary = {
-  log: [],
-  currentSituation: null,
-  location: "Luogo sconosciuto" // 👈 AGGIUNTO
+  mission_id: null,
+  location: "Luogo sconosciuto",
+  turn: 0,
+  log: []
 };
+
 
 
 /* ======================================================
