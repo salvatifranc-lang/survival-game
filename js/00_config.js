@@ -5,7 +5,7 @@
 const WORKER_ENDPOINT = "https://still-hat-5795.salvatifranc.workers.dev/";
 
 const WORKER_URL = "https://still-hat-5795.salvatifranc.workers.dev/";
-const START_MANUAL_URL = "HOPE_TOWN_START_MANUAL.txt";
+export const START_MANUAL_URL = "HOPE_TOWN_START_MANUAL.txt";
 export const MANUAL_URL = "HOPE_TOWN_START_MANUAL.txt"; // o il path corretto
 
 // DADOTEST
