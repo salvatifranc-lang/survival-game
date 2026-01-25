@@ -35,11 +35,12 @@ const startManual = await loadStartManual();
     }
 
     // 4️⃣ chiamata worker — START
-    const result = await callWorker({
-      action: "start",
-      startManual: window.startManual,
-      campaignDiary
-    });
+const result = await callWorker({
+  action: "start",
+  startManual, // ✅ quello giusto
+  campaignDiary
+});
+
 
     if (!result?.narration || !result?.choices) {
       throw new Error("Risposta worker non valida (start)");
