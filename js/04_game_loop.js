@@ -1,5 +1,5 @@
 /* ======================================================
-   GAME LOOP — CON MISSION DIARY (SAFE)
+   GAME LOOP — CON MISSION + CAMPAIGN DIARY (SAFE)
    ====================================================== */
 
 let currentNarration = "";
@@ -20,6 +20,12 @@ async function initGame() {
       throw new Error("Start manual non disponibile");
     }
 
+    // 1️⃣.5 inizializza campaign diary (UNA SOLA VOLTA)
+    if (typeof initCampaignDiary === "function" && !campaignDiary.synopsis) {
+      initCampaignDiary();
+      console.log("[04] campaign diary inizializzato");
+    }
+
     // 2️⃣ avvia missione (se 05 presente)
     if (typeof startMission === "function") {
       startMission({
@@ -34,16 +40,20 @@ async function initGame() {
     // 3️⃣ chiamata worker — START
     const result = await callWorker({
       action: "start",
-      startManual
+      startManual,
+      campaignDiary
     });
 
     if (!result || !result.narration || !result.choices) {
-      throw new Error("Risposta worker non valida");
+      throw new Error("Risposta worker non valida (start)");
     }
 
-    // 4️⃣ stato locale
+    // 4️⃣ stato locale iniziale
     currentNarration = result.narration;
     currentChoices = result.choices;
+
+    // stato narrativo persistente
+    missionDiary.currentSituation = currentNarration;
 
     // 5️⃣ render
     renderStats(
@@ -79,13 +89,16 @@ async function handleChoice(choiceKey) {
     // 1️⃣ chiamata worker — TURNO
     const result = await callWorker({
       action: "turn",
-      startManual,
       choice: choiceKey,
-      situation: currentNarration,
+
+      situation: missionDiary.currentSituation,
+
       missionDiary:
         typeof getMissionDiaryForAI === "function"
           ? getMissionDiaryForAI()
-          : []
+          : [],
+
+      campaignDiary
     });
 
     if (!result || !result.narration || !result.choices) {
@@ -95,7 +108,7 @@ async function handleChoice(choiceKey) {
     // 2️⃣ scrittura Mission Diary (se disponibile)
     if (typeof addMissionDiaryEntry === "function") {
       addMissionDiaryEntry({
-        situation: currentNarration,
+        situation: missionDiary.currentSituation,
         choice: choiceKey,
         consequence: result.narration,
         changes: {},
@@ -108,6 +121,9 @@ async function handleChoice(choiceKey) {
     // 3️⃣ aggiorna stato locale
     currentNarration = result.narration;
     currentChoices = result.choices;
+
+    // aggiorna stato narrativo persistente
+    missionDiary.currentSituation = currentNarration;
 
     // 4️⃣ render
     clearTestBox();
