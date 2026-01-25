@@ -1,104 +1,57 @@
 /* ======================================================
-   WORKER API — SOLO START (DEBUG)
+   WORKER API — FRONTEND BRIDGE (START ONLY)
    ====================================================== */
 
 async function callWorker(payload = {}) {
   try {
-    console.log("[WORKER] payload ricevuto:", payload);
+    console.log("[WORKER API] payload inviato:", payload);
 
-    // ===== CONTROLLI MINIMI =====
+    // ===== CONTROLLO MINIMO =====
     if (!payload.startManual || payload.startManual.length < 10) {
       throw new Error("Start manual mancante o vuoto");
     }
 
-    // ===== PROMPT RIGIDO =====
-    const prompt = `
-Sei il narratore di un gioco survival narrativo.
-
-USA ESCLUSIVAMENTE il seguente MANUALE DI INIZIO GIOCO
-per iniziare la partita.
-
-MANUALE START:
-"""
-${payload.startManual}
-"""
-
-REGOLE FONDAMENTALI:
-- Rispondi SOLO con JSON valido
-- Nessun testo fuori dal JSON
-- Nessun commento
-- Nessun markdown
-
-STRUTTURA OBBLIGATORIA DELLA RISPOSTA:
-
-{
-  "narration": "testo narrativo",
-  "choices": {
-    "A": "scelta A",
-    "B": "scelta B",
-    "C": "scelta C"
-  }
-}
-`;
-
-    // ===== CHIAMATA AI (Cloudflare Worker / fetch OpenAI) =====
-    const response = await fetch(AI_ENDPOINT, {
+    // ===== CHIAMATA AL WORKER BACKEND =====
+    // ⚠️ QUESTO È IL TUO ENDPOINT CLOUDFLARE WORKER
+    const response = await fetch(WORKER_ENDPOINT, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${AI_API_KEY}`
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: AI_MODEL,
-        messages: [
-          { role: "system", content: "Rispondi solo in JSON." },
-          { role: "user", content: prompt }
-        ],
-        temperature: 0.7
+        action: "start",
+        startManual: payload.startManual
       })
     });
 
-    const raw = await response.json();
-    console.log("[WORKER] risposta AI GREZZA:", raw);
-
-    // ===== ESTRAZIONE TESTO =====
-    const text =
-      raw?.choices?.[0]?.message?.content?.trim();
-
-    if (!text) {
-      throw new Error("Risposta AI vuota");
+    if (!response.ok) {
+      throw new Error("Risposta worker non valida");
     }
 
-    // ===== PARSE JSON =====
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (e) {
-      console.error("[WORKER] JSON non valido:", text);
-      throw new Error("JSON non parsabile");
-    }
-
-    console.log("[WORKER] JSON parsato:", data);
+    const data = await response.json();
+    console.log("[WORKER API] risposta worker:", data);
 
     // ===== VALIDAZIONE STRUTTURA =====
     if (
+      !data ||
+      typeof data !== "object" ||
       !data.narration ||
       !data.choices ||
       !data.choices.A ||
       !data.choices.B ||
       !data.choices.C
     ) {
-      throw new Error("Struttura JSON non valida");
+      throw new Error("Struttura risposta non valida");
     }
 
     signalWorkerOK();
     return data;
 
   } catch (err) {
-    console.error("[WORKER] ERRORE:", err);
+    console.error("[WORKER API] ERRORE:", err);
     signalWorkerError();
 
-    // ===== FALLBACK DI EMERGENZA =====
+    // ===== FALLBACK =====
     return {
       narration:
         "Ti risvegli in un luogo ostile. L’aria è immobile, il silenzio innaturale. Restare fermo non è un’opzione.",
@@ -129,5 +82,5 @@ function signalWorkerError() {
 
 /* ===== DEBUG ===== */
 if (typeof DEBUG !== "undefined" && DEBUG) {
-  console.log("[WORKER] inizializzato (start-only)");
+  console.log("[WORKER API] inizializzato (frontend bridge)");
 }
