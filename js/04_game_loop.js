@@ -1,74 +1,82 @@
-/* =====================================================
-   GAME LOOP
-   ===================================================== */
+/* ======================================================
+   WORKER API — SOLO START (DEBUG)
+   ====================================================== */
 
-async function playTurn(action) {
-  if (DEBUG) {
-    console.log("[LOOP] azione:", action);
-  }
+const AI_ENDPOINT = "/api/ai"; // <-- endpoint del TUO worker
 
-  const data = await callWorker({
-    last_action: action,
-     startManual: startManual
-  });
-
-  // Aggiorna UI
-  renderNarration(data.narration);
-  renderChoices(data.choices);
-
-  // Aggiorna diario missione
-  missionDiary.log.push({
-    turn: missionDiary.log.length + 1,
-    narration: data.narration,
-    choice: action
-  });
-}
-
-/* =====================================================
-   INIZIALIZZAZIONE GIOCO
-   ===================================================== */
-
-async function initGame() {
+async function callWorker(payload = {}) {
   try {
-    if (DEBUG) console.log("[LOOP] inizializzazione");
+    console.log("[WORKER API] payload inviato:", payload);
 
-    // ⚠️ ORDINE CRITICO
-    await loadGameManual();
-    await loadStartManual();
-
-    if (DEBUG) {
-      console.log("[LOOP] manuali caricati", {
-        gameManualLength: gameManual.length,
-        startManualLength: startManual.length
-      });
+    // ===== CONTROLLO MINIMO =====
+    if (!payload.startManual || payload.startManual.length < 10) {
+      throw new Error("Start manual mancante o vuoto");
     }
 
-    await playTurn("inizio");
+    // ===== CHIAMATA AL WORKER (NON ALL'AI) =====
+    const response = await fetch(AI_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
 
-    signalLoopOK();
+    if (!response.ok) {
+      throw new Error("Risposta worker non valida");
+    }
+
+    const data = await response.json();
+    console.log("[WORKER API] risposta worker:", data);
+
+    // ===== VALIDAZIONE =====
+    if (
+      !data.narration ||
+      !data.choices ||
+      !data.choices.A ||
+      !data.choices.B ||
+      !data.choices.C
+    ) {
+      throw new Error("Struttura risposta non valida");
+    }
+
+    signalWorkerOK();
+    return data;
+
   } catch (err) {
-    console.error("[LOOP] errore inizializzazione", err);
-    signalLoopError();
+    console.error("[WORKER API] ERRORE:", err);
+    signalWorkerError();
+
+    // ===== FALLBACK =====
+    return {
+      narration:
+        "Ti risvegli in un luogo ostile. L’aria è immobile, il silenzio innaturale. Restare fermo non è un’opzione.",
+      choices: {
+        A: "Avanzare con cautela",
+        B: "Cercare riparo",
+        C: "Cambiare direzione"
+      },
+      _fallback: true
+    };
   }
 }
 
 /* ===== LED ===== */
-function signalLoopOK() {
-  const led = document.getElementById("led-loop");
+function signalWorkerOK() {
+  const led = document.getElementById("led-worker");
   if (!led) return;
   led.classList.remove("err");
   led.classList.add("ok");
 }
 
-function signalLoopError() {
-  const led = document.getElementById("led-loop");
+function signalWorkerError() {
+  const led = document.getElementById("led-worker");
   if (!led) return;
   led.classList.remove("ok");
   led.classList.add("err");
 }
 
-/* =====================================================
-   AVVIO AUTOMATICO
-   ===================================================== */
-
-initGame();
+/* ===== DEBUG ===== */
+if (typeof DEBUG !== "undefined" && DEBUG) {
+  console.log("[WORKER API] inizializzato (start-only)");
+}
