@@ -2,10 +2,11 @@
    STATE & MEMORIA DI GIOCO
    ====================================================== */
 
-/* ===== MANUALE DI GIOCO (IMMUTABILE) ===== */
+import { MANUAL_URL, START_MANUAL_URL } from "./00_config.js";
+
+/* ===== MANUALE DI GIOCO ===== */
+let gameManual = "";
 export let startManual = "";
-import { MANUAL_URL } from "./00_config.js";
-import { START_MANUAL_URL } from "./00_config.js";
 
 /* ===== STATO GIOCATORE ===== */
 export const playerState = {
@@ -15,14 +16,13 @@ export const playerState = {
   inventory: []
 };
 
-
 /* ===== MEMORIA LUNGA (CAMPAGNA) ===== */
 window.campaignDiary = {
   synopsis: "",
   inventario: [],
   abilita: [],
   firstMissionCompleted: false,
-  keyEvents: [] // 👈 pronto per 06
+  keyEvents: []
 };
 
 /* ===== MEMORIA BREVE (MISSIONE) ===== */
@@ -33,12 +33,8 @@ window.missionDiary = {
   log: []
 };
 
-
-
-
-
 /* ======================================================
-   CARICAMENTO MANUALE
+   CARICAMENTO MANUALI
    ====================================================== */
 
 async function loadGameManual() {
@@ -48,22 +44,23 @@ async function loadGameManual() {
 
     console.log("[MANUAL] caricato correttamente");
     document.getElementById("led-config")?.classList.add("ok");
-
   } catch (err) {
     console.error("[MANUAL] errore nel caricamento", err);
     document.getElementById("led-config")?.classList.add("err");
   }
 }
-let startManual = "";
 
 export async function loadStartManual() {
   try {
     const res = await fetch(START_MANUAL_URL);
     startManual = await res.text();
+
     console.log("[START MANUAL] caricato correttamente");
+    return startManual; // ✅ opzionale ma utile
   } catch (err) {
     console.error("[START MANUAL] errore caricamento", err);
     startManual = "";
+    return "";
   }
 }
 
