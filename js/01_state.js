@@ -21,12 +21,13 @@ let campaignDiary = {
 };
 
 /* ===== MEMORIA BREVE (MISSIONE) ===== */
-let missionDiary = {
+window.missionDiary = {
   mission_id: null,
   location: "Luogo sconosciuto",
   turn: 0,
   log: []
 };
+
 
 
 
