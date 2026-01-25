@@ -1,53 +1,48 @@
 /* ======================================================
-   WORKER API — SOLO START (DEBUG)
+   04 — GAME LOOP (START ONLY)
    ====================================================== */
 
-
-
-async function callWorker(payload = {}) {
+async function callWorkerStart(startManual) {
   try {
-    console.log("[WORKER API] payload inviato:", payload);
+    console.log("[04] startManual inviato al worker:", startManual);
 
-    // ===== CONTROLLO MINIMO =====
-    if (!payload.startManual || payload.startManual.length < 10) {
-      throw new Error("Start manual mancante o vuoto");
+    if (!startManual || startManual.length < 10) {
+      throw new Error("startManual mancante o vuoto (frontend)");
     }
 
-    // ===== CHIAMATA AL WORKER (NON ALL'AI) =====
     const response = await fetch(AI_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        startManual: startManual
+      })
     });
 
     if (!response.ok) {
-      throw new Error("Risposta worker non valida");
+      throw new Error("Worker response not OK");
     }
 
     const data = await response.json();
-    console.log("[WORKER API] risposta worker:", data);
+    console.log("[04] risposta dal worker:", data);
 
-    // ===== VALIDAZIONE =====
     if (
-      !data.narration ||
+      !data ||
+      typeof data.narration !== "string" ||
       !data.choices ||
       !data.choices.A ||
       !data.choices.B ||
       !data.choices.C
     ) {
-      throw new Error("Struttura risposta non valida");
+      throw new Error("Risposta worker non valida");
     }
 
-    signalWorkerOK();
     return data;
 
   } catch (err) {
-    console.error("[WORKER API] ERRORE:", err);
-    signalWorkerError();
+    console.error("[04] ERRORE callWorkerStart:", err);
 
-    // ===== FALLBACK =====
     return {
       narration:
         "Ti risvegli in un luogo ostile. L’aria è immobile, il silenzio innaturale. Restare fermo non è un’opzione.",
@@ -61,22 +56,24 @@ async function callWorker(payload = {}) {
   }
 }
 
-/* ===== LED ===== */
-function signalWorkerOK() {
-  const led = document.getElementById("led-worker");
-  if (!led) return;
-  led.classList.remove("err");
-  led.classList.add("ok");
+/* ===== AVVIO PARTITA ===== */
+async function initGame() {
+  console.log("[04] initGame");
+
+  const startManual = window.START_MANUAL;
+
+  const result = await callWorkerStart(startManual);
+
+  // 👉 UI
+  renderStats(playerState);
+  typeWriter(narrationEl, result.narration);
+  renderChoices(result.choices);
+  clearTestBox();
 }
 
-function signalWorkerError() {
-  const led = document.getElementById("led-worker");
-  if (!led) return;
-  led.classList.remove("ok");
-  led.classList.add("err");
-}
+/* ===== BOOT ===== */
+document.getElementById("led-loop")?.classList.add("ok");
 
-/* ===== DEBUG ===== */
 if (typeof DEBUG !== "undefined" && DEBUG) {
-  console.log("[WORKER API] inizializzato (start-only)");
+  console.log("[04] inizializzato");
 }
