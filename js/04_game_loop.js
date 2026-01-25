@@ -36,7 +36,8 @@ async function initGame() {
     currentNarration = result.narration;
     currentChoices = result.choices;
 
-    renderStats(playerState);
+    renderStats(playerState, missionDiary);
+
     clearTestBox();
 
     typeWriter(narrationEl, currentNarration, 18, () => {
