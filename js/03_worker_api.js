@@ -1,67 +1,57 @@
-/* ======================================================
-   WORKER API — Comunicazione sicura con Cloudflare Worker
-   ====================================================== */
+/* =====================================================
+   WORKER API — COMUNICAZIONE CON IL WORKER
+   ===================================================== */
 
 async function callWorker(payload = {}) {
-
   try {
+    const fullPayload = {
+      last_action: payload.last_action || "",
+      player_state: playerState,
+      campaign_diary: campaignDiary,
+      mission_diary: missionDiary,
+      game_manual: gameManual,
+
+      // 👇 MANUALE DI INIZIO GIOCO
+      start_manual: startManual
+    };
+
     if (DEBUG) {
-      console.log("[WORKER] invio payload", payload);
+      console.log("[WORKER] invio payload", {
+        last_action: fullPayload.last_action,
+        hasGameManual: !!gameManual,
+        hasStartManual: !!startManual,
+        startManualLength: startManual.length
+      });
     }
 
     const res = await fetch(WORKER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(fullPayload)
     });
 
-    // 🔍 leggiamo SEMPRE come testo (mai res.json diretto)
-    const rawText = await res.text();
+    const data = await res.json();
 
-    if (DEBUG) {
-      console.log("[WORKER] risposta grezza:", rawText);
-    }
-
-    // Tentativo di estrazione JSON
-    let data;
-    try {
-      data = JSON.parse(rawText);
-    } catch (parseErr) {
-
-      // 🔧 Tentativo di recupero JSON da testo sporco
-      const jsonMatch = rawText.match(/\{[\s\S]*\}$/);
-
-      if (jsonMatch) {
-        data = JSON.parse(jsonMatch[0]);
-      } else {
-        throw new Error("JSON non recuperabile");
-      }
-    }
-
-    // Validazione minima
+    // Controllo minimo di validità
     if (
       !data ||
-      typeof data.narration !== "string" ||
+      !data.narration ||
       !data.choices ||
       !data.choices.A ||
       !data.choices.B ||
       !data.choices.C
     ) {
-      throw new Error("Struttura risposta non valida");
+      throw new Error("Risposta worker non valida");
     }
 
     signalWorkerOK();
     return data;
 
   } catch (err) {
-
-    if (DEBUG) {
-      console.error("[WORKER] errore o fallback", err);
-    }
-
+    console.error("[WORKER] errore o fallback", err);
     signalWorkerError();
 
-    // 🛟 FALLBACK SICURO (mai blocca il gioco)
+    // FALLBACK SICURO
     return {
       narration:
         "L’ambiente intorno a te cambia. Qualcosa non è più come prima, e restare fermo è una pessima idea.",
@@ -75,10 +65,7 @@ async function callWorker(payload = {}) {
   }
 }
 
-/* ======================================================
-   LED HANDLERS
-   ====================================================== */
-
+/* ===== LED ===== */
 function signalWorkerOK() {
   const led = document.getElementById("led-worker");
   if (!led) return;
