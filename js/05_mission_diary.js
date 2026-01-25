@@ -1,27 +1,19 @@
 /* ======================================================
    05 — MISSION DIARY
-   Memoria narrativa di breve termine (missione corrente)
+   Memoria narrativa di breve termine
    ====================================================== */
-
-/*
-  NOTA:
-  - missionDiary DEVE essere dichiarato in 01_state.js
-  - Qui NON si ridefinisce lo stato
-*/
 
 /* ===== AVVIO NUOVA MISSIONE ===== */
 function startMission({ missionId, location }) {
   if (!window.missionDiary) {
-    console.warn("[MISSION DIARY] missionDiary non definito nello state");
+    console.warn("[MISSION DIARY] missionDiary non presente nello state");
     return;
   }
 
-  const diary = window.missionDiary;
-
-  diary.mission_id = missionId;
-  diary.location = location;
-  diary.turn = 0;
-  diary.log = [];
+  window.missionDiary.mission_id = missionId;
+  window.missionDiary.location = location;
+  window.missionDiary.turn = 0;
+  window.missionDiary.log = [];
 
   console.log("[MISSION DIARY] nuova missione avviata:", {
     missionId,
@@ -38,20 +30,14 @@ function addMissionDiaryEntry({
   flags = []
 }) {
   if (!window.missionDiary) {
-    console.warn("[MISSION DIARY] impossibile aggiungere entry (diario assente)");
+    console.warn("[MISSION DIARY] impossibile aggiungere entry (diary assente)");
     return;
   }
 
-  const diary = window.missionDiary;
-
-  if (!Array.isArray(diary.log)) {
-    diary.log = [];
-  }
-
-  diary.turn += 1;
+  window.missionDiary.turn += 1;
 
   const entry = {
-    turn: diary.turn,
+    turn: window.missionDiary.turn,
     situation,
     choice,
     consequence,
@@ -59,17 +45,14 @@ function addMissionDiaryEntry({
     flags
   };
 
-  diary.log.push(entry);
+  window.missionDiary.log.push(entry);
 
   console.log("[MISSION DIARY] entry aggiunta:", entry);
 }
 
 /* ===== ESTRATTO PER AI ===== */
 function getMissionDiaryForAI(limit = 6) {
-  if (!window.missionDiary || !Array.isArray(window.missionDiary.log)) {
-    return [];
-  }
-
+  if (!window.missionDiary) return [];
   return window.missionDiary.log.slice(-limit);
 }
 
@@ -79,7 +62,6 @@ function printMissionDiary() {
     console.warn("[MISSION DIARY] nessun diario presente");
     return;
   }
-
   console.table(window.missionDiary.log);
 }
 
