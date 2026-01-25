@@ -1,79 +1,67 @@
 /* ======================================================
-   04 — GAME LOOP (START ONLY)
+   GAME LOOP — AVVIO PARTITA (START ONLY)
    ====================================================== */
 
-async function callWorkerStart(startManual) {
+async function initGame() {
   try {
-    console.log("[04] startManual inviato al worker:", startManual);
+    console.log("[04] initGame");
 
-    if (!startManual || startManual.length < 10) {
-      throw new Error("startManual mancante o vuoto (frontend)");
+    // ===== CONTROLLO START MANUAL =====
+    if (!window.START_MANUAL || window.START_MANUAL.length < 10) {
+      throw new Error("START_MANUAL non disponibile");
     }
 
-    const response = await fetch(AI_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        startManual: startManual
-      })
+    console.log(
+      "[04] startManual inviato al worker:",
+      window.START_MANUAL.slice(0, 80) + "..."
+    );
+
+    // ===== CHIAMATA WORKER =====
+    const result = await callWorker({
+      startManual: window.START_MANUAL
     });
 
-    if (!response.ok) {
-      throw new Error("Worker response not OK");
-    }
+    console.log("[04] risposta dal worker:", result);
 
-    const data = await response.json();
-    console.log("[04] risposta dal worker:", data);
+    // ===== RENDER UI =====
+    renderStats(playerState);
+    clearTestBox();
 
-    if (
-      !data ||
-      typeof data.narration !== "string" ||
-      !data.choices ||
-      !data.choices.A ||
-      !data.choices.B ||
-      !data.choices.C
-    ) {
-      throw new Error("Risposta worker non valida");
-    }
-
-    return data;
+    typeWriter(narrationEl, result.narration, 18, () => {
+      renderChoices(result.choices);
+    });
 
   } catch (err) {
-    console.error("[04] ERRORE callWorkerStart:", err);
+    console.error("[04] errore initGame:", err);
 
-    return {
-      narration:
-        "Ti risvegli in un luogo ostile. L’aria è immobile, il silenzio innaturale. Restare fermo non è un’opzione.",
-      choices: {
-        A: "Avanzare con cautela",
-        B: "Cercare riparo",
-        C: "Cambiare direzione"
-      },
-      _fallback: true
-    };
+    // fallback visivo minimo
+    narrationEl.textContent =
+      "Errore critico durante l'inizializzazione del gioco.";
   }
 }
 
-/* ===== AVVIO PARTITA ===== */
-async function initGame() {
-  console.log("[04] initGame");
+/* ======================================================
+   INPUT GIOCATORE (DEBUG)
+   ====================================================== */
 
-  const startManual = window.START_MANUAL;
+function handleChoice(choiceKey) {
+  console.log("[04] scelta premuta:", choiceKey);
 
-  const result = await callWorkerStart(startManual);
-
-  // 👉 UI
-  renderStats(playerState);
-  typeWriter(narrationEl, result.narration);
-  renderChoices(result.choices);
-  clearTestBox();
+  // per ora solo debug
+  narrationEl.innerHTML += `\n\n> Hai scelto: ${choiceKey}`;
 }
 
-/* ===== BOOT ===== */
-document.getElementById("led-loop")?.classList.add("ok");
+/* ======================================================
+   EVENT LISTENERS
+   ====================================================== */
 
-if (typeof DEBUG !== "undefined" && DEBUG) {
-  console.log("[04] inizializzato");
-}
+btnA.addEventListener("click", () => handleChoice("A"));
+btnB.addEventListener("click", () => handleChoice("B"));
+btnC.addEventListener("click", () => handleChoice("C"));
+
+/* ======================================================
+   AVVIO
+   ====================================================== */
+
+console.log("[04] inizializzato");
+initGame();
