@@ -21,7 +21,7 @@ let campaignDiary = {
 };
 
 /* ===== MEMORIA BREVE (MISSIONE) ===== */
-let window.missionDiary = {
+let missionDiary = {
   mission_id: null,
   location: "Luogo sconosciuto",
   turn: 0,
@@ -72,7 +72,7 @@ if (typeof DEBUG !== "undefined" && DEBUG) {
   console.log("[STATE] inizializzato", {
     playerState,
     campaignDiary,
-    window.missionDiary
+    missionDiary
   });
 }
 
