@@ -21,13 +21,13 @@ let campaignDiary = {
 };
 
 /* ===== MEMORIA BREVE (MISSIONE) ===== */
-/* ===== MEMORIA BREVE (MISSIONE) ===== */
 let missionDiary = {
   mission_id: null,
   location: "Luogo sconosciuto",
   turn: 0,
   log: []
 };
+
 
 
 
