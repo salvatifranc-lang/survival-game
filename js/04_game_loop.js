@@ -1,104 +1,73 @@
-/* ======================================================
-   GAME LOOP — ORCHESTRAZIONE
-   ====================================================== */
+/* =====================================================
+   GAME LOOP
+   ===================================================== */
 
-let awaitingInput = false;
-
-/* ===== TURNO DI GIOCO ===== */
 async function playTurn(action) {
-
-  if (!awaitingInput && action !== "inizio") return;
-  awaitingInput = false;
-
   if (DEBUG) {
     console.log("[LOOP] azione:", action);
   }
 
-  // Stato di caricamento
-  narrationEl.textContent = "Caricamento…";
-  renderChoices({});
-  clearTestBox?.();
-
-  /* ===== PAYLOAD BASE ===== */
-  const payload = {
-  last_action: action,
-  game_manual: gameManual,
-  player_state: playerState,
-  campaign_diary: campaignDiary,
-  mission_diary: missionDiary
-};
-
-
-  const data = await callWorker(payload);
-
-  /* ======================================================
-     INIZIALIZZAZIONE GIOCO (SOLO PRIMA RISPOSTA)
-     ====================================================== */
-  if (data.init && campaignDiary.inventario.length === 0) {
-
-    const items = data.init.starting_items;
-
-    if (items) {
-      campaignDiary.inventario.push(
-        items.weapon,
-        items.tool,
-        items.consumable
-      );
-    }
-
-    // Salva location iniziale
-    if (data.init.location) {
-      missionDiary.currentLocation = data.init.location;
-    }
-
-    if (DEBUG) {
-      console.log("[INIT] Location:", missionDiary.currentLocation);
-      console.log("[INIT] Inventario:", campaignDiary.inventario);
-    }
-
-    // Render inventario iniziale
-    renderInventory(campaignDiary.inventario);
-  }
-
-  /* ===== RENDER NARRAZIONE ===== */
-  typeWriter(narrationEl, data.narration, 20, () => {
-    awaitingInput = true;
+  const data = await callWorker({
+    last_action: action
   });
 
-  /* ===== RENDER SCELTE ===== */
+  // Aggiorna UI
+  renderNarration(data.narration);
   renderChoices(data.choices);
 
-  /* ===== AGGIORNA DIARIO MISSIONE ===== */
+  // Aggiorna diario missione
   missionDiary.log.push({
     turn: missionDiary.log.length + 1,
     narration: data.narration,
     choice: action
   });
+}
 
-  /* ===== FINE MISSIONE (PREPARAZIONE) ===== */
-  if (data.mission_end === true) {
+/* =====================================================
+   INIZIALIZZAZIONE GIOCO
+   ===================================================== */
+
+async function initGame() {
+  try {
+    if (DEBUG) console.log("[LOOP] inizializzazione");
+
+    // ⚠️ ORDINE CRITICO
+    await loadGameManual();
+    await loadStartManual();
+
     if (DEBUG) {
-      console.log("[MISSION] Prima missione conclusa — Hope Town trovata");
+      console.log("[LOOP] manuali caricati", {
+        gameManualLength: gameManual.length,
+        startManualLength: startManual.length
+      });
     }
 
-    // Qui in futuro:
-    // - aggiornamento campaignDiary
-    // - passaggio a HUB
+    await playTurn("inizio");
+
+    signalLoopOK();
+  } catch (err) {
+    console.error("[LOOP] errore inizializzazione", err);
+    signalLoopError();
   }
 }
 
-/* ===== INPUT UTENTE ===== */
-btnA.onclick = () => playTurn("A");
-btnB.onclick = () => playTurn("B");
-btnC.onclick = () => playTurn("C");
-
-/* ===== AVVIO GIOCO ===== */
-playTurn("inizio");
-
-/* ===== SEGNA FILE CARICATO ===== */
-document.getElementById("led-loop")?.classList.add("ok");
-
-/* ===== DEBUG ===== */
-if (DEBUG) {
-  console.log("[LOOP] inizializzato");
+/* ===== LED ===== */
+function signalLoopOK() {
+  const led = document.getElementById("led-loop");
+  if (!led) return;
+  led.classList.remove("err");
+  led.classList.add("ok");
 }
+
+function signalLoopError() {
+  const led = document.getElementById("led-loop");
+  if (!led) return;
+  led.classList.remove("ok");
+  led.classList.add("err");
+}
+
+/* =====================================================
+   AVVIO AUTOMATICO
+   ===================================================== */
+
+initGame();
