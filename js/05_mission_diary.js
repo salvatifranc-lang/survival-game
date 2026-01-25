@@ -1,41 +1,25 @@
 /* ======================================================
-   05 — MISSION DIARY
-   Memoria narrativa di breve termine (missione corrente)
+   MISSION DIARY — MEMORIA NARRATIVA DI BREVE TERMINE
    ====================================================== */
 
-/*
-  ⚠️ NOTA IMPORTANTE
-  - missionDiary DEVE essere dichiarato in 01_state.js
-  - Qui NON si ridefinisce lo stato, si lavora SOLO sulla logica
-*/
+const missionDiary = {
+  mission_id: null,
+  location: null,
+  turn: 0,
+  log: []
+};
 
 /* ===== AVVIO NUOVA MISSIONE ===== */
 function startMission({ missionId, location }) {
-  if (!window.missionDiary) {
-    throw new Error("missionDiary non definito nello stato");
-  }
-
-  window.missionDiary.mission_id = missionId;
-  window.missionDiary.location = location;
-  window.missionDiary.turn = 0;
-  window.missionDiary.log = [];
-
-  console.log("[MISSION DIARY] nuova missione:", missionId);
-}
-
-
   missionDiary.mission_id = missionId;
   missionDiary.location = location;
   missionDiary.turn = 0;
   missionDiary.log = [];
 
-  console.log("[MISSION DIARY] nuova missione avviata:", {
-    missionId,
-    location
-  });
+  console.log("[MISSION DIARY] nuova missione:", missionId, location);
 }
 
-/* ===== AGGIUNTA ENTRY ===== */
+/* ===== AGGIUNGI ENTRY ===== */
 function addMissionDiaryEntry({
   situation,
   choice,
@@ -43,8 +27,6 @@ function addMissionDiaryEntry({
   changes = {},
   flags = []
 }) {
-  if (!missionDiary) return;
-
   missionDiary.turn += 1;
 
   const entry = {
@@ -61,22 +43,18 @@ function addMissionDiaryEntry({
   console.log("[MISSION DIARY] entry aggiunta:", entry);
 }
 
-/* ===== ESTRATTO PER AI ===== */
+/* ===== LETTURA PER AI ===== */
 function getMissionDiaryForAI(limit = 6) {
-  if (!missionDiary) return [];
   return missionDiary.log.slice(-limit);
 }
 
 /* ===== DEBUG ===== */
 function printMissionDiary() {
-  if (!missionDiary) {
-    console.warn("[MISSION DIARY] nessun diario presente");
-    return;
-  }
   console.table(missionDiary.log);
 }
 
 /* ===== ESPOSIZIONE GLOBALE ===== */
+window.missionDiary = missionDiary;
 window.startMission = startMission;
 window.addMissionDiaryEntry = addMissionDiaryEntry;
 window.getMissionDiaryForAI = getMissionDiaryForAI;
