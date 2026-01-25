@@ -1,8 +1,8 @@
 /* ======================================================
    GAME LOOP — CON MISSION + CAMPAIGN DIARY (SAFE)
    ====================================================== */
-import { loadStartManual } from "./01_state.js";
 
+import { loadStartManual } from "./01_state.js";
 import { performRoll } from "./07_dice.js";
 
 let currentNarration = "";
@@ -16,16 +16,19 @@ async function initGame() {
   try {
     console.log("[04] initGame");
 
-    await loadStartManual();
+    // 1️⃣ carica manuale start (RITORNA il testo)
+    const startManual = await loadStartManual();
 
     if (!startManual || startManual.length < 10) {
       throw new Error("Start manual non disponibile");
     }
 
+    // 2️⃣ inizializza campaign diary (una sola volta)
     if (typeof initCampaignDiary === "function" && !campaignDiary.synopsis) {
       initCampaignDiary();
     }
 
+    // 3️⃣ avvia missione
     if (typeof startMission === "function") {
       startMission({
         missionId: "MISSION_001",
@@ -33,110 +36,4 @@ async function initGame() {
       });
     }
 
-    const result = await callWorker({
-      action: "start",
-      startManual,
-      campaignDiary
-    });
-
-    currentNarration = result.narration;
-    currentChoices = result.choices;
-    missionDiary.currentSituation = currentNarration;
-
-    renderStats(playerState, missionDiary);
-    clearTestBox();
-
-    typeWriter(narrationEl, currentNarration, 18, () => {
-      renderChoices(currentChoices);
-    });
-
-    gameStarted = true;
-    console.log("[04] gioco avviato");
-
-  } catch (err) {
-    console.error("[04] errore initGame:", err);
-    narrationEl.textContent =
-      "Errore critico durante l'inizializzazione del gioco.";
-  }
-}
-
-/* ======================================================
-   GESTIONE SCELTA GIOCATORE
-   ====================================================== */
-async function handleChoice(choiceKey) {
-  if (!gameStarted || !currentChoices) return;
-
-  try {
-    const turnResult = await callWorker({
-      action: "turn",
-      choice: choiceKey,
-      situation: missionDiary.currentSituation,
-      missionDiary:
-        typeof getMissionDiaryForAI === "function"
-          ? getMissionDiaryForAI()
-          : [],
-      campaignDiary
-    });
-
-    // ===== NESSUN TEST =====
-    if (turnResult.requiresTest === false) {
-      currentNarration = turnResult.narration;
-      currentChoices = turnResult.choices;
-      missionDiary.currentSituation = currentNarration;
-
-      clearTestBox();
-
-      typeWriter(narrationEl, currentNarration, 18, () => {
-        renderChoices(currentChoices);
-      });
-
-      return;
-    }
-
-    // ===== TEST RICHIESTO =====
-    if (turnResult.requiresTest === true) {
-      const rollResult = performRoll(turnResult.difficulty);
-      renderTestBox();
-
-      const resolveResult = await callWorker({
-        action: "resolve",
-        choice: choiceKey,
-        outcome: rollResult.outcome,
-        situation: missionDiary.currentSituation,
-        missionDiary:
-          typeof getMissionDiaryForAI === "function"
-            ? getMissionDiaryForAI()
-            : [],
-        campaignDiary
-      });
-
-      currentNarration = resolveResult.narration;
-      currentChoices = resolveResult.choices;
-      missionDiary.currentSituation = currentNarration;
-
-      typeWriter(narrationEl, currentNarration, 18, () => {
-        renderChoices(currentChoices);
-      });
-
-      return;
-    }
-
-  } catch (err) {
-    console.error("[04] errore turno:", err);
-    narrationEl.textContent =
-      "Qualcosa va storto. Il mondo sembra reagire male alla tua scelta.";
-  }
-}
-
-/* ======================================================
-   EVENTI UI
-   ====================================================== */
-btnA.addEventListener("click", () => handleChoice("A"));
-btnB.addEventListener("click", () => handleChoice("B"));
-btnC.addEventListener("click", () => handleChoice("C"));
-
-/* ======================================================
-   AVVIO
-   ====================================================== */
-console.log("[04] inizializzato");
-initGame();
+    // 4️⃣ chiamata wo
