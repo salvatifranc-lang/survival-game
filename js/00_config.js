@@ -9,6 +9,74 @@ const MANUAL_URL =
   "https://raw.githubusercontent.com/salvatifranc-lang/survival-game/main/HOPE_TOWN_GAME_MANUAL.txt";
 const START_MANUAL_URL = "HOPE_TOWN_START_MANUAL.txt";
 
+// DADOTEST
+export const DIFFICULTY_LEVELS = [
+  "Estremo",
+  "Molto Rischioso",
+  "Rischioso",
+  "Standard",
+  "Facile",
+  "Molto Facile"
+];
+export const OUTCOME_LABELS = {
+  CRITICAL_FAIL: "Fallimento critico",
+  FAIL: "Fallimento",
+  PARTIAL: "Successo parziale",
+  SUCCESS: "Successo pieno",
+  BONUS: "Successo con bonus"
+};
+
+export const DICE_TABLE = {
+  "Estremo": [
+    OUTCOME_LABELS.CRITICAL_FAIL,
+    OUTCOME_LABELS.CRITICAL_FAIL,
+    OUTCOME_LABELS.FAIL,
+    OUTCOME_LABELS.FAIL,
+    OUTCOME_LABELS.PARTIAL,
+    OUTCOME_LABELS.BONUS
+  ],
+  "Molto Rischioso": [
+    OUTCOME_LABELS.CRITICAL_FAIL,
+    OUTCOME_LABELS.FAIL,
+    OUTCOME_LABELS.FAIL,
+    OUTCOME_LABELS.PARTIAL,
+    OUTCOME_LABELS.SUCCESS,
+    OUTCOME_LABELS.BONUS
+  ],
+  "Rischioso": [
+    OUTCOME_LABELS.CRITICAL_FAIL,
+    OUTCOME_LABELS.FAIL,
+    OUTCOME_LABELS.PARTIAL,
+    OUTCOME_LABELS.PARTIAL,
+    OUTCOME_LABELS.SUCCESS,
+    OUTCOME_LABELS.BONUS
+  ],
+  "Standard": [
+    OUTCOME_LABELS.CRITICAL_FAIL,
+    OUTCOME_LABELS.FAIL,
+    OUTCOME_LABELS.PARTIAL,
+    OUTCOME_LABELS.PARTIAL,
+    OUTCOME_LABELS.SUCCESS,
+    OUTCOME_LABELS.BONUS
+  ],
+  "Facile": [
+    OUTCOME_LABELS.FAIL,
+    OUTCOME_LABELS.PARTIAL,
+    OUTCOME_LABELS.SUCCESS,
+    OUTCOME_LABELS.SUCCESS,
+    OUTCOME_LABELS.BONUS,
+    OUTCOME_LABELS.BONUS
+  ],
+  "Molto Facile": [
+    OUTCOME_LABELS.PARTIAL,
+    OUTCOME_LABELS.PARTIAL,
+    OUTCOME_LABELS.SUCCESS,
+    OUTCOME_LABELS.SUCCESS,
+    OUTCOME_LABELS.BONUS,
+    OUTCOME_LABELS.BONUS
+  ]
+};
+
 const DEBUG = true;
 const AI_ENDPOINT = "/api/ai"; 
 /* ===== LED CONFIG (DOM SAFE) ===== */
