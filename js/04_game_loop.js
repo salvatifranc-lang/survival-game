@@ -1,67 +1,61 @@
 /* ======================================================
-   GAME LOOP — AVVIO PARTITA (START ONLY)
+   GAME LOOP — START GAME
    ====================================================== */
+
+let gameInitialized = false;
 
 async function initGame() {
   try {
     console.log("[04] initGame");
 
-    // ===== CONTROLLO START MANUAL =====
-    if (!window.START_MANUAL || window.START_MANUAL.length < 10) {
+    // 1️⃣ CARICA MANUALE DI START
+    await loadStartManual();
+
+    if (!startManual || startManual.length < 10) {
       throw new Error("START_MANUAL non disponibile");
     }
 
-    console.log(
-      "[04] startManual inviato al worker:",
-      window.START_MANUAL.slice(0, 80) + "..."
-    );
+    console.log("[04] start manual pronto, lunghezza:", startManual.length);
 
-    // ===== CHIAMATA WORKER =====
+    // 2️⃣ CHIAMATA WORKER (SOLO START)
     const result = await callWorker({
-      startManual: window.START_MANUAL
+      startManual: startManual
     });
 
-    console.log("[04] risposta dal worker:", result);
-
-    // ===== RENDER UI =====
+    // 3️⃣ RENDER UI
     renderStats(playerState);
+    renderInventory(campaignDiary.inventario || []);
     clearTestBox();
 
-    typeWriter(narrationEl, result.narration, 18, () => {
-      renderChoices(result.choices);
-    });
+    typeWriter(narrationEl, result.narration, 18);
+    renderChoices(result.choices);
+
+    gameInitialized = true;
+    signalLoopOK();
 
   } catch (err) {
     console.error("[04] errore initGame:", err);
 
-    // fallback visivo minimo
     narrationEl.textContent =
       "Errore critico durante l'inizializzazione del gioco.";
+
+    signalLoopError();
   }
 }
 
-/* ======================================================
-   INPUT GIOCATORE (DEBUG)
-   ====================================================== */
+/* ===== AVVIO AUTOMATICO ===== */
+initGame();
 
-function handleChoice(choiceKey) {
-  console.log("[04] scelta premuta:", choiceKey);
-
-  // per ora solo debug
-  narrationEl.innerHTML += `\n\n> Hai scelto: ${choiceKey}`;
+/* ===== LED ===== */
+function signalLoopOK() {
+  document.getElementById("led-loop")?.classList.add("ok");
 }
 
-/* ======================================================
-   EVENT LISTENERS
-   ====================================================== */
+function signalLoopError() {
+  document.getElementById("led-loop")?.classList.add("err");
+}
 
-btnA.addEventListener("click", () => handleChoice("A"));
-btnB.addEventListener("click", () => handleChoice("B"));
-btnC.addEventListener("click", () => handleChoice("C"));
-
-/* ======================================================
-   AVVIO
-   ====================================================== */
-
-console.log("[04] inizializzato");
-initGame();
+/* ===== DEBUG ===== */
+if (typeof DEBUG !== "undefined" && DEBUG) {
+  console.log("[04] inizializzato");
+}
