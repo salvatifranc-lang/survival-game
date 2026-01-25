@@ -18,13 +18,17 @@ async function initGame() {
       throw new Error("Start manual non disponibile");
     }
 
-    // 2️⃣ avvia missione
-    startMission({
-      missionId: "MISSION_001",
-      location: "Superficie sconosciuta"
-    });
+    // 2️⃣ avvia missione (solo se disponibile)
+if (typeof startMission === "function") {
+  startMission({
+    missionId: "MISSION_001",
+    location: "Superficie sconosciuta"
+  });
+  console.log("[04] missione avviata");
+} else {
+  console.warn("[04] startMission non disponibile (05 non caricato?)");
+}
 
-    console.log("[04] missione avviata");
 
     // 3️⃣ chiamata worker — START
     const result = await callWorker({
