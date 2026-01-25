@@ -69,14 +69,15 @@ body {
 
 #choices {
   position: absolute;
-  left: 280px;  /* 7 */
-  top: 520px;   /* 13 */
-  width: 840px; /* 28 - 7 */
+  left: 280px;   /* 7 */
+  top: 380px;    /* 9.5 */
+  width: 840px;  /* 28 - 7 */
 }
 
 .choice {
   margin-bottom: 13px;
 }
+
 
 
 /* ===========================
@@ -119,13 +120,24 @@ button:active {
 }
 
 
-/* TEST BOX */
+/* ===========================
+   TEST BOX — GRID POSITION
+   =========================== */
+
 #test-box {
-  border: 1px dashed rgba(255,255,255,0.35);
+  position: absolute;
+
+  left: 280px;  /* 7 */
+  top: 760px;   /* 19 */
+  width: 840px; /* 28 - 7 */
+
   padding: 10px;
   font-size: 16px;
-  min-height: 80px;
   line-height: 1.4;
+
+  min-height: 80px;
+
+  border: 1px dashed rgba(255,255,255,0.35);
 }
 
 /* RIGHT */
