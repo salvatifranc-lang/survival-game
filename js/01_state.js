@@ -8,11 +8,13 @@ import { MANUAL_URL } from "./00_config.js";
 import { START_MANUAL_URL } from "./00_config.js";
 
 /* ===== STATO GIOCATORE ===== */
-let playerState = {
+export const playerState = {
   salute: 10,
   stamina: 10,
-  livello: 1
+  livello: 1,
+  inventory: []
 };
+
 
 /* ===== MEMORIA LUNGA (CAMPAGNA) ===== */
 window.campaignDiary = {
