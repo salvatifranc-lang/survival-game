@@ -3,47 +3,42 @@
    (START / TURN / RESOLVE)
    ====================================================== */
 
-import { DIFFICULTY_LEVELS } from "./00_config.js";
+import { DIFFICULTY_LEVELS, WORKER_ENDPOINT } from "./00_config.js";
 
-async function callWorker(payload = {}) {
+/* ======================================================
+   MAIN API
+   ====================================================== */
+export async function callWorker(payload = {}) {
   try {
     console.log("[WORKER API] payload inviato:", payload);
 
-    /* ==================================================
-       VALIDAZIONE INPUT
-       ================================================== */
+    /* ===== VALIDAZIONE INPUT ===== */
     if (!payload.action) {
       throw new Error("Action mancante nel payload");
     }
 
     if (
       payload.action === "start" &&
-      (!payload.startManual || payload.startManual.length < 10)
+      (!payload.startManual || typeof payload.startManual !== "string")
     ) {
-      throw new Error("Start manual mancante o vuoto");
+      throw new Error("Start manual mancante o non valido");
     }
 
-    /* ==================================================
-       CHIAMATA WORKER BACKEND
-       ================================================== */
+    /* ===== CHIAMATA WORKER ===== */
     const response = await fetch(WORKER_ENDPOINT, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
-      throw new Error("Risposta worker non valida");
+      throw new Error("Risposta HTTP non valida dal worker");
     }
 
     const data = await response.json();
     console.log("[WORKER API] risposta worker:", data);
 
-    /* ==================================================
-       VALIDAZIONE RISPOSTA (PER ACTION)
-       ================================================== */
+    /* ===== VALIDAZIONE PER ACTION ===== */
     switch (payload.action) {
       case "start":
         return validateStartResponse(data);
@@ -55,13 +50,12 @@ async function callWorker(payload = {}) {
         return validateResolveResponse(data);
 
       default:
-        throw new Error("Action non supportata");
+        throw new Error("Action non supportata: " + payload.action);
     }
 
   } catch (err) {
     console.error("[WORKER API] ERRORE:", err);
     signalWorkerError();
-
     return getFallbackResponse(payload.action, err.message);
   }
 }
@@ -71,17 +65,15 @@ async function callWorker(payload = {}) {
    ====================================================== */
 
 function validateStartResponse(data) {
-  if (
-    !data ||
-    typeof data !== "object" ||
-    !data.narration ||
-    !data.choices
-  ) {
+  if (!data?.narration || !data?.choices) {
     throw new Error("Struttura risposta START non valida");
   }
 
   signalWorkerOK();
-  return data;
+  return {
+    narration: data.narration,
+    choices: data.choices
+  };
 }
 
 /**
@@ -94,23 +86,25 @@ function validateTurnResponse(data) {
     throw new Error("Risposta TURN non valida");
   }
 
-  // ===== CASO: TEST RICHIESTO =====
+  /* ===== TEST RICHIESTO ===== */
   if (data.requiresTest === true) {
-    if (!DIFFICULTY_LEVELS.includes(data.difficulty)) {
+    let difficulty = data.difficulty;
+
+    if (!DIFFICULTY_LEVELS.includes(difficulty)) {
       console.warn(
         "[WORKER API] difficoltà non valida, fallback a Standard"
       );
-      data.difficulty = "Standard";
+      difficulty = "Standard";
     }
 
     signalWorkerOK();
     return {
       requiresTest: true,
-      difficulty: data.difficulty
+      difficulty
     };
   }
 
-  // ===== CASO: NESSUN TEST =====
+  /* ===== NESSUN TEST ===== */
   if (
     data.requiresTest === false &&
     data.narration &&
@@ -133,17 +127,15 @@ function validateTurnResponse(data) {
  * - restituisce narrazione + scelte
  */
 function validateResolveResponse(data) {
-  if (
-    !data ||
-    typeof data !== "object" ||
-    !data.narration ||
-    !data.choices
-  ) {
+  if (!data?.narration || !data?.choices) {
     throw new Error("Struttura risposta RESOLVE non valida");
   }
 
   signalWorkerOK();
-  return data;
+  return {
+    narration: data.narration,
+    choices: data.choices
+  };
 }
 
 /* ======================================================
@@ -151,43 +143,26 @@ function validateResolveResponse(data) {
    ====================================================== */
 
 function getFallbackResponse(action, errorMessage) {
-  console.warn("[WORKER API] fallback attivato:", action, errorMessage);
+  console.warn("[WORKER API] fallback:", action, errorMessage);
 
-  switch (action) {
-    case "turn":
-    case "resolve":
-      return {
-        requiresTest: false,
-        narration:
-          "Qualcosa va storto. Il mondo sembra osservarti in silenzio.",
-        choices: {
-          A: "Avanzare con cautela",
-          B: "Cercare riparo",
-          C: "Cambiare direzione"
-        },
-        _fallback: true,
-        _error: errorMessage
-      };
-
-    case "start":
-    default:
-      return {
-        narration:
-          "Ti risvegli in un mondo ostile, dove ogni scelta potrebbe essere l’ultima.",
-        choices: {
-          A: "Osservare l’ambiente",
-          B: "Muoversi lentamente",
-          C: "Restare immobile"
-        },
-        _fallback: true,
-        _error: errorMessage
-      };
-  }
+  return {
+    requiresTest: false,
+    narration:
+      "Qualcosa va storto. Il mondo sembra osservarti in silenzio.",
+    choices: {
+      A: "Avanzare con cautela",
+      B: "Cercare riparo",
+      C: "Cambiare direzione"
+    },
+    _fallback: true,
+    _error: errorMessage
+  };
 }
 
 /* ======================================================
    LED
    ====================================================== */
+
 function signalWorkerOK() {
   const led = document.getElementById("led-worker");
   if (!led) return;
@@ -206,7 +181,5 @@ function signalWorkerError() {
    DEBUG
    ====================================================== */
 if (typeof DEBUG !== "undefined" && DEBUG) {
-  console.log("[WORKER API] inizializzato (frontend bridge)");
+  console.log("[WORKER API] inizializzato");
 }
-
-export { callWorker };
