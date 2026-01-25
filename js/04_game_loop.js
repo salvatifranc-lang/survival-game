@@ -80,10 +80,10 @@ async function handleChoice(choiceKey) {
 
   try {
     /* ==================================================
-       1️⃣ CHIEDI AL WORKER LA DIFFICOLTÀ
+       1️⃣ TURNO: L’IA DECIDE SE SERVE UN TEST
        ================================================== */
-    const difficultyResult = await callWorker({
-      action: "difficulty",
+    const turnResult = await callWorker({
+      action: "turn",
       choice: choiceKey,
       situation: missionDiary.currentSituation,
       missionDiary:
@@ -93,79 +93,42 @@ async function handleChoice(choiceKey) {
       campaignDiary
     });
 
-    const difficulty = difficultyResult?.difficulty;
-    if (!difficulty) {
-      throw new Error("Difficoltà non valida dal worker");
-    }
-
     /* ==================================================
-       2️⃣ TIRO DI DADO (JS)
+       2️⃣ CASO: NESSUN TEST
        ================================================== */
-    const rollResult = performRoll(difficulty);
+    if (turnResult.requiresTest === false) {
+      currentNarration = turnResult.narration;
+      currentChoices = turnResult.choices;
+      missionDiary.currentSituation = currentNarration;
 
-    // Mostra subito il risultato del test in UI
-    renderTestBox();
+      clearTestBox();
 
-    /* ==================================================
-       3️⃣ CONSEGUENZA NARRATIVA (IA)
-       ================================================== */
-    const narrativeResult = await callWorker({
-      action: "resolve",
-      choice: choiceKey,
-      outcome: rollResult.outcome, // ⬅️ SOLO ETICHETTA TESTUALE
-      situation: missionDiary.currentSituation,
-      missionDiary:
-        typeof getMissionDiaryForAI === "function"
-          ? getMissionDiaryForAI()
-          : [],
-      campaignDiary
-    });
-
-    if (!narrativeResult || !narrativeResult.narration || !narrativeResult.choices) {
-      throw new Error("Risposta worker non valida (resolve)");
-    }
-
-    /* ==================================================
-       4️⃣ MISSION DIARY
-       ================================================== */
-    if (typeof addMissionDiaryEntry === "function") {
-      addMissionDiaryEntry({
-        situation: missionDiary.currentSituation,
-        choice: choiceKey,
-        outcome: rollResult.outcome,
-        consequence: narrativeResult.narration,
-        changes: {},
-        flags: []
+      typeWriter(narrationEl, currentNarration, 18, () => {
+        renderChoices(currentChoices);
       });
+
+      return;
     }
 
     /* ==================================================
-       5️⃣ AGGIORNA STATO + RENDER
+       3️⃣ CASO: TEST RICHIESTO
        ================================================== */
-    currentNarration = narrativeResult.narration;
-    currentChoices = narrativeResult.choices;
-    missionDiary.currentSituation = currentNarration;
+    if (turnResult.requiresTest === true) {
+      const difficulty = turnResult.difficulty;
 
-    typeWriter(narrationEl, currentNarration, 18, () => {
-      renderChoices(currentChoices);
-    });
+      /* === TIRO DI DADO (JS) === */
+      const rollResult = performRoll(difficulty);
 
-  } catch (err) {
-    console.error("[04] errore turno:", err);
-    narrationEl.textContent =
-      "Qualcosa va storto. Il mondo sembra reagire male alla tua scelta.";
-  }
-}
+      // Mostra il risultato del test
+      renderTestBox();
 
-/* ======================================================
-   EVENTI UI
-   ====================================================== */
-btnA.addEventListener("click", () => handleChoice("A"));
-btnB.addEventListener("click", () => handleChoice("B"));
-btnC.addEventListener("click", () => handleChoice("C"));
-
-/* ======================================================
-   AVVIO
-   ====================================================== */
-console.log("[04] inizializzato");
-initGame();
+      /* === CONSEGUENZA NARRATIVA === */
+      const resolveResult = await callWorker({
+        action: "resolve",
+        choice: choiceKey,
+        outcome: rollResult.outcome, // ⬅️ SOLO ETICHETTA TESTUALE
+        situation: missionDiary.currentSituation,
+        missionDiary:
+          typeof getMissionDiaryForAI === "function"
+            ? getMissionDiaryForAI()
+            : [],
