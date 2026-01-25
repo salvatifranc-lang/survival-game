@@ -8,7 +8,7 @@ const MANUAL_URL =
 const START_MANUAL_URL = "HOPE_TOWN_START_MANUAL.txt";
 
 const DEBUG = true;
-
+const AI_ENDPOINT = "/api/ai"; 
 /* ===== LED CONFIG (DOM SAFE) ===== */
 window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("led-config")?.classList.add("ok");
