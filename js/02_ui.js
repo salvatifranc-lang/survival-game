@@ -57,12 +57,16 @@ function renderNarration(text) {
 /* ======================================================
    RENDER: STATS
    ====================================================== */
-function renderStats(playerState) {
+function renderStats(playerState, missionDiary) {
   if (!playerState) return;
 
-  statSalute.textContent  = playerState.salute ?? "—";
-  statStamina.textContent = playerState.stamina ?? "—";
-  statLivello.textContent = playerState.livello ?? "—";
+  statSalute.textContent  = playerState.salute;
+  statStamina.textContent = playerState.stamina;
+  statLivello.textContent = playerState.livello;
+
+  if (missionDiary?.location && statLocation) {
+    statLocation.textContent = missionDiary.location;
+  }
 }
 
 /* ======================================================
