@@ -1,54 +1,12 @@
-const WORKER_URL = "https://still-hat-5795.salvatifranc.workers.dev/";
+// game.js — ENTRY POINT (BOOTSTRAP)
 
-/* ===== DOM ===== */
-const narrationEl = document.getElementById("narration");
-const choiceAEl   = document.getElementById("choiceA");
-const choiceBEl   = document.getElementById("choiceB");
-const choiceCEl   = document.getElementById("choiceC");
+// Ordine importante
+import "./js/00_config.js";
+import "./js/01_state.js";
+import "./js/02_ui.js";
+import "./js/03_worker_api.js";
+import "./js/05_mission_diary.js";
+import "./js/06_campaign_diary.js";
+import "./js/04_game_loop.js";
 
-let turn = 0;
-
-/* ===== CORE ===== */
-async function callWorker(action) {
-  narrationEl.textContent = "Caricamento...";
-
-  try {
-    const res = await fetch(WORKER_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        last_action: action,
-        debug: true
-      })
-    });
-
-    const data = await res.json();
-
-    console.log("WORKER RESPONSE:", data);
-
-    if (!data || !data.narration || !data.choices) {
-      narrationEl.textContent = "Risposta non valida dal worker.";
-      return;
-    }
-
-    narrationEl.textContent = data.narration;
-
-    choiceAEl.textContent = "A) " + data.choices.A;
-    choiceBEl.textContent = "B) " + data.choices.B;
-    choiceCEl.textContent = "C) " + data.choices.C;
-
-    turn++;
-
-  } catch (e) {
-    narrationEl.textContent = "Errore di comunicazione col worker.";
-    console.error(e);
-  }
-}
-
-/* ===== INPUT ===== */
-function choose(letter) {
-  callWorker(letter);
-}
-
-/* ===== START ===== */
-callWorker("inizio");
+console.log("[GAME] bootstrap completato");
