@@ -23,8 +23,10 @@ let campaignDiary = {
 /* ===== MEMORIA BREVE (MISSIONE) ===== */
 let missionDiary = {
   log: [],
-  currentLocation: null
+  currentSituation: null,
+  location: "Luogo sconosciuto" // 👈 AGGIUNTO
 };
+
 
 /* ======================================================
    CARICAMENTO MANUALE
