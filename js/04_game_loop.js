@@ -8,7 +8,8 @@ async function playTurn(action) {
   }
 
   const data = await callWorker({
-    last_action: action
+    last_action: action,
+     startManual: startManual
   });
 
   // Aggiorna UI
