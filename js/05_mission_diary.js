@@ -12,8 +12,17 @@
 /* ===== AVVIO NUOVA MISSIONE ===== */
 function startMission({ missionId, location }) {
   if (!window.missionDiary) {
-    throw new Error("missionDiary non definito nello state");
+    throw new Error("missionDiary non definito nello stato");
   }
+
+  window.missionDiary.mission_id = missionId;
+  window.missionDiary.location = location;
+  window.missionDiary.turn = 0;
+  window.missionDiary.log = [];
+
+  console.log("[MISSION DIARY] nuova missione:", missionId);
+}
+
 
   missionDiary.mission_id = missionId;
   missionDiary.location = location;
