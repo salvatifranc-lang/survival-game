@@ -3,7 +3,7 @@
    ====================================================== */
 
 /* ===== MANUALE DI GIOCO (IMMUTABILE) ===== */
-let gameManual = "";
+export let startManual = "";
 import { MANUAL_URL } from "./00_config.js";
 import { START_MANUAL_URL } from "./00_config.js";
 
