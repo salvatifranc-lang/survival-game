@@ -4,6 +4,7 @@
 
 /* ===== MANUALE DI GIOCO (IMMUTABILE) ===== */
 let gameManual = "";
+import { MANUAL_URL } from "./00_config.js";
 
 /* ===== STATO GIOCATORE ===== */
 let playerState = {
