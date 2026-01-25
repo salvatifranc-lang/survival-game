@@ -19,9 +19,11 @@ async function initGame() {
     // 1️⃣ carica manuale start (RITORNA il testo)
     const startManual = await loadStartManual();
 
-    if (!startManual || startManual.length < 10) {
+    if (!startManual || typeof startManual !== "string") {
       throw new Error("Start manual non disponibile");
     }
+
+    console.log("[04] Start manual length:", startManual.length);
 
     // 2️⃣ inizializza campaign diary (una sola volta)
     if (typeof initCampaignDiary === "function" && !campaignDiary.synopsis) {
