@@ -1,6 +1,7 @@
 /* ======================================================
    GAME LOOP — CON MISSION + CAMPAIGN DIARY (SAFE)
    ====================================================== */
+import { loadStartManual } from "./01_state.js";
 
 import { performRoll } from "./07_dice.js";
 
