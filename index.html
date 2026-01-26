@@ -169,17 +169,25 @@ button:active {
   margin-bottom: 8px;
 }
 /* ===========================
-   INVENTORY LIST — BULLETS
+   INVENTORY LIST — DEBUG BOX
    =========================== */
 
 #inventory-list {
+  min-height: 120px;
+  margin-top: 8px;
+  padding: 10px;
+
+  border: 1px solid rgba(0,255,255,0.6); /* visibilissimo */
+  background: rgba(0,0,0,0.25);
+
   font-size: 15px;
   line-height: 1.5;
 }
 
+/* elementi */
 #inventory-list div {
   margin-bottom: 6px;
-  padding-left: 12px;
+  padding-left: 14px;
   position: relative;
 }
 
@@ -187,8 +195,9 @@ button:active {
   content: "•";
   position: absolute;
   left: 0;
-  opacity: 0.6;
+  opacity: 0.7;
 }
+
 
 
 /* CURSOR */
