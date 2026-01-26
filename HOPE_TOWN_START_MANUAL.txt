@@ -50,7 +50,7 @@ Il giocatore inizia SEMPRE con ESATTAMENTE:
 
 Gli oggetti iniziali:
 
-- DEVONO essere selezionati dalla lista oggetti del MANUALE PRINCIPALE
+- DEVONO essere selezionati dalla lista oggetti che trovi in questo manuale
 - DEVONO essere coerenti con un recupero casuale o di fortuna
 - NON devono garantire sicurezza
 - NON devono annullare il rischio
@@ -63,7 +63,7 @@ L’equipaggiamento iniziale NON è ottimale.
 4. LOCATION DI INIZIO
 ==============================
 
-Il giocatore si risveglia in UNA SOLA location di missione.
+Il giocatore si risveglia in UNA SOLA location di missione a scelta tra quelle presenti in questo manuale
 
 La location:
 
@@ -78,7 +78,6 @@ La location iniziale:
 - NON è sicura
 - NON è permanente
 
-La lista delle location iniziali è definita nel MANUALE PRINCIPALE.
 
 
 ==============================
@@ -98,8 +97,8 @@ E TROVARE HOPE TOWN
 La prima scena di gioco DEVE:
 
 - Descrivere il risveglio del giocatore
-- Mostrare immediatamente l’ostilità dell’ambiente
-- Far percepire vulnerabilità e urgenza
+- Descrivere quale location è stata scelta e l’ostilità dell’ambiente
+- descrivere brevemente quali sono gli oggetti che ha con se
 - Introdurre una minaccia o una tensione latente
 
 La scena NON deve:
@@ -153,6 +152,8 @@ Il sistema di gioco:
 - DEVE applicare questo manuale a ogni nuova partita
 
 Questo documento è IMMUTABILE durante una partita.
+
+LISTA DEGLI OGGETTI
 
 OGGettI Stabili:
 
