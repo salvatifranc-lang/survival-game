@@ -27,12 +27,23 @@ body {
   background: rgba(0, 0, 0, 0.35);
 }
 
-/* LEFT */
+/* ===========================
+   STATS — GRID POSITION
+   =========================== */
+
 #stats {
+  position: absolute;
+  left: 0;
+  top: 200px; /* 5 */
+
   padding: 20px;
   border-right: 1px solid rgba(255,255,255,0.25);
 }
-.stat { margin-bottom: 14px; }
+
+.stat {
+  margin-bottom: 14px;
+}
+
 
 /* CENTER */
 #main {
@@ -140,15 +151,24 @@ button:active {
   border: 1px dashed rgba(255,255,255,0.35);
 }
 
-/* RIGHT */
+/* ===========================
+   INVENTORY — GRID POSITION
+   =========================== */
+
 #inventory {
+  position: absolute;
+  left: 1360px; /* 34 */
+  top: 200px;   /* 5 */
+
   padding: 20px;
   border-left: 1px solid rgba(255,255,255,0.25);
 }
+
 #inventory strong {
   display: block;
   margin-bottom: 8px;
 }
+
 
 /* CURSOR */
 .cursor {
