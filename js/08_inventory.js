@@ -8,6 +8,8 @@ import { playerState } from "./01_state.js";
    APPLICA EFFECTS DAL WORKER
    ====================================================== */
 function applyInventoryEffects(effects = {}) {
+  console.log("[INVENTORY] effects ricevuti:", effects);
+
   if (!effects || typeof effects !== "object") return;
 
   const {
@@ -25,6 +27,7 @@ function applyInventoryEffects(effects = {}) {
 
     if (!alreadyHave) {
       playerState.inventory.push(item);
+      console.log("[INVENTORY] aggiunto:", item);
     }
   });
 
@@ -33,40 +36,25 @@ function applyInventoryEffects(effects = {}) {
     playerState.inventory = playerState.inventory.filter(
       item => !inventoryRemove.includes(item.id)
     );
+    console.log("[INVENTORY] rimossi:", inventoryRemove);
   }
 
-  renderInventory();
-}
-
-/* ======================================================
-   RENDER INVENTORY UI
-   ====================================================== */
-function renderInventory() {
-  const listEl = document.getElementById("inventory-list");
-  if (!listEl) return;
-
-  listEl.innerHTML = "";
-
-  if (!playerState.inventory || playerState.inventory.length === 0) {
-    const li = document.createElement("li");
-    li.textContent = "— vuoto —";
-    li.style.opacity = "0.6";
-    listEl.appendChild(li);
-    return;
+  /* ===== RENDER UI ===== */
+  if (typeof window.renderInventory === "function") {
+    window.renderInventory(playerState.inventory);
+  } else {
+    console.warn("[INVENTORY] renderInventory non disponibile");
   }
-
-  playerState.inventory.forEach(item => {
-    const li = document.createElement("li");
-    li.textContent = item.name || item.id;
-    listEl.appendChild(li);
-  });
 }
 
 /* ======================================================
    INIT INVENTORY UI
    ====================================================== */
 function initInventoryUI() {
-  renderInventory();
+  console.log("[INVENTORY] init UI");
+  if (typeof window.renderInventory === "function") {
+    window.renderInventory(playerState.inventory);
+  }
 }
 
 /* ======================================================
@@ -74,6 +62,5 @@ function initInventoryUI() {
    ====================================================== */
 export {
   applyInventoryEffects,
-  initInventoryUI,
-  renderInventory
+  initInventoryUI
 };
