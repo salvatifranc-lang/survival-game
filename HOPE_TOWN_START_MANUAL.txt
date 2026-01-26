@@ -118,7 +118,7 @@ La prima situazione DEVE offrire:
 - 3 scelte distinte (A, B, C)
 - Tutte comportano rischio
 - Nessuna è neutra o sicura
-
+-potrebbero essere disponibili esclusivamente grazie ad uno degli oggetti in possesso
 Le scelte DEVONO:
 
 - Cambiare la situazione
