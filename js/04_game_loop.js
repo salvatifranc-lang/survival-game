@@ -51,6 +51,11 @@ const result = await callWorker({
     currentChoices = result.choices;
     missionDiary.currentSituation = currentNarration;
 
+/* ✅ INVENTARIO INIZIALE */
+if (result.effects) {
+  applyInventoryEffects(result.effects);
+}
+     
     renderStats(playerState, missionDiary);
     clearTestBox();
     renderNarration(currentNarration);
