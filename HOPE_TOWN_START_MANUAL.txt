@@ -731,6 +731,8 @@ Contaminazione chimica
 
 Macchinari instabili
 
+LISTA DELLE LOCATION:
+
 ID: LOC_MAGAZZINI_LOG
 Nome: Magazzini logistici automatizzati
 Descrizione:
