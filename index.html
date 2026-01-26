@@ -168,6 +168,27 @@ button:active {
   display: block;
   margin-bottom: 8px;
 }
+/* ===========================
+   INVENTORY LIST — BULLETS
+   =========================== */
+
+#inventory-list {
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+#inventory-list div {
+  margin-bottom: 6px;
+  padding-left: 12px;
+  position: relative;
+}
+
+#inventory-list div::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  opacity: 0.6;
+}
 
 
 /* CURSOR */
