@@ -1,12 +1,16 @@
 /* ======================================================
    GAME LOOP — CON MISSION + CAMPAIGN DIARY (SAFE)
    ====================================================== */
+
 import { playerState } from "./01_state.js";
 import { loadStartManual } from "./01_state.js";
 import { performRoll } from "./07_dice.js";
 import { callWorker } from "./03_worker_api.js";
 import { applyInventoryEffects, initInventoryUI } from "./08_inventory.js";
 
+/* ======================================================
+   STATO LOCALE
+   ====================================================== */
 let currentNarration = "";
 let currentChoices = null;
 let gameStarted = false;
@@ -18,11 +22,10 @@ async function initGame() {
   try {
     console.log("[04] initGame");
 
-    // 1️⃣ carica manuale start (gestito dallo STATE)
-const startManual = await loadStartManual();
+    // 1️⃣ carica manuale di start
+    const startManual = await loadStartManual();
 
-
-    // 2️⃣ inizializza campaign diary
+    // 2️⃣ inizializza campaign diary (una sola volta)
     if (typeof initCampaignDiary === "function" && !campaignDiary.synopsis) {
       initCampaignDiary();
     }
@@ -36,26 +39,28 @@ const startManual = await loadStartManual();
     }
 
     // 4️⃣ chiamata worker — START
-const result = await callWorker({
-  action: "start",
-  startManual, // ✅ quello giusto
-  campaignDiary
-});
-
+    const result = await callWorker({
+      action: "start",
+      startManual,
+      campaignDiary
+    });
 
     if (!result?.narration || !result?.choices) {
       throw new Error("Risposta worker non valida (start)");
     }
 
+    // 5️⃣ stato narrativo
     currentNarration = result.narration;
     currentChoices = result.choices;
     missionDiary.currentSituation = currentNarration;
 
-/* ✅ INVENTARIO INIZIALE */
-if (result.effects) {
-  applyInventoryEffects(result.effects);
-}
-     
+    // 6️⃣ INVENTARIO INIZIALE (OBBLIGATORIO)
+    initInventoryUI();
+    if (result.effects) {
+      applyInventoryEffects(result.effects);
+    }
+
+    // 7️⃣ render iniziale
     renderStats(playerState, missionDiary);
     clearTestBox();
     renderNarration(currentNarration);
@@ -79,6 +84,9 @@ async function handleChoice(choiceKey) {
   if (!gameStarted || !currentChoices) return;
 
   try {
+    /* ==================================================
+       TURNO — PRIMA RISPOSTA
+       ================================================== */
     const turnResult = await callWorker({
       action: "turn",
       choice: choiceKey,
@@ -90,7 +98,14 @@ async function handleChoice(choiceKey) {
       campaignDiary
     });
 
-    /* ===== CASO: NESSUN TEST ===== */
+    // ✅ APPLICA EFFECTS SEMPRE
+    if (turnResult.effects) {
+      applyInventoryEffects(turnResult.effects);
+    }
+
+    /* ==================================================
+       CASO: NESSUN TEST
+       ================================================== */
     if (turnResult.requiresTest === false) {
       if (!turnResult.narration || !turnResult.choices) {
         throw new Error("Turn senza test non valido");
@@ -106,16 +121,14 @@ async function handleChoice(choiceKey) {
       return;
     }
 
-    /* ===== CASO: TEST RICHIESTO ===== */
+    /* ==================================================
+       CASO: TEST RICHIESTO
+       ================================================== */
     if (turnResult.requiresTest === true) {
       const rollResult = performRoll(turnResult.difficulty);
 
-      // mostra risultato test
-      renderTestBox(
-        rollResult.roll,
-        rollResult.difficulty,
-        rollResult.outcome
-      );
+      // mostra risultato del test (gestito da 02_ui + 07)
+      renderTestBox();
 
       const resolveResult = await callWorker({
         action: "resolve",
@@ -129,6 +142,11 @@ async function handleChoice(choiceKey) {
         campaignDiary
       });
 
+      // ✅ APPLICA EFFECTS DOPO RESOLVE
+      if (resolveResult.effects) {
+        applyInventoryEffects(resolveResult.effects);
+      }
+
       if (!resolveResult?.narration || !resolveResult?.choices) {
         throw new Error("Risposta resolve non valida");
       }
@@ -139,6 +157,7 @@ async function handleChoice(choiceKey) {
 
       renderNarration(currentNarration);
       renderChoices(currentChoices);
+      return;
     }
 
   } catch (err) {
