@@ -4,7 +4,9 @@
 
 import { getLastRoll } from "./07_dice.js";
 
-/* ===== DOM REFERENCES ===== */
+/* ======================================================
+   DOM REFERENCES
+   ====================================================== */
 const statSalute   = document.getElementById("stat-salute");
 const statStamina  = document.getElementById("stat-stamina");
 const statLivello  = document.getElementById("stat-livello");
@@ -23,7 +25,7 @@ const testBox     = document.getElementById("test-box");
 const inventoryEl = document.getElementById("inventory-list");
 
 /* ======================================================
-   TYPEWRITER
+   TYPEWRITER EFFECT
    ====================================================== */
 function typeWriter(el, text, speed = 18, onDone) {
   if (!el) return;
@@ -74,7 +76,7 @@ function renderStats(playerState, missionDiary) {
 /* ======================================================
    RENDER: INVENTORY
    ====================================================== */
-function renderInventory(inventory = [], nameMap = {}) {
+function renderInventory(inventory = []) {
   if (!inventoryEl) return;
 
   inventoryEl.innerHTML = "";
@@ -82,13 +84,14 @@ function renderInventory(inventory = [], nameMap = {}) {
   if (!Array.isArray(inventory) || inventory.length === 0) {
     const empty = document.createElement("div");
     empty.textContent = "— vuoto —";
+    empty.style.opacity = "0.6";
     inventoryEl.appendChild(empty);
     return;
   }
 
-  inventory.forEach(id => {
+  inventory.forEach(item => {
     const div = document.createElement("div");
-    div.textContent = "• " + (nameMap[id] || id);
+    div.textContent = "• " + (item.name || item.id);
     inventoryEl.appendChild(div);
   });
 }
@@ -103,7 +106,7 @@ function renderChoices(choices = {}) {
 }
 
 /* ======================================================
-   TEST BOX
+   TEST BOX — RESET
    ====================================================== */
 function clearTestBox() {
   if (!testBox) return;
@@ -115,7 +118,7 @@ function clearTestBox() {
 }
 
 /* ======================================================
-   RENDER: TEST BOX (DADO / DIFFICOLTÀ / ESITO)
+   TEST BOX — RENDER RISULTATO
    ====================================================== */
 function renderTestBox() {
   if (!testBox) return;
@@ -134,7 +137,7 @@ function renderTestBox() {
 }
 
 /* ======================================================
-   ESPOSIZIONE API UI (PER GAME LOOP)
+   ESPOSIZIONE API UI (GLOBALI)
    ====================================================== */
 window.renderNarration = renderNarration;
 window.renderChoices   = renderChoices;
@@ -144,7 +147,7 @@ window.clearTestBox    = clearTestBox;
 window.renderTestBox   = renderTestBox;
 
 /* ======================================================
-   LED: FILE CARICATO
+   LED: UI OK
    ====================================================== */
 document.getElementById("led-ui")?.classList.add("ok");
 
