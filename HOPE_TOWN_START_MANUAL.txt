@@ -97,7 +97,7 @@ E TROVARE HOPE TOWN
 La prima scena di gioco DEVE:
 
 - Descrivere il risveglio del giocatore
-- Descrivere quale location è stata scelta e l’ostilità dell’ambiente
+- Descrivere con chiarezza quale tra le location disponibile è stata scelta
 - descrivere brevemente quali sono gli oggetti che ha con se
 - Introdurre una minaccia o una tensione latente
 
