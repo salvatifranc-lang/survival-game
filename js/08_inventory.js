@@ -1,6 +1,7 @@
 /* ======================================================
    INVENTORY MANAGER
    ====================================================== */
+console.log("[08] inventory manager loaded");
 
 import { playerState } from "./01_state.js";
 
