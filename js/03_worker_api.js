@@ -72,7 +72,8 @@ function validateStartResponse(data) {
   signalWorkerOK();
   return {
     narration: data.narration,
-    choices: data.choices
+    choices: data.choices,
+    effects: data.effects || null
   };
 }
 
@@ -80,6 +81,7 @@ function validateStartResponse(data) {
  * TURN:
  * - può richiedere un test
  * - oppure restituire direttamente narrazione + scelte
+ * - DEVE sempre propagare eventuali effects
  */
 function validateTurnResponse(data) {
   if (!data || typeof data !== "object") {
@@ -100,21 +102,19 @@ function validateTurnResponse(data) {
     signalWorkerOK();
     return {
       requiresTest: true,
-      difficulty
+      difficulty,
+      effects: data.effects || null
     };
   }
 
   /* ===== NESSUN TEST ===== */
-  if (
-    data.requiresTest === false &&
-    data.narration &&
-    data.choices
-  ) {
+  if (data.requiresTest === false && data.narration && data.choices) {
     signalWorkerOK();
     return {
       requiresTest: false,
       narration: data.narration,
-      choices: data.choices
+      choices: data.choices,
+      effects: data.effects || null
     };
   }
 
@@ -125,6 +125,7 @@ function validateTurnResponse(data) {
  * RESOLVE:
  * - riceve esito testuale
  * - restituisce narrazione + scelte
+ * - DEVE propagare effects
  */
 function validateResolveResponse(data) {
   if (!data?.narration || !data?.choices) {
@@ -134,7 +135,8 @@ function validateResolveResponse(data) {
   signalWorkerOK();
   return {
     narration: data.narration,
-    choices: data.choices
+    choices: data.choices,
+    effects: data.effects || null
   };
 }
 
@@ -154,6 +156,7 @@ function getFallbackResponse(action, errorMessage) {
       B: "Cercare riparo",
       C: "Cambiare direzione"
     },
+    effects: null,
     _fallback: true,
     _error: errorMessage
   };
