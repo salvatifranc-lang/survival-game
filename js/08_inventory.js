@@ -17,7 +17,13 @@ function applyInventoryEffects(effects = {}) {
 
   /* ===== ADD ===== */
   inventoryAdd.forEach(item => {
-    if (!playerState.inventory.includes(item)) {
+    if (!item || !item.id) return;
+
+    const alreadyHave = playerState.inventory.find(
+      i => i.id === item.id
+    );
+
+    if (!alreadyHave) {
       playerState.inventory.push(item);
     }
   });
@@ -25,26 +31,49 @@ function applyInventoryEffects(effects = {}) {
   /* ===== REMOVE ===== */
   if (inventoryRemove.length > 0) {
     playerState.inventory = playerState.inventory.filter(
-      item => !inventoryRemove.includes(item)
+      item => !inventoryRemove.includes(item.id)
     );
   }
 
-  /* ===== RENDER ===== */
-  if (typeof renderInventory === "function") {
-    renderInventory(playerState.inventory);
+  renderInventory();
+}
+
+/* ======================================================
+   RENDER INVENTORY UI
+   ====================================================== */
+function renderInventory() {
+  const listEl = document.getElementById("inventory-list");
+  if (!listEl) return;
+
+  listEl.innerHTML = "";
+
+  if (!playerState.inventory || playerState.inventory.length === 0) {
+    const li = document.createElement("li");
+    li.textContent = "— vuoto —";
+    li.style.opacity = "0.6";
+    listEl.appendChild(li);
+    return;
   }
+
+  playerState.inventory.forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = item.name || item.id;
+    listEl.appendChild(li);
+  });
 }
 
 /* ======================================================
    INIT INVENTORY UI
    ====================================================== */
 function initInventoryUI() {
-  if (typeof renderInventory === "function") {
-    renderInventory(playerState.inventory);
-  }
+  renderInventory();
 }
 
+/* ======================================================
+   EXPORT
+   ====================================================== */
 export {
   applyInventoryEffects,
-  initInventoryUI
+  initInventoryUI,
+  renderInventory
 };
