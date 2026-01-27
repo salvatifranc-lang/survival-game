@@ -8,12 +8,39 @@ import { performRoll } from "./07_dice.js";
 import { callWorker } from "./03_worker_api.js";
 import { applyInventoryEffects, initInventoryUI } from "./08_inventory.js";
 
+// ADDED — location + items
+import { LOCATIONS } from "./locations/locations_registry.js";
+import { START_ITEMS_POOL } from "./manuals/items_start_pool.js";
+
 /* ======================================================
    STATO LOCALE
    ====================================================== */
 let currentNarration = "";
 let currentChoices = null;
 let gameStarted = false;
+
+// ADDED — stato missione iniziale
+let currentLocation = null;
+let currentRoom = null;
+
+/* ======================================================
+   UTILITY START (ADDED)
+   ====================================================== */
+function pickRandom(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function generateStartInventory() {
+  const weapon = pickRandom(START_ITEMS_POOL.weapons);
+  const tool = pickRandom(START_ITEMS_POOL.tools);
+  const consumable = pickRandom(START_ITEMS_POOL.consumables);
+
+  return [
+    { id: weapon.id, category: "weapon" },
+    { id: tool.id, category: "tool" },
+    { id: consumable.id, category: "consumable" }
+  ];
+}
 
 /* ======================================================
    AVVIO PARTITA
@@ -30,37 +57,57 @@ async function initGame() {
       initCampaignDiary();
     }
 
-    // 3️⃣ avvia missione
+    // 3️⃣ SELEZIONE LOCATION + STANZA INIZIALE (ADDED)
+    const availableLocations = Object.values(LOCATIONS);
+    currentLocation = pickRandom(availableLocations);
+    currentRoom = currentLocation.map.rooms[currentLocation.entryRoom];
+
+    // 4️⃣ INVENTARIO INIZIALE (ADDED)
+    const startInventory = generateStartInventory();
+
+    // 5️⃣ avvia missione (lasciato invariato)
     if (typeof startMission === "function") {
       startMission({
         missionId: "MISSION_001",
-        location: "Luogo sconosciuto"
+        location: currentLocation.name
       });
     }
 
-    // 4️⃣ chiamata worker — START
+    // 6️⃣ chiamata worker — START (ADDED location + room + inventory)
     const result = await callWorker({
       action: "start",
       startManual,
-      campaignDiary
+      campaignDiary,
+      location: {
+        id: currentLocation.id,
+        name: currentLocation.name,
+        theme: currentLocation.theme,
+        missionType: currentLocation.missionType
+      },
+      currentRoom,
+      inventory: startInventory
     });
 
     if (!result?.narration || !result?.choices) {
       throw new Error("Risposta worker non valida (start)");
     }
 
-    // 5️⃣ stato narrativo
+    // 7️⃣ stato narrativo
     currentNarration = result.narration;
     currentChoices = result.choices;
     missionDiary.currentSituation = currentNarration;
 
-    // 6️⃣ INVENTARIO INIZIALE (OBBLIGATORIO)
+    // 8️⃣ INVENTARIO INIZIALE (UI + effetti)
     initInventoryUI();
+    applyInventoryEffects({
+      inventoryAdd: startInventory
+    });
+
     if (result.effects) {
       applyInventoryEffects(result.effects);
     }
 
-    // 7️⃣ render iniziale
+    // 9️⃣ render iniziale
     renderStats(playerState, missionDiary);
     clearTestBox();
     renderNarration(currentNarration);
@@ -127,7 +174,6 @@ async function handleChoice(choiceKey) {
     if (turnResult.requiresTest === true) {
       const rollResult = performRoll(turnResult.difficulty);
 
-      // mostra risultato del test (gestito da 02_ui + 07)
       renderTestBox();
 
       const resolveResult = await callWorker({
@@ -142,7 +188,6 @@ async function handleChoice(choiceKey) {
         campaignDiary
       });
 
-      // ✅ APPLICA EFFECTS DOPO RESOLVE
       if (resolveResult.effects) {
         applyInventoryEffects(resolveResult.effects);
       }
