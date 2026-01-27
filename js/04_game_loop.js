@@ -61,6 +61,7 @@ async function initGame() {
     const availableLocations = Object.values(LOCATIONS);
     currentLocation = pickRandom(availableLocations);
     currentRoom = currentLocation.map.rooms[currentLocation.entryRoom];
+missionDiary.location = currentLocation.name;
 
     // 4️⃣ INVENTARIO INIZIALE (ADDED)
     const startInventory = generateStartInventory();
