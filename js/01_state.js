@@ -30,8 +30,10 @@ window.missionDiary = {
   mission_id: null,
   location: "Luogo sconosciuto",
   turn: 0,
-  log: []
+  log: [],
+  currentSituation: "" // ✅ ADDED
 };
+
 
 /* ======================================================
    CARICAMENTO MANUALI
