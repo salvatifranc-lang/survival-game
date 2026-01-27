@@ -58,6 +58,46 @@ async function initGame() {
     if (typeof initCampaignDiary === "function" && !campaignDiary.synopsis) {
       initCampaignDiary();
     }
+/* ======================================================
+   TRANSIZIONE — INGRESSO HOPE TOWN
+   ====================================================== */
+function enterHopeTown(outcome) {
+  console.log("[04] Missione terminata:", outcome);
+
+  // aggiorna location corrente
+  currentLocation = LOC_HOPE_TOWN;
+
+  // aggiorna mission diary
+  missionDiary.location = LOC_HOPE_TOWN.name;
+  missionDiary.turn = 0;
+  missionDiary.log = [];
+  missionDiary.currentSituation = "";
+
+  // aggiorna campaign diary
+  campaignDiary.firstMissionCompleted = true;
+  campaignDiary.keyEvents.push("ENTERED_HOPE_TOWN");
+
+  // chiamata worker — HUB
+  callWorker({
+    action: "enter_hub",
+    location: {
+      id: LOC_HOPE_TOWN.id,
+      name: LOC_HOPE_TOWN.name,
+      type: LOC_HOPE_TOWN.type,
+      description: LOC_HOPE_TOWN.description
+    },
+    campaignDiary
+  }).then(result => {
+    if (!result?.narration || !result?.choices) return;
+
+    currentNarration = result.narration;
+    currentChoices = result.choices;
+
+    renderNarration(currentNarration);
+    renderChoices(currentChoices);
+    renderStats(playerState, missionDiary);
+  });
+}
 
     // 3️⃣ SELEZIONE LOCATION + STANZA INIZIALE (ADDED)
     const availableLocations = Object.values(LOCATIONS);
@@ -147,6 +187,11 @@ async function handleChoice(choiceKey) {
           : [],
       campaignDiary
     });
+// ✅ CHECK FINE MISSIONE
+if (turnResult.missionEnded === true) {
+  enterHopeTown(turnResult.missionOutcome);
+  return;
+}
 
     // ✅ APPLICA EFFECTS SEMPRE
     if (turnResult.effects) {
@@ -214,6 +259,11 @@ async function handleChoice(choiceKey) {
       "Qualcosa va storto. Il mondo sembra reagire male alla tua scelta."
     );
   }
+}
+// ✅ CHECK FINE MISSIONE
+if (resolveResult.missionEnded === true) {
+  enterHopeTown(resolveResult.missionOutcome);
+  return;
 }
 
 /* ======================================================
