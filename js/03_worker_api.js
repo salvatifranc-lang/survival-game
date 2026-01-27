@@ -38,6 +38,16 @@ export async function callWorker(payload = {}) {
     const data = await response.json();
     console.log("[WORKER API] risposta worker:", data);
 
+    /* ==================================================
+       SAFETY NET — EFFECTS SEMPRE PRESENTE
+       ================================================== */
+    if (!data.effects) {
+      data.effects = {
+        inventoryAdd: [],
+        inventoryRemove: []
+      };
+    }
+
     /* ===== VALIDAZIONE PER ACTION ===== */
     switch (payload.action) {
       case "start":
@@ -73,7 +83,7 @@ function validateStartResponse(data) {
   return {
     narration: data.narration,
     choices: data.choices,
-    effects: data.effects || null
+    effects: data.effects
   };
 }
 
@@ -103,7 +113,7 @@ function validateTurnResponse(data) {
     return {
       requiresTest: true,
       difficulty,
-      effects: data.effects || null
+      effects: data.effects
     };
   }
 
@@ -114,7 +124,7 @@ function validateTurnResponse(data) {
       requiresTest: false,
       narration: data.narration,
       choices: data.choices,
-      effects: data.effects || null
+      effects: data.effects
     };
   }
 
@@ -136,7 +146,7 @@ function validateResolveResponse(data) {
   return {
     narration: data.narration,
     choices: data.choices,
-    effects: data.effects || null
+    effects: data.effects
   };
 }
 
@@ -156,7 +166,10 @@ function getFallbackResponse(action, errorMessage) {
       B: "Cercare riparo",
       C: "Cambiare direzione"
     },
-    effects: null,
+    effects: {
+      inventoryAdd: [],
+      inventoryRemove: []
+    },
     _fallback: true,
     _error: errorMessage
   };
