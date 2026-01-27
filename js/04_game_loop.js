@@ -1,6 +1,8 @@
 /* ======================================================
    GAME LOOP — CON MISSION + CAMPAIGN DIARY (SAFE)
    ====================================================== */
+// ADDED — Hope Town
+import { LOC_HOPE_TOWN } from "./locations/LOC_HOPE_TOWN.js";
 
 import { playerState } from "./01_state.js";
 import { loadStartManual } from "./01_state.js";
