@@ -197,4 +197,11 @@ export const LOC_IMPIANTO_DEPURAZ = {
         staminaEffects: { onEntry: -1 },
         injuryRisk: { failure: "leggera" },
 
-        transitions:
+                transitions: {
+          success: []
+        }
+      }
+    }
+  }
+};
+
