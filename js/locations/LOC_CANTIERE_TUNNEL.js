@@ -133,4 +133,88 @@ export const LOC_CANTIERE_TUNNEL = {
         staminaEffects: { onEntry: -2 },
         injuryRisk: { failure: "grave" },
 
-        transitions
+        transitions: {
+          success: ["R8_CENTRO_COMANDO"],
+          partial: ["R9_COLLASSO_TOTALE"],
+          failure: ["R9_COLLASSO_TOTALE"]
+        }
+      },
+
+      R8_CENTRO_COMANDO: {
+        id: "R8_CENTRO_COMANDO",
+        type: "conflitto",
+        description: "Centro di comando del cantiere con sistemi automatici",
+
+        enemies: ["sistema_scavo"],
+        allowedTests: ["tecnica", "furtività"],
+        riskLevel: "alto",
+
+        staminaEffects: { onEntry: -1 },
+        injuryRisk: { failure: "grave" },
+
+        resources: {
+          success: ["controlli_scavo"]
+        },
+
+        transitions: {
+          success: ["R10_USCITA_STABILE"],
+          partial: ["R9_COLLASSO_TOTALE"],
+          failure: ["R9_COLLASSO_TOTALE"]
+        }
+      },
+
+      R9_COLLASSO_TOTALE: {
+        id: "R9_COLLASSO_TOTALE",
+        type: "pericolo",
+        description: "Collasso strutturale dell’area di scavo",
+
+        allowedTests: ["resistenza"],
+        riskLevel: "alto",
+
+        staminaEffects: { onEntry: -2 },
+        injuryRisk: { failure: "grave", criticalFailure: "critica" },
+
+        transitions: {
+          success: ["R10_USCITA_CROLLATA"],
+          partial: ["R10_USCITA_CROLLATA"],
+          failure: ["R10_USCITA_CROLLATA"]
+        }
+      },
+
+      R10_USCITA_STABILE: {
+        id: "R10_USCITA_STABILE",
+        type: "uscita",
+        description: "Uscita rinforzata che conduce a Hope Town",
+
+        transitions: {
+          success: []
+        }
+      },
+
+      R10_USCITA_CROLLATA: {
+        id: "R10_USCITA_CROLLATA",
+        type: "uscita",
+        description: "Rientro difficoltoso attraverso passaggi parzialmente crollati",
+
+        staminaEffects: { onEntry: -1 },
+        injuryRisk: { failure: "leggera" },
+
+        transitions: {
+          success: []
+        }
+      }
+    },
+
+    connections: {
+      R1_PIAZZALE_CANTIERE: ["R2_GALLERIA_INIZIALE", "R3_PENDIO_INSTABILE"],
+      R2_GALLERIA_INIZIALE: ["R4_CAMERA_SCAVO", "R3_PENDIO_INSTABILE"],
+      R3_PENDIO_INSTABILE: ["R4_CAMERA_SCAVO", "R5_TUNNEL_LATERALE"],
+      R4_CAMERA_SCAVO: ["R6_CONDOTTO_SUPPORTO", "R5_TUNNEL_LATERALE"],
+      R5_TUNNEL_LATERALE: ["R6_CONDOTTO_SUPPORTO", "R7_FRANA"],
+      R6_CONDOTTO_SUPPORTO: ["R8_CENTRO_COMANDO"],
+      R7_FRANA: ["R8_CENTRO_COMANDO", "R9_COLLASSO_TOTALE"],
+      R8_CENTRO_COMANDO: ["R10_USCITA_STABILE", "R9_COLLASSO_TOTALE"],
+      R9_COLLASSO_TOTALE: ["R10_USCITA_CROLLATA"]
+    }
+  }
+}
