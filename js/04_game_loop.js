@@ -1,6 +1,7 @@
 /* ======================================================
    GAME LOOP — CON MISSION + CAMPAIGN DIARY (SAFE)
    ====================================================== */
+
 // ADDED — Hope Town
 import { LOC_HOPE_TOWN } from "./locations/LOC_HOPE_TOWN.js";
 
@@ -21,12 +22,12 @@ let currentNarration = "";
 let currentChoices = null;
 let gameStarted = false;
 
-// ADDED — stato missione iniziale
+// stato missione
 let currentLocation = null;
 let currentRoom = null;
 
 /* ======================================================
-   UTILITY START (ADDED)
+   UTILITY START
    ====================================================== */
 function pickRandom(list) {
   return list[Math.floor(Math.random() * list.length)];
@@ -54,61 +55,24 @@ async function initGame() {
     // 1️⃣ carica manuale di start
     const startManual = await loadStartManual();
 
-    // 2️⃣ inizializza campaign diary (una sola volta)
+    // 2️⃣ inizializza campaign diary
     if (typeof initCampaignDiary === "function" && !campaignDiary.synopsis) {
       initCampaignDiary();
     }
-/* ======================================================
-   TRANSIZIONE — INGRESSO HOPE TOWN
-   ====================================================== */
-function enterHopeTown(outcome) {
-  console.log("[04] Missione terminata:", outcome);
 
-  // aggiorna location corrente
-  currentLocation = LOC_HOPE_TOWN;
+    // 3️⃣ selezione location iniziale (NO Hope Town)
+    const availableLocations = Object.values(LOCATIONS).filter(
+      loc => loc.id !== "LOC_HOPE_TOWN"
+    );
 
-  // aggiorna mission diary
-  missionDiary.location = LOC_HOPE_TOWN.name;
-  missionDiary.turn = 0;
-  missionDiary.log = [];
-  missionDiary.currentSituation = "";
-
-  // aggiorna campaign diary
-  campaignDiary.firstMissionCompleted = true;
-  campaignDiary.keyEvents.push("ENTERED_HOPE_TOWN");
-
-  // chiamata worker — HUB
-  callWorker({
-    action: "enter_hub",
-    location: {
-      id: LOC_HOPE_TOWN.id,
-      name: LOC_HOPE_TOWN.name,
-      type: LOC_HOPE_TOWN.type,
-      description: LOC_HOPE_TOWN.description
-    },
-    campaignDiary
-  }).then(result => {
-    if (!result?.narration || !result?.choices) return;
-
-    currentNarration = result.narration;
-    currentChoices = result.choices;
-
-    renderNarration(currentNarration);
-    renderChoices(currentChoices);
-    renderStats(playerState, missionDiary);
-  });
-}
-
-    // 3️⃣ SELEZIONE LOCATION + STANZA INIZIALE (ADDED)
-    const availableLocations = Object.values(LOCATIONS);
     currentLocation = pickRandom(availableLocations);
     currentRoom = currentLocation.map.rooms[currentLocation.entryRoom];
-missionDiary.location = currentLocation.name;
+    missionDiary.location = currentLocation.name;
 
-    // 4️⃣ INVENTARIO INIZIALE (ADDED)
+    // 4️⃣ inventario iniziale
     const startInventory = generateStartInventory();
 
-    // 5️⃣ avvia missione (lasciato invariato)
+    // 5️⃣ avvio missione
     if (typeof startMission === "function") {
       startMission({
         missionId: "MISSION_001",
@@ -116,7 +80,7 @@ missionDiary.location = currentLocation.name;
       });
     }
 
-    // 6️⃣ chiamata worker — START (ADDED location + room + inventory)
+    // 6️⃣ chiamata worker — START
     const result = await callWorker({
       action: "start",
       startManual,
@@ -140,11 +104,9 @@ missionDiary.location = currentLocation.name;
     currentChoices = result.choices;
     missionDiary.currentSituation = currentNarration;
 
-    // 8️⃣ INVENTARIO INIZIALE (UI + effetti)
+    // 8️⃣ inventario UI + stato
     initInventoryUI();
-    applyInventoryEffects({
-      inventoryAdd: startInventory
-    });
+    applyInventoryEffects({ inventoryAdd: startInventory });
 
     if (result.effects) {
       applyInventoryEffects(result.effects);
@@ -168,15 +130,52 @@ missionDiary.location = currentLocation.name;
 }
 
 /* ======================================================
+   TRANSIZIONE — INGRESSO HOPE TOWN
+   ====================================================== */
+function enterHopeTown(outcome) {
+  console.log("[04] Missione terminata:", outcome);
+
+  currentLocation = LOC_HOPE_TOWN;
+
+  missionDiary.location = LOC_HOPE_TOWN.name;
+  missionDiary.turn = 0;
+  missionDiary.log = [];
+  missionDiary.currentSituation = "";
+
+  campaignDiary.firstMissionCompleted = true;
+  campaignDiary.keyEvents.push("ENTERED_HOPE_TOWN");
+
+  callWorker({
+    action: "enter_hub",
+    location: {
+      id: LOC_HOPE_TOWN.id,
+      name: LOC_HOPE_TOWN.name,
+      type: LOC_HOPE_TOWN.type,
+      description: LOC_HOPE_TOWN.description
+    },
+    campaignDiary
+  }).then(result => {
+    if (!result?.narration || !result?.choices) return;
+
+    currentNarration = result.narration;
+    currentChoices = result.choices;
+
+    renderNarration(currentNarration);
+    renderChoices(currentChoices);
+    renderStats(playerState, missionDiary);
+  });
+}
+
+/* ======================================================
    GESTIONE SCELTA GIOCATORE
    ====================================================== */
 async function handleChoice(choiceKey) {
   if (!gameStarted || !currentChoices) return;
 
   try {
-    /* ==================================================
-       TURNO — PRIMA RISPOSTA
-       ================================================== */
+    /* ==============================
+       TURN
+       ============================== */
     const turnResult = await callWorker({
       action: "turn",
       choice: choiceKey,
@@ -185,27 +184,22 @@ async function handleChoice(choiceKey) {
         typeof getMissionDiaryForAI === "function"
           ? getMissionDiaryForAI()
           : [],
-      campaignDiary
+      campaignDiary,
+      location: currentLocation,
+      currentRoom
     });
-// ✅ CHECK FINE MISSIONE
-if (turnResult.missionEnded === true) {
-  enterHopeTown(turnResult.missionOutcome);
-  return;
-}
 
-    // ✅ APPLICA EFFECTS SEMPRE
+    // ✅ fine missione senza test
+    if (turnResult.missionEnded === true) {
+      enterHopeTown(turnResult.missionOutcome);
+      return;
+    }
+
     if (turnResult.effects) {
       applyInventoryEffects(turnResult.effects);
     }
 
-    /* ==================================================
-       CASO: NESSUN TEST
-       ================================================== */
     if (turnResult.requiresTest === false) {
-      if (!turnResult.narration || !turnResult.choices) {
-        throw new Error("Turn senza test non valido");
-      }
-
       currentNarration = turnResult.narration;
       currentChoices = turnResult.choices;
       missionDiary.currentSituation = currentNarration;
@@ -216,12 +210,11 @@ if (turnResult.missionEnded === true) {
       return;
     }
 
-    /* ==================================================
-       CASO: TEST RICHIESTO
-       ================================================== */
+    /* ==============================
+       RESOLVE
+       ============================== */
     if (turnResult.requiresTest === true) {
       const rollResult = performRoll(turnResult.difficulty);
-
       renderTestBox();
 
       const resolveResult = await callWorker({
@@ -233,15 +226,19 @@ if (turnResult.missionEnded === true) {
           typeof getMissionDiaryForAI === "function"
             ? getMissionDiaryForAI()
             : [],
-        campaignDiary
+        campaignDiary,
+        location: currentLocation,
+        currentRoom
       });
+
+      // ✅ fine missione dopo test
+      if (resolveResult.missionEnded === true) {
+        enterHopeTown(resolveResult.missionOutcome);
+        return;
+      }
 
       if (resolveResult.effects) {
         applyInventoryEffects(resolveResult.effects);
-      }
-
-      if (!resolveResult?.narration || !resolveResult?.choices) {
-        throw new Error("Risposta resolve non valida");
       }
 
       currentNarration = resolveResult.narration;
@@ -250,7 +247,6 @@ if (turnResult.missionEnded === true) {
 
       renderNarration(currentNarration);
       renderChoices(currentChoices);
-      return;
     }
 
   } catch (err) {
@@ -259,11 +255,6 @@ if (turnResult.missionEnded === true) {
       "Qualcosa va storto. Il mondo sembra reagire male alla tua scelta."
     );
   }
-}
-// ✅ CHECK FINE MISSIONE
-if (resolveResult.missionEnded === true) {
-  enterHopeTown(resolveResult.missionOutcome);
-  return;
 }
 
 /* ======================================================
