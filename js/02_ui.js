@@ -25,9 +25,19 @@ const testBox     = document.getElementById("test-box");
 const inventoryEl = document.getElementById("inventory-list");
 
 /* ======================================================
-   TYPEWRITER EFFECT
+   INPUT LOCK
    ====================================================== */
-function typeWriter(el, text, speed = 18, onDone) {
+function setChoicesEnabled(enabled) {
+  if (!btnA || !btnB || !btnC) return;
+  btnA.disabled = !enabled;
+  btnB.disabled = !enabled;
+  btnC.disabled = !enabled;
+}
+
+/* ======================================================
+   TYPEWRITER EFFECT (FAST + SAFE)
+   ====================================================== */
+function typeWriter(el, text, speed = 10, onDone) {
   if (!el) return;
 
   el.innerText = "";
@@ -55,7 +65,12 @@ function typeWriter(el, text, speed = 18, onDone) {
    ====================================================== */
 function renderNarration(text) {
   if (!text) return;
-  typeWriter(narrationEl, text, 18);
+
+  setChoicesEnabled(false);
+
+  typeWriter(narrationEl, text, 10, () => {
+    setChoicesEnabled(true);
+  });
 }
 
 /* ======================================================
@@ -97,12 +112,22 @@ function renderInventory(inventory = []) {
 }
 
 /* ======================================================
-   RENDER: CHOICES
+   RENDER: CHOICES (ANIMATE)
    ====================================================== */
 function renderChoices(choices = {}) {
-  choiceAEl.textContent = choices.A ? "A) " + choices.A : "";
-  choiceBEl.textContent = choices.B ? "B) " + choices.B : "";
-  choiceCEl.textContent = choices.C ? "C) " + choices.C : "";
+  choiceAEl.textContent = "";
+  choiceBEl.textContent = "";
+  choiceCEl.textContent = "";
+
+  if (choices.A) {
+    typeWriter(choiceAEl, "A) " + choices.A, 4);
+  }
+  if (choices.B) {
+    typeWriter(choiceBEl, "B) " + choices.B, 4);
+  }
+  if (choices.C) {
+    typeWriter(choiceCEl, "C) " + choices.C, 4);
+  }
 }
 
 /* ======================================================
@@ -118,7 +143,7 @@ function clearTestBox() {
 }
 
 /* ======================================================
-   TEST BOX — RENDER RISULTATO
+   TEST BOX — RENDER RESULT
    ====================================================== */
 function renderTestBox() {
   if (!testBox) return;
@@ -137,7 +162,7 @@ function renderTestBox() {
 }
 
 /* ======================================================
-   ESPOSIZIONE API UI (GLOBALI)
+   GLOBAL UI API
    ====================================================== */
 window.renderNarration = renderNarration;
 window.renderChoices   = renderChoices;
@@ -155,5 +180,5 @@ document.getElementById("led-ui")?.classList.add("ok");
    DEBUG
    ====================================================== */
 if (typeof DEBUG !== "undefined" && DEBUG) {
-  console.log("[UI] inizializzata");
+  console.log("[UI] inizializzata (typewriter fast + choices animated)");
 }
