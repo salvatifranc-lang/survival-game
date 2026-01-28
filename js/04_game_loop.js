@@ -52,15 +52,12 @@ async function initGame() {
   try {
     console.log("[04] initGame");
 
-    // 1️⃣ carica manuale di start
     const startManual = await loadStartManual();
 
-    // 2️⃣ inizializza campaign diary
     if (typeof initCampaignDiary === "function" && !campaignDiary.synopsis) {
       initCampaignDiary();
     }
 
-    // 3️⃣ selezione location iniziale (NO Hope Town)
     const availableLocations = Object.values(LOCATIONS).filter(
       loc => loc.id !== "LOC_HOPE_TOWN"
     );
@@ -69,10 +66,8 @@ async function initGame() {
     currentRoom = currentLocation.map.rooms[currentLocation.entryRoom];
     missionDiary.location = currentLocation.name;
 
-    // 4️⃣ inventario iniziale
     const startInventory = generateStartInventory();
 
-    // 5️⃣ avvio missione
     if (typeof startMission === "function") {
       startMission({
         missionId: "MISSION_001",
@@ -80,7 +75,6 @@ async function initGame() {
       });
     }
 
-    // 6️⃣ chiamata worker — START
     const result = await callWorker({
       action: "start",
       startManual,
@@ -99,12 +93,10 @@ async function initGame() {
       throw new Error("Risposta worker non valida (start)");
     }
 
-    // 7️⃣ stato narrativo
     currentNarration = result.narration;
     currentChoices = result.choices;
     missionDiary.currentSituation = currentNarration;
 
-    // 8️⃣ inventario UI + stato
     initInventoryUI();
     applyInventoryEffects({ inventoryAdd: startInventory });
 
@@ -112,7 +104,6 @@ async function initGame() {
       applyInventoryEffects(result.effects);
     }
 
-    // 9️⃣ render iniziale
     renderStats(playerState, missionDiary);
     clearTestBox();
     renderNarration(currentNarration);
@@ -173,9 +164,6 @@ async function handleChoice(choiceKey) {
   if (!gameStarted || !currentChoices) return;
 
   try {
-    /* ==============================
-       TURN
-       ============================== */
     const turnResult = await callWorker({
       action: "turn",
       choice: choiceKey,
@@ -189,7 +177,6 @@ async function handleChoice(choiceKey) {
       currentRoom
     });
 
-    // ✅ fine missione senza test
     if (turnResult.missionEnded === true) {
       enterHopeTown(turnResult.missionOutcome);
       return;
@@ -199,7 +186,10 @@ async function handleChoice(choiceKey) {
       applyInventoryEffects(turnResult.effects);
     }
 
+    /* ===== TURN SENZA TEST ===== */
     if (turnResult.requiresTest === false) {
+      const previousSituation = missionDiary.currentSituation;
+
       currentNarration = turnResult.narration;
       currentChoices = turnResult.choices;
       missionDiary.currentSituation = currentNarration;
@@ -207,18 +197,17 @@ async function handleChoice(choiceKey) {
       clearTestBox();
       renderNarration(currentNarration);
       renderChoices(currentChoices);
-       addMissionDiaryEntry({
-  situation: missionDiary.currentSituation,
-  choice: choiceKey,
-  consequence: currentNarration
-});
+
+      addMissionDiaryEntry({
+        situation: previousSituation,
+        choice: choiceKey,
+        consequence: currentNarration
+      });
 
       return;
     }
 
-    /* ==============================
-       RESOLVE
-       ============================== */
+    /* ===== RESOLVE ===== */
     if (turnResult.requiresTest === true) {
       const rollResult = performRoll(turnResult.difficulty);
       renderTestBox();
@@ -237,7 +226,6 @@ async function handleChoice(choiceKey) {
         currentRoom
       });
 
-      // ✅ fine missione dopo test
       if (resolveResult.missionEnded === true) {
         enterHopeTown(resolveResult.missionOutcome);
         return;
@@ -247,18 +235,20 @@ async function handleChoice(choiceKey) {
         applyInventoryEffects(resolveResult.effects);
       }
 
+      const previousSituation = missionDiary.currentSituation;
+
       currentNarration = resolveResult.narration;
       currentChoices = resolveResult.choices;
       missionDiary.currentSituation = currentNarration;
 
       renderNarration(currentNarration);
       renderChoices(currentChoices);
-       addMissionDiaryEntry({
-  situation: missionDiary.currentSituation,
-  choice: choiceKey,
-  consequence: currentNarration
-});
 
+      addMissionDiaryEntry({
+        situation: previousSituation,
+        choice: choiceKey,
+        consequence: currentNarration
+      });
     }
 
   } catch (err) {
