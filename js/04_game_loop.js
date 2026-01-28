@@ -198,11 +198,15 @@ async function handleChoice(choiceKey) {
       renderNarration(currentNarration);
       renderChoices(currentChoices);
 
-      addMissionDiaryEntry({
-        situation: previousSituation,
-        choice: choiceKey,
-        consequence: currentNarration
-      });
+     addMissionDiaryEntry({
+  situation: missionDiary.currentSituation,
+  choice: {
+    key: choiceKey,
+    text: currentChoices[choiceKey]
+  },
+  consequence: currentNarration
+});
+
 
       return;
     }
@@ -244,12 +248,15 @@ async function handleChoice(choiceKey) {
       renderNarration(currentNarration);
       renderChoices(currentChoices);
 
-      addMissionDiaryEntry({
-        situation: previousSituation,
-        choice: choiceKey,
-        consequence: currentNarration
-      });
-    }
+     addMissionDiaryEntry({
+  situation: missionDiary.currentSituation,
+  choice: {
+    key: choiceKey,
+    text: currentChoices[choiceKey]
+  },
+  consequence: currentNarration
+});
+
 
   } catch (err) {
     console.error("[04] errore turno:", err);
