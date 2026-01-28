@@ -256,7 +256,7 @@ async function handleChoice(choiceKey) {
   },
   consequence: currentNarration
 });
-
+}
 
   } catch (err) {
     console.error("[04] errore turno:", err);
