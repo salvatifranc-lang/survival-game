@@ -207,6 +207,12 @@ async function handleChoice(choiceKey) {
       clearTestBox();
       renderNarration(currentNarration);
       renderChoices(currentChoices);
+       addMissionDiaryEntry({
+  situation: missionDiary.currentSituation,
+  choice: choiceKey,
+  consequence: currentNarration
+});
+
       return;
     }
 
@@ -247,6 +253,12 @@ async function handleChoice(choiceKey) {
 
       renderNarration(currentNarration);
       renderChoices(currentChoices);
+       addMissionDiaryEntry({
+  situation: missionDiary.currentSituation,
+  choice: choiceKey,
+  consequence: currentNarration
+});
+
     }
 
   } catch (err) {
