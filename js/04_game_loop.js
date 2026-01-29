@@ -188,8 +188,6 @@ async function handleChoice(choiceKey) {
 
     /* ===== TURN SENZA TEST ===== */
     if (turnResult.requiresTest === false) {
-      const previousSituation = missionDiary.currentSituation;
-
       currentNarration = turnResult.narration;
       currentChoices = turnResult.choices;
       missionDiary.currentSituation = currentNarration;
@@ -198,22 +196,25 @@ async function handleChoice(choiceKey) {
       renderNarration(currentNarration);
       renderChoices(currentChoices);
 
-     addMissionDiaryEntry({
-  situation: missionDiary.currentSituation,
-  choice: {
-    key: choiceKey,
-    text: currentChoices[choiceKey]
-  },
-  consequence: currentNarration
-});
-
+      addMissionDiaryEntry({
+        situation: missionDiary.currentSituation,
+        choice: {
+          key: choiceKey,
+          text: currentChoices[choiceKey]
+        },
+        consequence: currentNarration
+      });
 
       return;
     }
 
-    /* ===== RESOLVE ===== */
+    /* ===== RESOLVE (TEST CON RISK + TAGS) ===== */
     if (turnResult.requiresTest === true) {
-      const rollResult = performRoll(turnResult.difficulty);
+      const rollResult = performRoll(
+        turnResult.risk,
+        turnResult.tags || []
+      );
+
       renderTestBox();
 
       const resolveResult = await callWorker({
@@ -239,8 +240,6 @@ async function handleChoice(choiceKey) {
         applyInventoryEffects(resolveResult.effects);
       }
 
-      const previousSituation = missionDiary.currentSituation;
-
       currentNarration = resolveResult.narration;
       currentChoices = resolveResult.choices;
       missionDiary.currentSituation = currentNarration;
@@ -248,15 +247,15 @@ async function handleChoice(choiceKey) {
       renderNarration(currentNarration);
       renderChoices(currentChoices);
 
-     addMissionDiaryEntry({
-  situation: missionDiary.currentSituation,
-  choice: {
-    key: choiceKey,
-    text: currentChoices[choiceKey]
-  },
-  consequence: currentNarration
-});
-}
+      addMissionDiaryEntry({
+        situation: missionDiary.currentSituation,
+        choice: {
+          key: choiceKey,
+          text: currentChoices[choiceKey]
+        },
+        consequence: currentNarration
+      });
+    }
 
   } catch (err) {
     console.error("[04] errore turno:", err);
