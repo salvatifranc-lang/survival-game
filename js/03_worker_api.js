@@ -90,7 +90,7 @@ function validateStartResponse(data) {
 /**
  * TURN:
  * - può richiedere un test
- * - oppure restituire direttamente narrazione + scelte
+ * - ora usa RISK + TAGS
  * - DEVE sempre propagare eventuali effects
  */
 function validateTurnResponse(data) {
@@ -100,19 +100,20 @@ function validateTurnResponse(data) {
 
   /* ===== TEST RICHIESTO ===== */
   if (data.requiresTest === true) {
-    let difficulty = data.difficulty;
+    let risk = Number(data.risk);
 
-    if (!DIFFICULTY_LEVELS.includes(difficulty)) {
-      console.warn(
-        "[WORKER API] difficoltà non valida, fallback a Standard"
-      );
-      difficulty = "Standard";
+    if (![1, 2, 3, 4, 5].includes(risk)) {
+      console.warn("[WORKER API] risk non valido, fallback a 3");
+      risk = 3;
     }
+
+    const tags = Array.isArray(data.tags) ? data.tags : [];
 
     signalWorkerOK();
     return {
       requiresTest: true,
-      difficulty,
+      risk,
+      tags,
       effects: data.effects
     };
   }
