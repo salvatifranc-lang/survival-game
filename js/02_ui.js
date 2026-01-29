@@ -89,7 +89,7 @@ function renderStats(playerState, missionDiary) {
 }
 
 /* ======================================================
-   RENDER: INVENTORY
+   RENDER: INVENTORY (WITH TOOLTIP)
    ====================================================== */
 function renderInventory(inventory = []) {
   if (!inventoryEl) return;
@@ -106,7 +106,17 @@ function renderInventory(inventory = []) {
 
   inventory.forEach(item => {
     const div = document.createElement("div");
+    div.className = "inventory-item";
     div.textContent = "• " + (item.name || item.id);
+
+    if (item.description || item.tag || item.modifier) {
+      div.dataset.tooltip = `
+${item.description || ""}
+${item.tag ? "Tag: " + item.tag : ""}
+${item.modifier ? "Effetto: " + (item.modifier > 0 ? "+" : "") + item.modifier : ""}
+      `.trim();
+    }
+
     inventoryEl.appendChild(div);
   });
 }
@@ -119,15 +129,9 @@ function renderChoices(choices = {}) {
   choiceBEl.textContent = "";
   choiceCEl.textContent = "";
 
-  if (choices.A) {
-    typeWriter(choiceAEl, "A) " + choices.A, 4);
-  }
-  if (choices.B) {
-    typeWriter(choiceBEl, "B) " + choices.B, 4);
-  }
-  if (choices.C) {
-    typeWriter(choiceCEl, "C) " + choices.C, 4);
-  }
+  if (choices.A) typeWriter(choiceAEl, "A) " + choices.A, 4);
+  if (choices.B) typeWriter(choiceBEl, "B) " + choices.B, 4);
+  if (choices.C) typeWriter(choiceCEl, "C) " + choices.C, 4);
 }
 
 /* ======================================================
@@ -154,31 +158,41 @@ function clearTestBox() {
     `🎲 Dado: —<br>` +
     `⚠️ Rischio: —<br>` +
     `🏷️ Tipo: —<br>` +
+    `🧰 Modificatore: —<br>` +
     `🧪 Esito: —`;
 }
 
 /* ======================================================
-   TEST BOX — RENDER RESULT
+   TEST BOX — RENDER RESULT (WITH MODIFIER)
    ====================================================== */
 function renderTestBox() {
   if (!testBox) return;
 
-  const { roll, risk, tags, outcome } = getLastRoll();
+  const {
+    roll,
+    risk,
+    tag,
+    modifier,
+    modifierSource,
+    outcome
+  } = getLastRoll();
 
   if (!roll || !risk || !outcome) {
     clearTestBox();
     return;
   }
 
-  const tagsLabel =
-    Array.isArray(tags) && tags.length > 0
-      ? tags.join(", ")
-      : "—";
+  let modifierLine = "—";
+  if (modifier && modifierSource) {
+    const sign = modifier > 0 ? "+" : "";
+    modifierLine = `${sign}${modifier} (${modifierSource})`;
+  }
 
   testBox.innerHTML =
     `🎲 Dado: <strong>${roll}</strong><br>` +
     `⚠️ Rischio: <strong>${riskLabel(risk)}</strong><br>` +
-    `🏷️ Tipo: <strong>${tagsLabel}</strong><br>` +
+    `🏷️ Tipo: <strong>${tag || "—"}</strong><br>` +
+    `🧰 Modificatore: <strong>${modifierLine}</strong><br>` +
     `🧪 Esito: <strong>${outcome}</strong>`;
 }
 
@@ -201,5 +215,5 @@ document.getElementById("led-ui")?.classList.add("ok");
    DEBUG
    ====================================================== */
 if (typeof DEBUG !== "undefined" && DEBUG) {
-  console.log("[UI] inizializzata (d20 + risk + tags)");
+  console.log("[UI] inizializzata (d20 + risk + tag + modifier)");
 }
