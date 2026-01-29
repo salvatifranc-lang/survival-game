@@ -208,11 +208,12 @@ async function handleChoice(choiceKey) {
       return;
     }
 
-    /* ===== RESOLVE (TEST CON RISK + TAGS) ===== */
+    /* ===== RESOLVE (TEST CON RISK + TAG) ===== */
     if (turnResult.requiresTest === true) {
       const rollResult = performRoll(
         turnResult.risk,
-        turnResult.tags || []
+        turnResult.tag || null,
+        0 // modifier neutro per ora
       );
 
       renderTestBox();
