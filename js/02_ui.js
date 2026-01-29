@@ -79,9 +79,9 @@ function renderNarration(text) {
 function renderStats(playerState, missionDiary) {
   if (!playerState) return;
 
-  statSalute.textContent  = playerState.salute;
-  statStamina.textContent = playerState.stamina;
-  statLivello.textContent = playerState.livello;
+  statSalute.textContent   = playerState.salute;
+  statStamina.textContent  = playerState.stamina;
+  statLivello.textContent  = playerState.livello;
 
   if (missionDiary?.location && statLocation) {
     statLocation.textContent = missionDiary.location;
@@ -131,6 +131,20 @@ function renderChoices(choices = {}) {
 }
 
 /* ======================================================
+   RISK LABEL (UI ONLY)
+   ====================================================== */
+function riskLabel(risk) {
+  switch (risk) {
+    case 1: return "Minimo";
+    case 2: return "Basso";
+    case 3: return "Medio";
+    case 4: return "Alto";
+    case 5: return "Estremo";
+    default: return "—";
+  }
+}
+
+/* ======================================================
    TEST BOX — RESET
    ====================================================== */
 function clearTestBox() {
@@ -138,7 +152,8 @@ function clearTestBox() {
 
   testBox.innerHTML =
     `🎲 Dado: —<br>` +
-    `⚠️ Difficoltà: —<br>` +
+    `⚠️ Rischio: —<br>` +
+    `🏷️ Tipo: —<br>` +
     `🧪 Esito: —`;
 }
 
@@ -148,16 +163,22 @@ function clearTestBox() {
 function renderTestBox() {
   if (!testBox) return;
 
-  const { roll, difficulty, outcome } = getLastRoll();
+  const { roll, risk, tags, outcome } = getLastRoll();
 
-  if (!roll || !difficulty || !outcome) {
+  if (!roll || !risk || !outcome) {
     clearTestBox();
     return;
   }
 
+  const tagsLabel =
+    Array.isArray(tags) && tags.length > 0
+      ? tags.join(", ")
+      : "—";
+
   testBox.innerHTML =
     `🎲 Dado: <strong>${roll}</strong><br>` +
-    `⚠️ Difficoltà: <strong>${difficulty}</strong><br>` +
+    `⚠️ Rischio: <strong>${riskLabel(risk)}</strong><br>` +
+    `🏷️ Tipo: <strong>${tagsLabel}</strong><br>` +
     `🧪 Esito: <strong>${outcome}</strong>`;
 }
 
@@ -180,5 +201,5 @@ document.getElementById("led-ui")?.classList.add("ok");
    DEBUG
    ====================================================== */
 if (typeof DEBUG !== "undefined" && DEBUG) {
-  console.log("[UI] inizializzata (typewriter fast + choices animated)");
+  console.log("[UI] inizializzata (d20 + risk + tags)");
 }
