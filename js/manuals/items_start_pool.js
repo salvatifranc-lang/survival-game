@@ -1,4 +1,4 @@
- export const START_ITEMS_POOL = {
+export const START_ITEMS_POOL = {
   weapons: [
     {
       id: "PISTOLA_SERV",
@@ -39,8 +39,6 @@
       }
     },
 
-    // --- ARMI AGGIUNTIVE ---
-
     {
       id: "MACHETE_RECUP",
       category: "weapon",
@@ -80,7 +78,6 @@
         furtività: -1
       }
     }
-    // volutamente NON tutte le armi rare
   ],
 
   tools: [
@@ -130,9 +127,6 @@
         furtività: -1
       }
     },
-
-    // --- TOOLS AGGIUNTIVI ---
-
     {
       id: "FILTRO_ANTI_RAD",
       category: "tool",
@@ -220,8 +214,12 @@
       category: "tool",
       rarity: "common",
       modifiers: {
-        resistenza: +
-
+        resistenza: +2,
+        sopravvivenza: +1,
+        destrezza: -1
+      }
+    }
+  ],
 
   consumables: [
     {
@@ -264,9 +262,6 @@
         value: 5
       }
     },
-
-    // --- CONSUMABILI AGGIUNTIVI ---
-
     {
       id: "BARRETTA_PROTEICA",
       category: "consumable",
