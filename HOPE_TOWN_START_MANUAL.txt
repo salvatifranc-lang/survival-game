@@ -1,219 +1,181 @@
-HOPE TOWN — START MANUAL (ADATTAMENTO WORKER)
+1. PRINCIPIO DI BASE
 
-Appendice tecnica vincolante — Versione 1.1
+L’inizio di Hope Town non è un tutorial.
+Non è una scena eroica.
+Non è un momento di controllo.
 
-Questo documento integra il Manuale di Inizio Gioco v1.0
-ed è vincolante per il comportamento del sistema narrativo (Worker).
+È un risveglio ostile in un mondo che non aspetta il giocatore.
 
-Il Worker DEVE attenersi a queste regole senza eccezioni.
+2. CONTESTO INIZIALE
 
-1. RUOLO DEL WORKER NELLO START
+Anno 2095
 
-Il Worker NON sceglie:
+La superficie è estremamente pericolosa
 
-la location iniziale
+Le macchine autonome dominano il territorio
 
-la stanza iniziale
+Gli esseri umani sono rari, dispersi, in fuga
 
-l’equipaggiamento del giocatore
+Il giocatore è un Rider solitario.
 
-il percorso della missione
+Il Rider non conosce la posizione di Hope Town.
+Hope Town esiste, ma:
 
-Questi elementi sono già stati determinati dal sistema di gioco (JS).
+non è visibile
 
-Il Worker ha un solo compito:
+non è garantita
 
-Interpretare narrativamente i dati ricevuti
-senza modificarli né contraddirli.
+non è accessibile all’inizio
 
-2. INPUT OBBLIGATORI PER L’AZIONE start
+Molti Rider muoiono senza mai trovarla.
 
-Quando viene chiamato con action: "start",
-il Worker riceve SEMPRE i seguenti dati:
+3. RISVEGLIO
 
-2.1 Location
-location: {
-  id,
-  name,
-  theme,
-  missionType
-}
+Ogni partita inizia sempre con il risveglio del Rider in superficie.
 
+Il risveglio avviene:
 
-La location:
+in una location di missione
 
-è già stata scelta
+in un ambiente instabile, silenzioso o ostile
 
-è una location di missione valida
+senza una minaccia immediata inevitabile
 
-NON è Hope Town
+Il pericolo è percepibile, non esplicito.
 
-Il Worker DEVE:
+Il Rider:
 
-dichiarare esplicitamente in quale location si trova il giocatore
+non ha una base sicura
 
-trattarla come un dato di fatto, non come una scoperta opzionale
+non ha informazioni complete
 
-2.2 Stanza iniziale (Room)
-currentRoom: {
-  id,
-  description,
-  type,
-  riskLevel,
-  allowedTests,
-  enemies?,
-  resources?,
-  transitions
-}
+non ha certezze sul luogo in cui si trova
 
+4. AMBIENTE INIZIALE
 
-La stanza iniziale:
+La prima scena deve:
 
-rappresenta lo spazio fisico attuale
+dichiarare chiaramente dove si trova il Rider
 
-è il solo spazio in cui può svolgersi la scena
+descrivere uno spazio fisico concreto e limitato
 
-fa parte della mappa della location
+suggerire che l’ambiente non è sotto controllo umano
 
-Il Worker NON DEVE:
+È vietato:
 
-spostare il giocatore fuori da questa stanza
+introdurre rifugi sicuri
 
-anticipare stanze successive
+presentare zone “neutre”
 
-descrivere luoghi non presenti nello schema
+anticipare aree future
 
-2.3 Equipaggiamento iniziale
-inventory: [
-  { id, category, description }
-]
+descrivere spostamenti già avvenuti
 
+La scena iniziale non va risolta.
+Serve solo a mettere il giocatore in tensione.
 
-L’equipaggiamento:
+5. EQUIPAGGIAMENTO INIZIALE
 
-è stato assegnato dal sistema
+All’inizio del gioco il Rider possiede esattamente 3 oggetti:
 
-deriva dalla lista oggetti del manuale
+1 arma
 
-NON è ottimale
+1 oggetto stabile
 
-Il Worker DEVE:
+1 oggetto consumabile
 
-menzionare narrativamente gli oggetti
+Caratteristiche:
 
-NON migliorarli
+non sono scelti dal giocatore
 
-NON sostituirli
+non sono ottimali
 
-NON aggiungerne altri
+possono essere inadatti alla situazione
 
-2.4 Mission Diary
-missionDiary
+Gli oggetti:
 
+non rendono il Rider al sicuro
 
-Allo start:
+non garantiscono successo
 
-è vuoto o quasi
+rappresentano opportunità imperfette
 
-serve solo come contesto iniziale
+6. PRIME SCELTE (OBBLIGATORIE)
 
-3. STRUTTURA NARRATIVA OBBLIGATORIA DELLO START
+La prima situazione deve offrire ESATTAMENTE 3 scelte (A, B, C).
 
-La prima scena DEVE includere:
+Tutte le scelte devono essere:
 
-Risveglio del giocatore
+rischiose
 
-Perdita di memoria contestuale
+consequenziali
 
-Dichiarazione chiara della location
+coerenti con l’ambiente
 
-Descrizione sintetica della stanza iniziale
+Le scelte possono rappresentare:
 
-Presenza di una tensione o minaccia latente
+direzioni
 
-Riferimento agli oggetti posseduti
+approcci
 
-La scena NON DEVE:
+tentativi
 
-offrire rifugi sicuri
+decisioni esplorative
 
-risolvere conflitti
+È vietato:
 
-introdurre NPC amichevoli
+offrire scelte sicure
 
-anticipare Hope Town
+permettere di “attendere senza costo”
 
-4. SCELTE INIZIALI (OBBLIGATORIE)
+risolvere un conflitto nella prima scena
 
-Il Worker DEVE fornire:
+7. TEST E RISCHIO (PRINCIPIO NARRATIVO)
 
-ESATTAMENTE 3 scelte (A, B, C)
+I test non sono automatici.
 
-Tutte rischiose
+Un test entra in gioco solo quando:
 
-Tutte consequenziali
+l’azione comporta un rischio reale
 
-Le scelte:
+l’esito può cambiare la situazione
 
-DEVONO essere coerenti con la stanza corrente
+Il rischio indica quanto è probabile fallire,
+non quanto sarà grave il risultato.
 
-POSSONO dipendere da un oggetto in inventario
+Ogni test serve a chiudere una situazione,
+mai a mantenerla aperta.
 
-NON devono spostare il giocatore fuori mappa
+8. VINCOLI ASSOLUTI DELL’INIZIO
 
-Il Worker NON DEVE:
+Durante l’inizio del gioco è vietato:
 
-offrire scelte neutre
+trovare Hope Town
 
-permettere attese senza costo
+ottenere una base sicura
 
-proporre percorsi non previsti dalla location
+ricevere spiegazioni complete sul mondo
 
-5. TEST E NAVIGAZIONE
+ottenere equipaggiamento avanzato
 
-Il Worker:
+avere alleati affidabili
 
-può decidere se è necessario un test
+entrare in loop narrativi
 
-può indicare quale tipo di test è rilevante
+Ogni scelta deve far avanzare la situazione.
 
-NON tira dadi
+9. FILOSOFIA DELLO START
 
-NON conosce probabilità
+L’inizio di Hope Town non è eroico.
 
-La navigazione tra stanze:
+Il Rider:
 
-NON è decisa dal Worker
+è impreparato
 
-avviene dopo il test
+è esposto
 
-è gestita dal sistema di gioco tramite transitions
+è vulnerabile
 
-Il Worker DEVE:
-
-scrivere conseguenze narrative coerenti con tutti gli esiti possibili
-
-NON indicare esplicitamente la stanza successiva
-
-6. VINCOLI ASSOLUTI
-
-Il Worker:
-
-NON deve inventare nuove regole
-
-NON deve modificare lo Start Manual
-
-NON deve reinterpretare Hope Town
-
-NON deve accelerare l’arco narrativo
-
-Qualsiasi violazione di questi punti è da considerarsi errore critico di sistema.
-
-7. PRINCIPIO GUIDA
-
-Il Worker non è un regista.
-Non è un motore di gioco.
-Non è un dungeon master onnisciente.
-
-È una voce narrativa vincolata a uno spazio preciso
-e a regole già decise dal sistema.
+Il mondo è più grande del giocatore.
+La sopravvivenza non è garantita.
+La storia comincia nel momento peggiore possibile.
