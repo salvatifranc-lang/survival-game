@@ -1,83 +1,137 @@
 // 07_dice.js
-// Gestione centralizzata del tiro di dado e risoluzione dell’esito
+// Gestione centralizzata del tiro di dado (d20), rischio e tag del test
 
-import { DIFFICULTY_LEVELS, DICE_TABLE } from "./00_config.js";
+/* ======================================================
+   STATO INTERNO
+   ====================================================== */
 
-// Stato interno dell’ultimo tiro (leggibile da UI o game loop)
+// Stato dell’ultimo tiro (leggibile da UI / debug)
 let lastRollState = {
-  roll: null,          // numero d6 (1–6)
-  difficulty: null,    // stringa difficoltà
-  outcome: null        // etichetta esito
+  roll: null,        // numero d20 (1–20)
+  risk: null,        // livello di rischio (1–5)
+  tags: [],          // array di tag del test
+  outcome: null      // etichetta esito
 };
 
+/* ======================================================
+   CONFIG BASE — RISK
+   ====================================================== */
+
 /**
- * Lancia un dado a 6 facce
- * @returns {number} valore da 1 a 6
+ * Soglie base di fallimento in base al risk.
+ * Il risk indica SOLO la probabilità di fallire,
+ * NON la gravità delle conseguenze.
+ *
+ * Valore = soglia minima di SUCCESSO.
+ * Se roll < soglia → fallimento.
  */
-function rollD6() {
-  return Math.floor(Math.random() * 6) + 1;
+const RISK_THRESHOLDS = {
+  1: 5,    // rischio minimo (quasi sicuro)
+  2: 8,
+  3: 11,
+  4: 14,
+  5: 17    // rischio estremo
+};
+
+/* ======================================================
+   DADO
+   ====================================================== */
+
+/**
+ * Lancia un dado a 20 facce
+ * @returns {number} valore da 1 a 20
+ */
+function rollD20() {
+  return Math.floor(Math.random() * 20) + 1;
 }
 
+/* ======================================================
+   RISOLUZIONE ESITO
+   ====================================================== */
+
 /**
- * Risolve l’esito in base a tiro e difficoltà
- * @param {number} roll valore del dado (1–6)
- * @param {string} difficulty una delle DIFFICULTY_LEVELS
- * @returns {string} etichetta di esito
+ * Risolve l’esito del tiro in base a roll e risk.
+ * I tag NON influenzano ancora il risultato (fase 1),
+ * ma vengono salvati per UI, log e sviluppo futuro.
+ *
+ * @param {number} roll valore del dado (1–20)
+ * @param {number} risk livello di rischio (1–5)
+ * @returns {string} esito narrativo standardizzato
  */
-function resolveOutcome(roll, difficulty) {
-  if (!DIFFICULTY_LEVELS.includes(difficulty)) {
-    console.error("[DICE] Difficoltà non valida:", difficulty);
-    throw new Error("Difficoltà non valida");
+function resolveOutcome(roll, risk) {
+  if (!RISK_THRESHOLDS[risk]) {
+    console.error("[DICE] Risk non valido:", risk);
+    throw new Error("Risk non valido");
   }
 
-  const table = DICE_TABLE[difficulty];
-  if (!table || table.length !== 6) {
-    console.error("[DICE] Tabella dado non valida per:", difficulty);
-    throw new Error("Tabella dado mancante o errata");
-  }
+  const successThreshold = RISK_THRESHOLDS[risk];
 
-  // roll va da 1 a 6 → indice 0–5
-  return table[roll - 1];
+  // Critici (indipendenti dal risk)
+  if (roll === 20) return "Successo Critico";
+  if (roll === 1) return "Fallimento Critico";
+
+  if (roll >= successThreshold + 5) return "Successo Totale";
+  if (roll >= successThreshold) return "Successo Parziale";
+  if (roll >= successThreshold - 3) return "Fallimento Controllato";
+
+  return "Fallimento";
 }
 
+/* ======================================================
+   TIRO COMPLETO
+   ====================================================== */
+
 /**
- * Esegue un tiro completo (d6 + risoluzione)
- * @param {string} difficulty
- * @returns {{roll:number, difficulty:string, outcome:string}}
+ * Esegue un tiro completo:
+ * - d20
+ * - risk (1–5)
+ * - tag narrativi del test
+ *
+ * @param {number} risk livello di rischio (1–5)
+ * @param {string[]} tags array di tag del test
+ * @returns {{roll:number, risk:number, tags:string[], outcome:string}}
  */
-function performRoll(difficulty) {
-  const roll = rollD6();
-  const outcome = resolveOutcome(roll, difficulty);
+function performRoll(risk, tags = []) {
+  const roll = rollD20();
+  const outcome = resolveOutcome(roll, risk);
 
   lastRollState = {
     roll,
-    difficulty,
+    risk,
+    tags: Array.isArray(tags) ? tags : [],
     outcome
   };
 
   return { ...lastRollState };
 }
 
+/* ======================================================
+   API DI LETTURA
+   ====================================================== */
+
 /**
  * Restituisce l’ultimo tiro effettuato
- * (usato da UI / debug / log)
  */
 function getLastRoll() {
   return { ...lastRollState };
 }
 
 /**
- * Reset opzionale (utile per nuova partita o test)
+ * Reset opzionale (nuova partita / debug)
  */
 function resetLastRoll() {
   lastRollState = {
     roll: null,
-    difficulty: null,
+    risk: null,
+    tags: [],
     outcome: null
   };
 }
 
-// API pubblica del modulo
+/* ======================================================
+   EXPORT PUBBLICI
+   ====================================================== */
+
 export {
   performRoll,
   getLastRoll,
