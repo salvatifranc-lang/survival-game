@@ -1,4 +1,4 @@
-HOPE TOWN – GAME MANUAL (v1.1)
+HOPE TOWN – GAME MANUAL (v1.2)
 GENERE
 
 Survival narrativo post-apocalittico.
@@ -8,14 +8,19 @@ Il mondo è ostile, la sopravvivenza è temporanea.
 AMBIENTAZIONE
 
 Anno 2095.
+
 La superficie del pianeta è dominata da macchine autonome ostili.
 Le città sono rovine riconquistate dalla natura e dalla tecnologia fuori controllo.
 Gli ultimi esseri umani vivono in insediamenti sotterranei chiamati Hope Town.
 
+Hope Town non è un mito, ma non è facilmente raggiungibile.
+Molti Rider muoiono senza mai trovarla.
+
 RUOLO DEL GIOCATORE
 
 Il giocatore è un Rider.
-Un esploratore che esce in superficie per:
+
+Un esploratore solitario che esce in superficie per:
 
 recuperare risorse
 
@@ -39,7 +44,7 @@ Anno: 2095
 
 Il mondo di superficie è estremamente ostile
 
-La superficie è dominata da macchine senzienti assassine di vario tipo
+La superficie è dominata da macchine senzienti assassine
 
 Gli esseri umani sopravvissuti sono rari, dispersi, in fuga
 
@@ -47,21 +52,29 @@ Il giocatore è un Rider solitario
 
 Il Rider non conosce la posizione di Hope Town
 
-Hope Town è un luogo reale, ma non visibile, non raggiungibile direttamente, non garantito.
+Hope Town è reale, ma:
+
+non visibile
+
+non raggiungibile direttamente
+
+non garantita
 
 RISVEGLIO
 
 Il gioco inizia sempre con il risveglio del Rider in superficie.
 
-Il risveglio avviene in una delle location di missione disponibili elencate nel manuale
+Il risveglio avviene in una location di missione
 
-La location iniziale è scelta casualmente tra le location del gioco
+La location iniziale è scelta casualmente
 
 Il Rider non ha una base sicura
 
 L’ambiente è instabile, silenzioso o ostile
 
-Non è presente una minaccia immediata inevitabile, ma il pericolo è percepibile
+Non è presente una minaccia immediata inevitabile
+
+Il pericolo è percepibile, non esplicito
 
 EQUIPAGGIAMENTO INIZIALE
 
@@ -73,7 +86,7 @@ All’inizio del gioco, il Rider possiede esattamente 3 oggetti, scelti casualme
 
 1 oggetto consumabile
 
-Gli oggetti iniziali:
+Vincoli:
 
 non sono scelti dal giocatore
 
@@ -81,15 +94,13 @@ non sono ottimali
 
 possono essere inadatti alla location iniziale
 
-Obiettivo della Prima Missione
+OBIETTIVO DELLA PRIMA MISSIONE
 
-La prima missione del Rider ha sempre come esito possibile la scoperta di Hope Town.
+La prima missione ha come esito la scoperta di Hope Town.
 
 Hope Town:
 
 non è accessibile immediatamente
-
-non è sicura al momento della scoperta
 
 viene raggiunta solo al termine della prima missione, se il Rider sopravvive
 
@@ -97,11 +108,11 @@ Il completamento della prima missione segna il passaggio alla fase HUB del gioco
 
 STRUTTURA DELLA PRIMA SITUAZIONE
 
-La prima situazione di gioco deve:
+La prima situazione deve:
 
-descrivere l’ambiente della location iniziale
+descrivere chiaramente l’ambiente
 
-comunicare pericolo e isolamento
+comunicare isolamento e pericolo
 
 offrire 3 scelte operative
 
@@ -109,7 +120,7 @@ non introdurre test automatici
 
 non garantire sicurezza in nessuna scelta
 
-Le scelte devono rappresentare:
+Le scelte rappresentano:
 
 direzioni
 
@@ -117,11 +128,11 @@ approcci
 
 decisioni esplorative
 
-VINCOLI OBBLIGATORI
+VINCOLI OBBLIGATORI (INIZIO)
 
-È vietato, all’inizio del gioco:
+È vietato:
 
-trovare Hope Town
+trovare Hope Town all’inizio
 
 ottenere una base sicura
 
@@ -144,11 +155,13 @@ non è al sicuro
 non ha certezze
 
 Il mondo non aspetta il giocatore.
+
 STRUTTURA GENERALE DEL GIOCO
 
 Il gioco è diviso in CICLI DI MISSIONE.
 
-HUB – Hope Town
+HUB — HOPE TOWN
+
 Zona relativamente sicura.
 Qui il giocatore:
 
@@ -159,75 +172,113 @@ riflette sugli eventi passati
 sceglie la prossima missione
 
 USCITA / MISSIONE
+
 Il giocatore entra in una zona pericolosa.
 La tensione cresce progressivamente.
 
 ESPLORAZIONE
+
 Scelte difficili, ambiente ostile, pericoli costanti.
 
-TEST CON DADO (quando appropriato)
+TEST (quando appropriato)
+
 Il dado viene usato solo quando l’azione comporta rischio reale.
 
 RISOLUZIONE
-Ogni situazione viene risolta definitivamente.
-La storia avanza sempre, anche nei fallimenti.
+
+Ogni situazione viene chiusa definitivamente.
 
 RIENTRO ALL’HUB O FALLIMENTO
-
 STRUTTURA DI UNA SITUAZIONE
 
-Ogni situazione segue SEMPRE questo schema:
+Ogni situazione segue sempre questo schema:
 
-Descrizione di una situazione concreta
+Descrizione concreta
 
 Tre scelte (A, B, C), tutte rischiose
 
-Eventuale test con dado
+Eventuale test
 
 Risoluzione definitiva
 
-Passaggio a una nuova situazione
+Nuova situazione
 
-È VIETATO restare nella stessa situazione dopo un test.
+🚫 È vietato restare nella stessa situazione dopo un test.
 
-RUOLO DEL DADO (d6)
+SISTEMA DI TEST — RISK + TAG + D20
+RUOLO DEL DADO (d20)
 
-Il dado serve a CHIUDERE le situazioni.
-Non crea stalli, non blocca la storia.
+Il dado serve a chiudere le situazioni, non a crearle.
 
-Interpretazione:
+Non genera stalli
 
-Successo → la storia avanza
+Non blocca la storia
 
-Successo parziale → la storia avanza con un costo
+Determina il costo della scelta, non il destino
 
-Fallimento → la storia avanza peggiorando
+RISK (1–5)
 
-Fallimento critico → la storia avanza in modo pericoloso
+Il risk indica solo la probabilità di fallire.
 
-Il dado rappresenta il COSTO della scelta, non il destino.
+Non indica:
 
-DIFFICOLTÀ DEI TEST
+la gravità delle conseguenze
 
-Le difficoltà sono:
+la pericolosità narrativa
 
-Estremo
+l’importanza della scena
 
-Molto Rischioso
+Scala:
 
-Rischioso
+rischio minimo
 
-Standard
+rischio basso
 
-Facile
+rischio medio
 
-Molto Facile
+rischio alto
 
-La difficoltà deve essere sempre spiegata narrativamente.
+rischio estremo
+
+TAG DEL TEST
+
+Ogni test deve avere uno o più tag che descrivono la natura dell’azione.
+
+Tag canonici:
+
+scontro → combattimento, violenza diretta
+
+furtività → evitare di essere rilevati (non combattimento)
+
+destrezza → movimenti fisici, equilibrio, arrampicata, rapidità
+
+tecnico → hacking, riparazioni, sistemi elettronici/meccanici
+
+sopravvivenza → ambiente, resistenza, gestione risorse
+
+percezione → osservare, individuare pericoli
+
+resistenza → sopportare sforzo, dolore, condizioni avverse
+
+⚠️ Furtività NON è combattimento.
+Se c’è scontro diretto, furtività non è valida.
+
+INTERPRETAZIONE ESITI (STANDARD)
+
+Successo critico → avanzamento netto, vantaggio chiaro
+
+Successo totale → avanzamento senza costi rilevanti
+
+Successo parziale → avanzamento con costo
+
+Fallimento controllato → avanzamento peggiorando la situazione
+
+Fallimento critico → avanzamento pericoloso
+
+La storia avanza sempre.
 
 STATISTICHE
-
-Salute
+SALUTE
 
 rappresenta danni fisici gravi
 
@@ -235,7 +286,7 @@ scende raramente
 
 è difficile da recuperare
 
-Stamina
+STAMINA
 
 rappresenta fatica fisica e mentale
 
@@ -246,7 +297,12 @@ può essere recuperata con riposo o rientro all’hub
 OGGETTI E ABILITÀ
 
 Gli oggetti non sono bonus numerici astratti.
-Modificano il contesto narrativo e il rischio percepito.
+
+modificano il contesto narrativo
+
+influenzano risk e possibilità
+
+in futuro forniranno modificatori al tiro
 
 Esempi:
 
@@ -254,49 +310,36 @@ una torcia riduce il rischio nel buio
 
 una corda rende una discesa più sicura
 
-la stanchezza può annullare alcuni vantaggi
+la stanchezza può annullare vantaggi
 
 📘 STRUTTURA DELLA MEMORIA DI GIOCO (OBBLIGATORIA)
-
-Il gioco utilizza tre livelli di memoria, tutti immutabili nelle regole ma aggiornabili nei contenuti.
-
 1) MANUALE DI GIOCO
 
 Questo documento.
 
-Contiene le regole fondamentali del mondo
+contiene le regole fondamentali
 
-Non cambia mai durante una partita
+non cambia durante una partita
 
-Ha priorità assoluta su ogni altra informazione
+ha priorità assoluta
 
 2) DIARIO DI CAMPAGNA
 
-Raccoglie lo stato globale della partita.
+Memoria globale della partita.
 
 Include:
 
-sinossi sintetica degli eventi principali
-
-avanzamento del personaggio
+sinossi eventi principali
 
 inventario persistente
 
 abilità sbloccate
 
-Caratteristiche:
-
-si resetta solo all’inizio di una nuova partita
-
-si aggiorna solo alla fine di una missione o al rientro all’hub
-
-serve a mantenere coerenza a medio e lungo termine
-
-Il diario di campagna non descrive il dettaglio delle azioni, ma il loro impatto globale.
+Si aggiorna solo a fine missione o all’hub.
 
 3) DIARIO DI MISSIONE
 
-Raccoglie il dettaglio della missione in corso.
+Memoria della missione in corso.
 
 Include:
 
@@ -304,37 +347,29 @@ narrazione turno per turno
 
 scelte effettuate
 
-test eseguiti e relativi esiti
+test ed esiti
 
-cambiamenti temporanei (fatica, ferite, pericoli attivi)
+stati temporanei
 
-Caratteristiche:
-
-si resetta a ogni nuova missione
-
-viene aggiornato a ogni scelta
-
-è la memoria principale durante il gameplay
-
-Il diario di missione è la fonte primaria di continuità narrativa durante l’esplorazione.
+È la fonte primaria di continuità narrativa.
 
 REGOLE NARRATIVE OBBLIGATORIE
 
-È VIETATO:
+🚫 È vietato:
 
 ripetere la stessa scena
 
-usare stalli narrativi
+creare stalli narrativi
 
 lasciare il giocatore fermo dopo un test
 
 creare scelte sicure o neutre
 
-È OBBLIGATORIO:
+✅ È obbligatorio:
 
 far avanzare la storia a ogni turno
 
-cambiare almeno uno di questi elementi:
+cambiare almeno uno tra:
 
 posizione
 
