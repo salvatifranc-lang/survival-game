@@ -107,13 +107,13 @@ function validateTurnResponse(data) {
       risk = 3;
     }
 
-    const tags = Array.isArray(data.tags) ? data.tags : [];
+    const tag = Array.isArray(data.tags) ? data.tags : [];
 
     signalWorkerOK();
     return {
       requiresTest: true,
       risk,
-      tags,
+      tag,
       effects: data.effects
     };
   }
