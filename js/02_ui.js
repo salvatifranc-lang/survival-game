@@ -109,11 +109,11 @@ function renderInventory(inventory = []) {
     div.className = "inventory-item";
     div.textContent = "• " + (item.name || item.id);
 
-    if (item.description || item.tag || item.modifier) {
+    if (item.description || item.tag || item.modifier != null) {
       div.dataset.tooltip = `
 ${item.description || ""}
 ${item.tag ? "Tag: " + item.tag : ""}
-${item.modifier ? "Effetto: " + (item.modifier > 0 ? "+" : "") + item.modifier : ""}
+${item.modifier != null ? "Effetto: " + (item.modifier > 0 ? "+" : "") + item.modifier : ""}
       `.trim();
     }
 
@@ -177,13 +177,16 @@ function renderTestBox() {
     outcome
   } = getLastRoll();
 
-  if (!roll || !risk || !outcome) {
+  // ✅ FIX 1: controllo semantico, non falsy
+  if (roll == null || risk == null || outcome == null) {
     clearTestBox();
     return;
   }
 
   let modifierLine = "—";
-  if (modifier && modifierSource) {
+
+  // ✅ FIX 2: consente modifier = 0
+  if (modifier != null && modifierSource) {
     const sign = modifier > 0 ? "+" : "";
     modifierLine = `${sign}${modifier} (${modifierSource})`;
   }
