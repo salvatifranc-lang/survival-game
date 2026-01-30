@@ -98,6 +98,7 @@ function resolveOutcome(roll, effectiveRoll, risk) {
  * }}
  */
 function performRoll(risk, tag = null, modifier = 0, modifierSource = null) {
+   console.log("[DICE] performRoll ricevuto:", { risk, tag, modifier, modifierSource });
   const roll = rollD20();
   const safeModifier = Number(modifier) || 0;
   const effectiveRoll = roll + safeModifier;
