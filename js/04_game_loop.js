@@ -209,7 +209,7 @@ async function handleChoice(choiceKey) {
     }
 
     /* ===== RESOLVE (TEST CON RISK + TAG) ===== */
-    if (turnResult.requiresTest === true) {
+    if (turnResult.requiresTest) {
       const rollResult = performRoll(
         turnResult.risk,
         turnResult.tag || null,
