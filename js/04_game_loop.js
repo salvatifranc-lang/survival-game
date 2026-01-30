@@ -210,11 +210,16 @@ async function handleChoice(choiceKey) {
 
     /* ===== RESOLVE (TEST CON RISK + TAG) ===== */
     if (turnResult.requiresTest) {
+       
   const rollResult = performRoll(
   turnResult.risk,
   typeof turnResult.tag === "string" ? turnResult.tag : null,
   0
 );
+
+// 🔒 forza lo stato corretto prima di qualsiasi await
+window.renderTestBox();
+
 
 
       renderTestBox();
