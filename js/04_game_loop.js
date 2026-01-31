@@ -213,15 +213,10 @@ async function handleChoice(choiceKey) {
     /* ===== RESOLVE (TEST CON RISK + TAG) ===== */
 
      
-    if (turnResult.requiresTest) {
-       
-{
+if (turnResult.requiresTest) {
   currentTag = turnResult.tag;
   console.log("[TEST] tag congelato:", currentTag);
-}
 
-       
-console.log("[TEST] tag congelato:", currentTag);
 
 const rollResult = performRoll(
   turnResult.risk,
