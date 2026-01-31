@@ -221,11 +221,11 @@ if (turnResult.requiresTest && typeof turnResult.tag === "string") {
 }
 
        
-console.log("[TEST] tag congelato:", currentTestTag);
+console.log("[TEST] tag congelato:", currentTag);
 
 const rollResult = performRoll(
   turnResult.risk,
-  currentTestTag,
+  currentTag,
   0
 );
 
