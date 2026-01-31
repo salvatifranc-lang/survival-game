@@ -5,9 +5,8 @@
 // ADDED — Hope Town
 import { LOC_HOPE_TOWN } from "./locations/LOC_HOPE_TOWN.js";
 
-import { playerState } from "./01_state.js";
-import { loadStartManual } from "./01_state.js";
-import { performRoll } from "./07_dice.js";
+import { playerState, loadStartManual } from "./01_state.js";
+import { performRoll, setInventoryForDice } from "./07_dice.js";
 import { callWorker } from "./03_worker_api.js";
 import { applyInventoryEffects, initInventoryUI } from "./08_inventory.js";
 
@@ -26,7 +25,6 @@ let gameStarted = false;
 let currentLocation = null;
 let currentRoom = null;
 let currentTag = null;
-
 
 /* ======================================================
    UTILITY START
@@ -101,9 +99,11 @@ async function initGame() {
 
     initInventoryUI();
     applyInventoryEffects({ inventoryAdd: startInventory });
+    setInventoryForDice(playerState.inventory);
 
     if (result.effects) {
       applyInventoryEffects(result.effects);
+      setInventoryForDice(playerState.inventory);
     }
 
     renderStats(playerState, missionDiary);
@@ -186,6 +186,7 @@ async function handleChoice(choiceKey) {
 
     if (turnResult.effects) {
       applyInventoryEffects(turnResult.effects);
+      setInventoryForDice(playerState.inventory);
     }
 
     /* ===== TURN SENZA TEST ===== */
@@ -210,23 +211,16 @@ async function handleChoice(choiceKey) {
       return;
     }
 
-    /* ===== RESOLVE (TEST CON RISK + TAG) ===== */
+    /* ===== TEST ===== */
+    if (turnResult.requiresTest) {
+      currentTag = turnResult.tag;
+      console.log("[TEST] tag congelato:", currentTag);
 
-     
-if (turnResult.requiresTest) {
-  currentTag = turnResult.tag;
-  console.log("[TEST] tag congelato:", currentTag);
-
-
-const rollResult = performRoll(
-  turnResult.risk,
-  currentTag,
-  0
-);
-
-
-
-
+      const rollResult = performRoll(
+        turnResult.risk,
+        currentTag,
+        0
+      );
 
       renderTestBox();
 
@@ -251,6 +245,7 @@ const rollResult = performRoll(
 
       if (resolveResult.effects) {
         applyInventoryEffects(resolveResult.effects);
+        setInventoryForDice(playerState.inventory);
       }
 
       currentNarration = resolveResult.narration;
