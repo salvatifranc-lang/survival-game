@@ -25,6 +25,7 @@ let gameStarted = false;
 // stato missione
 let currentLocation = null;
 let currentRoom = null;
+let currentTestTag = null;
 
 /* ======================================================
    UTILITY START
@@ -211,11 +212,20 @@ async function handleChoice(choiceKey) {
     /* ===== RESOLVE (TEST CON RISK + TAG) ===== */
     if (turnResult.requiresTest) {
        
+       // 🔒 congela il tag del test
+currentTestTag =
+  typeof turnResult.tag === "string"
+    ? turnResult.tag
+    : null;
+
+console.log("[TEST] tag congelato:", currentTestTag);
+
 const rollResult = performRoll(
   turnResult.risk,
-  turnResult.tag,
+  currentTestTag,
   0
 );
+
 
 
 
