@@ -125,17 +125,21 @@ return {
   }
 
   /* ===== NESSUN TEST ===== */
-  if (data.requiresTest === false && data.narration && data.choices) {
-    signalWorkerOK();
-    return {
-      requiresTest: false,
-      narration: data.narration,
-      choices: data.choices,
-      effects: data.effects
-    };
-  }
+ // ===== NESSUN TEST (esplicito o implicito) =====
+if (
+  data.requiresTest !== true &&
+  data.narration &&
+  data.choices
+) {
+  signalWorkerOK();
+  return {
+    requiresTest: false,
+    narration: data.narration,
+    choices: data.choices,
+    effects: data.effects
+  };
+}
 
-  throw new Error("Struttura TURN non riconosciuta");
 }
 
 /**
