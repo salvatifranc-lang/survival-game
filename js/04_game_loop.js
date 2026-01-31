@@ -25,7 +25,7 @@ let gameStarted = false;
 // stato missione
 let currentLocation = null;
 let currentRoom = null;
-let currentTestTag = null;
+let currentTag = null;
 
 
 /* ======================================================
