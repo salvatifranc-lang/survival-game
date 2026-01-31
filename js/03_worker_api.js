@@ -107,15 +107,21 @@ function validateTurnResponse(data) {
       risk = 3;
     }
 
-    const tag = Array.isArray(data.tag) ? data.tag : [];
+    const tag =
+  data.tag === null ||
+  typeof data.tag === "number" ||
+  typeof data.tag === "string"
+    ? data.tag
+    : null;
 
-    signalWorkerOK();
-    return {
-      requiresTest: true,
-      risk,
-      tag,
-      effects: data.effects
-    };
+signalWorkerOK();
+return {
+  requiresTest: true,
+  risk,
+  tag,
+  effects: data.effects
+};
+
   }
 
   /* ===== NESSUN TEST ===== */
