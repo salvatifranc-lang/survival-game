@@ -215,7 +215,11 @@ async function handleChoice(choiceKey) {
        
        // 🔒 congela il tag del test
 
+if (turnResult.requiresTest && typeof turnResult.tag === "string") {
   currentTag = turnResult.tag;
+  console.log("[TEST] tag congelato:", currentTag);
+}
+
        
 console.log("[TEST] tag congelato:", currentTestTag);
 
