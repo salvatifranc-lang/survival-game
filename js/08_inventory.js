@@ -4,6 +4,24 @@
 console.log("[08] inventory manager loaded");
 
 import { playerState } from "./01_state.js";
+import { START_ITEMS_POOL } from "./manuals/items_start_pool.js";
+
+/* ======================================================
+   BUILD OGGETTI CANONICI (LOOKUP)
+   ====================================================== */
+
+// Flatten di tutti gli oggetti disponibili nei manuali
+const ALL_ITEMS = [
+  ...(START_ITEMS_POOL.weapons || []),
+  ...(START_ITEMS_POOL.tools || []),
+  ...(START_ITEMS_POOL.consumables || [])
+];
+
+// Mappa id → oggetto completo
+const ITEM_BY_ID = {};
+ALL_ITEMS.forEach(item => {
+  ITEM_BY_ID[item.id] = item;
+});
 
 /* ======================================================
    APPLICA EFFECTS DAL WORKER
@@ -19,16 +37,28 @@ function applyInventoryEffects(effects = {}) {
   } = effects;
 
   /* ===== ADD ===== */
-  inventoryAdd.forEach(item => {
-    if (!item || !item.id) return;
+  inventoryAdd.forEach(entry => {
+    if (!entry || !entry.id) return;
+
+    const canonicalItem = ITEM_BY_ID[entry.id];
+
+    if (!canonicalItem) {
+      console.warn(
+        "[INVENTORY] oggetto NON valido ignorato:",
+        entry.id
+      );
+      return;
+    }
 
     const alreadyHave = playerState.inventory.find(
-      i => i.id === item.id
+      i => i.id === canonicalItem.id
     );
 
     if (!alreadyHave) {
-      playerState.inventory.push(item);
-      console.log("[INVENTORY] aggiunto:", item);
+      // clone per evitare mutazioni globali
+      const itemInstance = structuredClone(canonicalItem);
+      playerState.inventory.push(itemInstance);
+      console.log("[INVENTORY] aggiunto:", itemInstance);
     }
   });
 
