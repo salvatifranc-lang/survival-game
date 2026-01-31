@@ -9,12 +9,41 @@
 let lastRollState = {
   roll: null,            // numero d20 (1–20)
   risk: null,            // livello di rischio (1–5)
-  tag: null,             // singolo tag del test
+  tag: null,             // stringa del tag (es. "furtività")
   modifier: 0,           // modificatore totale applicato
   modifierSource: null,  // fonte del modificatore (oggetto / abilità)
   effectiveRoll: null,   // roll + modifier
   outcome: null          // etichetta esito
 };
+
+/* ======================================================
+   CONFIG TAG — CANONICA
+   ====================================================== */
+
+// Mappa numerica → semantica
+const TAG_MAP = {
+  1: "scontro",
+  2: "furtività",
+  3: "tecnico",
+  4: "percezione",
+  5: "sopravvivenza",
+  6: "resistenza"
+};
+
+// Normalizza qualunque input di tag
+function normalizeTag(tag) {
+  // tag numerico (nuovo standard)
+  if (Number.isInteger(tag) && TAG_MAP[tag]) {
+    return TAG_MAP[tag];
+  }
+
+  // tag stringa (retrocompatibilità / sicurezza)
+  if (typeof tag === "string" && Object.values(TAG_MAP).includes(tag)) {
+    return tag;
+  }
+
+  return null;
+}
 
 /* ======================================================
    CONFIG BASE — RISK
@@ -80,25 +109,20 @@ function resolveOutcome(roll, effectiveRoll, risk) {
  * Esegue un tiro completo:
  * - d20
  * - risk (1–5)
- * - singolo tag del test
+ * - tag (NUMERICO o stringa)
  * - modificatore (oggetti / abilità / stato)
- *
- * @param {number} risk livello di rischio (1–5)
- * @param {string|null} tag singolo tag del test
- * @param {number} modifier modificatore numerico
- * @param {string|null} modifierSource descrizione della fonte del bonus/malus
- * @returns {{
- *   roll:number,
- *   risk:number,
- *   tag:string|null,
- *   modifier:number,
- *   modifierSource:string|null,
- *   effectiveRoll:number,
- *   outcome:string
- * }}
  */
 function performRoll(risk, tag = null, modifier = 0, modifierSource = null) {
-   console.log("[DICE] performRoll ricevuto:", { risk, tag, modifier, modifierSource });
+  const normalizedTag = normalizeTag(tag);
+
+  console.log("[DICE] performRoll ricevuto:", {
+    risk,
+    rawTag: tag,
+    normalizedTag,
+    modifier,
+    modifierSource
+  });
+
   const roll = rollD20();
   const safeModifier = Number(modifier) || 0;
   const effectiveRoll = roll + safeModifier;
@@ -108,7 +132,7 @@ function performRoll(risk, tag = null, modifier = 0, modifierSource = null) {
   lastRollState = {
     roll,
     risk,
-    tag,
+    tag: normalizedTag,
     modifier: safeModifier,
     modifierSource,
     effectiveRoll,
