@@ -27,6 +27,7 @@ let currentLocation = null;
 let currentRoom = null;
 let currentTestTag = null;
 
+
 /* ======================================================
    UTILITY START
    ====================================================== */
@@ -213,11 +214,9 @@ async function handleChoice(choiceKey) {
     if (turnResult.requiresTest) {
        
        // 🔒 congela il tag del test
-if (typeof turnResult.tag === "string") {
+
   currentTag = turnResult.tag;
-}
-
-
+       
 console.log("[TEST] tag congelato:", currentTestTag);
 
 const rollResult = performRoll(
